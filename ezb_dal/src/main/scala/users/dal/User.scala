@@ -1,5 +1,6 @@
 package users.dal
 
+import users.util.Hasher
 import java.util.UUID
 
 /**
@@ -10,7 +11,9 @@ import java.util.UUID
  * To change this template use File | Settings | File Templates.
  */
 
-case class User(id: UUID, name: String, email: String, password: String)
+case class User(id: UUID, name: String, email: String, password: String){
+  val hashedPassword = Hasher.hash(password)
+}
 
 trait UserComponent {
   this: Profile =>
@@ -40,6 +43,11 @@ trait UserComponent {
 
     def all()(implicit session: Session) = {
       Query(Users).list
+    }
+
+    def changePassword(uid:UUID, newPwd:String)(implicit session:Session) = {
+      val uquery = Users.filter(u => uid == u.id).map(_.password)
+      uquery.update(newPwd)
     }
   }
 }

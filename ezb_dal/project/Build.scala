@@ -17,7 +17,6 @@ object EzbDalBuild extends Build {
 			    scalaVersion := buildScalaVersion,
 			    libraryDependencies ++= Seq(
 			      "com.typesafe" % "slick_2.10.0-RC1" % "0.11.2",
-			      "com.roundeights" %% "hasher" % "0.3",
 			      "org.mindrot" % "jbcrypt" % "0.3m"
 			    )
 			  )
