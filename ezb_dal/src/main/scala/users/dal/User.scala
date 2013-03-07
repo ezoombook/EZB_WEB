@@ -23,18 +23,11 @@ trait UserComponent {
   object Users extends Table[User]("users") {
     var uid = 1
 
-    def id = column[UUID]("id", O.PrimaryKey)
-    def name =  column[String]("name", O.NotNull)
-    def email = column[String]("email", O.NotNull)
-    def password = column[String]("password", O.NotNull)
+    def id = column[UUID]("user_id", O.PrimaryKey)
+    def name =  column[String]("user_name", O.NotNull)
+    def email = column[String]("user_email", O.NotNull)
+    def password = column[String]("user_password", O.NotNull)
     def * = id ~ name ~ email ~ password <> (User, User.unapply _)
-
-/*
-    val userByNameOrMail = for {
-      id <- Parameters[String]
-      u <- Users if (u.name.equals(id)) //|| u.email.equals(id))
-    } yield u
-*/
 
     def add(user: User)(implicit session: Session) = {
       val projection = Users.id ~ Users.name ~ Users.email ~ Users.password
@@ -57,7 +50,6 @@ trait UserComponent {
     }
 
     def validateUserPassword(username:String, pass:String)(implicit session:Session): Boolean = {
-//      val user = userByNameOrMail(username).first
       Query(Users).filter(_.name === username).map(_.password).firstOption map(
 	  Hasher.compare(pass, _)
       ) getOrElse(false)      
@@ -65,5 +57,12 @@ trait UserComponent {
 
   }
 
+  object UserBook extends Table[UUID, UUID, Date]("user_books"){
+    def userId = column[UUID]("user_id")
+    def bookId = column[UUID]("book_id")
+    def date_created = column[Date]("book_date_created")
+
+    def user = foreignKey("user_id", userId, Users)(_.id)
+  }
 }
 
