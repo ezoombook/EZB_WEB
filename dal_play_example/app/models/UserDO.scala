@@ -17,4 +17,11 @@ object UserDO{
 	AppDB.dal.Users.add(user)
     }
   }
+
+  def validateUser(user:String, password:String):Boolean = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.Users.validateUserPassword(user, password)
+    }
+  }
 }

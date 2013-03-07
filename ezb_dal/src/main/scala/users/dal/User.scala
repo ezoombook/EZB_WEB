@@ -29,16 +29,18 @@ trait UserComponent {
     def password = column[String]("password", O.NotNull)
     def * = id ~ name ~ email ~ password <> (User, User.unapply _)
 
-    def add(user: User)(implicit session: Session) = {
-      this.insert(user)
-      println("[UDAL] User created: " + user.name)
-    }
+/*
+    val userByNameOrMail = for {
+      id <- Parameters[String]
+      u <- Users if (u.name.equals(id)) //|| u.email.equals(id))
+    } yield u
+*/
 
-    def countByName(name: String)(implicit session: Session) = {
-      (for {
-        user <- Users
-        if (user.name === name)
-      } yield(user)).list.size
+    def add(user: User)(implicit session: Session) = {
+      val projection = Users.id ~ Users.name ~ Users.email ~ Users.password
+      val created = projection.insert(user.id, user.name, user.email, user.hashedPassword)
+      println("[UDAL] User created: " + user.name)
+      created
     }
 
     def all()(implicit session: Session) = {
@@ -47,8 +49,21 @@ trait UserComponent {
 
     def changePassword(uid:UUID, newPwd:String)(implicit session:Session) = {
       val uquery = Users.filter(u => uid == u.id).map(_.password)
-      uquery.update(newPwd)
+      uquery.update(Hasher.hash(newPwd) )
     }
+
+    def delete(uid:UUID)(implicit session:Session) = {
+      Query(Users).filter(_.id.equals(uid)).delete
+    }
+
+    def validateUserPassword(username:String, pass:String)(implicit session:Session): Boolean = {
+//      val user = userByNameOrMail(username).first
+      Query(Users).filter(_.name === username).map(_.password).firstOption map(
+	  Hasher.compare(pass, _)
+      ) getOrElse(false)      
+    }
+
   }
+
 }
 

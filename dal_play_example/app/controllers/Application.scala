@@ -19,6 +19,12 @@ object Application extends Controller {
      ((user: User) => Some(user.name, user.email, "****"))
   )
 
+  val loginForm = Form(
+    tuple(
+      "id" -> text,
+      "password" -> text
+  ))
+
   def index = Action {
     Redirect(routes.Application.users)
   }
@@ -38,4 +44,23 @@ object Application extends Controller {
       }
     )
   }
+
+  def validate = Action { implicit request =>
+    loginForm.bindFromRequest.fold(
+      errors => {
+	BadRequest(views.html.login(errors))
+      },
+      up => {
+	if (UserDO.validateUser(up._1, up._2))
+	  Ok(views.html.workspace(up._1))
+	else	       
+	  BadRequest(views.html.login(loginForm))
+      }
+    )
+  }
+
+  def login = Action{
+    Ok(views.html.login(loginForm))
+  }
+
 }
