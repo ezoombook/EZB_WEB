@@ -2,10 +2,11 @@ package users.dal
 
 import users.util.Hasher
 import java.util.UUID
+import java.util.Date
 
 /**
  * Created with IntelliJ IDEA.
- * User: gonto
+ * User: MRL
  * Date: 11/23/12
  * Time: 9:47 PM
  * To change this template use File | Settings | File Templates.
@@ -31,9 +32,7 @@ trait UserComponent {
 
     def add(user: User)(implicit session: Session) = {
       val projection = Users.id ~ Users.name ~ Users.email ~ Users.password
-      val created = projection.insert(user.id, user.name, user.email, user.hashedPassword)
-      println("[UDAL] User created: " + user.name)
-      created
+      projection.insert(user.id, user.name, user.email, user.hashedPassword)
     }
 
     def all()(implicit session: Session) = {
@@ -41,12 +40,12 @@ trait UserComponent {
     }
 
     def changePassword(uid:UUID, newPwd:String)(implicit session:Session) = {
-      val uquery = Users.filter(u => uid == u.id).map(_.password)
+      val uquery = Users.filter(u => u.id === uid).map(_.password)
       uquery.update(Hasher.hash(newPwd) )
     }
 
     def delete(uid:UUID)(implicit session:Session) = {
-      Query(Users).filter(_.id.equals(uid)).delete
+      Query(Users).filter(_.id === uid).delete
     }
 
     def validateUserPassword(username:String, pass:String)(implicit session:Session): Boolean = {
@@ -57,12 +56,26 @@ trait UserComponent {
 
   }
 
-  object UserBook extends Table[UUID, UUID, Date]("user_books"){
-    def userId = column[UUID]("user_id")
-    def bookId = column[UUID]("book_id")
-    def date_created = column[Date]("book_date_created")
+  object UserBooks extends Table[(UUID, UUID, Long)]("user_books"){
+    def userId = column[UUID]("user_id", O.NotNull)
+    def bookId = column[UUID]("book_id", O.NotNull)
+    def dateCreated = column[Long]("book_date_created", O.NotNull) //Stored as Long to keep compatibility between DBs
+    def * = userId ~ bookId ~ dateCreated
 
     def user = foreignKey("user_id", userId, Users)(_.id)
+
+    def add(user_id:UUID, book_id:UUID)(implicit session:Session) = {
+      val proj = UserBooks.userId ~ UserBooks.bookId ~ UserBooks.dateCreated
+      proj.insert(user_id, book_id, new Date().getTime())
+    }
+
+    def getBooksByUser(user_id:UUID)(implicit session:Session) = {
+      Query(UserBooks).filter(_.userId === user_id).map(b => (b.bookId,b.dateCreated)).list
+    }
+
+    def delete(user_Id:UUID, book_Id:UUID)(implicit session:Session) = {
+      Query(UserBooks).filter(ub => ub.userId === user_Id && ub.bookId === book_Id).delete
+    }
   }
 }
 
