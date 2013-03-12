@@ -14,7 +14,9 @@ class UserDAL(override val profile: ExtendedProfile) extends UserComponent with 
   import profile.simple._
 
   def create(implicit session: Session): Unit = {
-    Users.ddl.create //helper method to create all tables
+    //helper method to create all tables
+    Users.ddl.create 
+    UserBooks.ddl.create
   }
 }
 

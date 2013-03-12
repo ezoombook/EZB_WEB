@@ -49,9 +49,13 @@ trait UserComponent {
     }
 
     def validateUserPassword(username:String, pass:String)(implicit session:Session): Boolean = {
-      Query(Users).filter(_.name === username).map(_.password).firstOption map(
+      Query(Users).filter(u => u.name === username || u.email === username).map(_.password).firstOption map(
 	  Hasher.compare(pass, _)
       ) getOrElse(false)      
+    }
+
+    def getUserId(username:String)(implicit session:Session) = {
+      Query(Users).filter(u => u.name === username || u.email === username).map(_.id).firstOption
     }
 
   }
@@ -70,7 +74,7 @@ trait UserComponent {
     }
 
     def getBooksByUser(user_id:UUID)(implicit session:Session) = {
-      Query(UserBooks).filter(_.userId === user_id).map(b => (b.bookId,b.dateCreated)).list
+      Query(UserBooks).filter(_.userId === user_id.bind).map(b => (b.bookId,b.dateCreated)).list
     }
 
     def delete(user_Id:UUID, book_Id:UUID)(implicit session:Session) = {

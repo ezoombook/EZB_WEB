@@ -8,6 +8,8 @@ import play.api.mvc._
 import play.api.data._
 import Forms._
 
+import java.util.UUID
+
 object Application extends Controller {
   
   val userForm = Form(
@@ -16,7 +18,7 @@ object Application extends Controller {
       "mail" -> email,
       "password" -> text
     )((username, email, password) => User(java.util.UUID.randomUUID(), username, email, password))
-     ((user: User) => Some(user.name, user.email, "****"))
+     ((user: User) => Some(user.name, user.email, ""))
   )
 
   val loginForm = Form(
@@ -24,6 +26,13 @@ object Application extends Controller {
       "id" -> text,
       "password" -> text
   ))
+
+  val bookForm = Form(
+    tuple(
+      "title" -> text,
+      "book id" -> text
+    )
+  )
 
   def index = Action {
     Redirect(routes.Application.users)
@@ -52,15 +61,37 @@ object Application extends Controller {
       },
       up => {
 	if (UserDO.validateUser(up._1, up._2))
-	  Ok(views.html.workspace(up._1))
+	  UserDO.getUser(up._1).map(uid =>	
+	    Ok(views.html.workspace(UserDO.listBooks(uid), bookForm)).withSession(
+	      "userId" -> uid.toString,
+	      "userName" -> up._1
+	    )
+	  ).getOrElse(
+	    BadRequest(views.html.login(loginForm))
+	  )
 	else	       
 	  BadRequest(views.html.login(loginForm))
       }
     )
   }
 
-  def login = Action{
+  def login = Action{ implicit request =>
     Ok(views.html.login(loginForm))
   }
 
+  def newBook = Action{ implicit request =>    
+    bookForm.bindFromRequest.fold(
+      errors => {
+	BadRequest(views.html.workspace(List[(String,Long)](), errors))
+      },
+      book => {
+	session.get("userId").map(UUID.fromString(_)).map{uid =>
+	  UserDO.newUserBook(uid, UUID.fromString(book._2))
+	  Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+	}.getOrElse(
+	  Unauthorized("Oops, you are not connected")
+	)
+      }
+    )
+  }
 }
