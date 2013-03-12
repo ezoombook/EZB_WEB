@@ -22,8 +22,6 @@ trait UserComponent {
   import profile.simple._
 
   object Users extends Table[User]("users") {
-    var uid = 1
-
     def id = column[UUID]("user_id", O.PrimaryKey)
     def name =  column[String]("user_name", O.NotNull)
     def email = column[String]("user_email", O.NotNull)
