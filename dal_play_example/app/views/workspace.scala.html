@@ -1,0 +1,23 @@
+@(books:List[(String, Long)], bookForm: Form[(String,String)])
+
+@import helper._
+
+@main("Welcome to your Workingspace"){
+    <h1>Your Working Space</h1>
+
+    <h2>Your books: </h2>
+
+    <u1>
+         @books.map {b =>
+             <li>@b._1 : @b._2</li>
+	 }
+    </u1>
+
+    <h2>Add a book:</h2>
+
+    @form(routes.Application.newBook){
+	@inputText(bookForm("title"))
+        @inputText(bookForm("book id"))
+        <input type="submit" value="Go!">
+    }
+}

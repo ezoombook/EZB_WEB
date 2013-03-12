@@ -23,7 +23,7 @@ trait GroupComponent{
     def ownerId = column[UUID]("group_owner", O.NotNull)
     def * = id ~ name ~ ownerId <> (Group, Group.unapply _ )
    
-    def owner = foreignKey("group_owner", ownerId, Groups)(_.id)
+    def owner = foreignKey("fk_group_owner", ownerId, Users)(_.id)
 
     def add(group_name:String, owner_id:UUID)(implicit session:Session) = {
       Groups.insert(new Group(UUID.randomUUID(), group_name, owner_id))
@@ -32,7 +32,6 @@ trait GroupComponent{
     def getUserGroups(owner_id:UUID)(implicit session:Session) = {
       Query(Groups).filter(_.ownerId === owner_id.bind).list
     }
-
   }
 
   object Roles extends Enumeration{
@@ -49,16 +48,24 @@ trait GroupComponent{
     
     def pk = primaryKey("pk_group_member", (groupId, userId))
 
-    def member = foreignKey("user_id", userId, Users)(_.id)
-    def group = foreignKey("group_id", groupId, Groups)(_.id)
+    def member = foreignKey("fk_user_id", userId, Users)(_.id)
+    def group = foreignKey("fk_group_id", groupId, Groups)(_.id)
 
+    def addMember(group_id:UUID, member_id:UUID)(implicit session:Session) = {
+      GroupMembers.insert(group_id, member_id, Roles.collaborator)
+    }
+
+    def changeMemberRole(group_id:UUID, member_id:UUID, new_role:Roles.Value)(implicit session:Session) = {
+      val mquery = GroupMembers.filter(gm => gm.groupId === group_id.bind && gm.userId === member_id.bind).map(_.userRole)
+      mquery.update(new_role)
+    }
 
     def getGroupMembers(group_id:UUID)(implicit session:Session) = {
       Query(GroupMembers).filter(_.groupId === group_id.bind).map(_.userId).list
     }
 
-//    def getGroupsByMember(member_id:UUID)(implicit session:Session) = {
-//      
-//    }
+    def getGroupsByMember(member_id:UUID)(implicit session:Session) = {
+      Query(GroupMembers).filter(_.userId == member_id.bind).map(_.groupId).list
+    }
   }
 }

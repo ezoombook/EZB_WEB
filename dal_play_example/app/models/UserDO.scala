@@ -47,4 +47,11 @@ object UserDO{
 	AppDB.dal.UserBooks.getBooksByUser(userId).map(b => ("book:", b._2))
     }
   }
+
+  def newGroup(groupName:String, ownerId:UUID) = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.Groups.add(groupName, ownerId)
+    }
+  }
 }

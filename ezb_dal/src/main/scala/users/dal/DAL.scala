@@ -9,7 +9,7 @@ import slick.driver.ExtendedProfile
  * Time: 11:47 PM
  * To change this template use File | Settings | File Templates.
  */
-class UserDAL(override val profile: ExtendedProfile) extends UserComponent with Profile {
+class UserDAL(override val profile: ExtendedProfile) extends UserComponent with GroupComponent with Profile {
 
   import profile.simple._
 
@@ -17,6 +17,8 @@ class UserDAL(override val profile: ExtendedProfile) extends UserComponent with 
     //helper method to create all tables
     Users.ddl.create 
     UserBooks.ddl.create
+    Groups.ddl.create
+    GroupMembers.ddl.create
   }
 }
 
