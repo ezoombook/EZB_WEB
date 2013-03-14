@@ -1,0 +1,7 @@
+Example Play! Application
+=====================================
+
+This application is an example of usage of the ezb_dal module.
+In order to compile go to the ezb_dal module and type:
+
+    $sbt publish-local
