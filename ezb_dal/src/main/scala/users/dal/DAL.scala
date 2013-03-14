@@ -9,12 +9,18 @@ import slick.driver.ExtendedProfile
  * Time: 11:47 PM
  * To change this template use File | Settings | File Templates.
  */
+
+/**
+ * The data access layer for the Users database.
+ */ 
 class UserDAL(override val profile: ExtendedProfile) extends UserComponent with GroupComponent with Profile {
 
   import profile.simple._
 
+  /**
+   * Helper method to create all the tables in the Users database
+   * */
   def create(implicit session: Session): Unit = {
-    //helper method to create all tables
     Users.ddl.create 
     UserBooks.ddl.create
     Groups.ddl.create

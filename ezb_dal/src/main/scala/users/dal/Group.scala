@@ -10,13 +10,22 @@ import java.util.UUID
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * The Group entitiy
+ */ 
 case class Group(groupId:UUID, name:String, ownerId:UUID)
 
+/**
+ * A component to manage the Groups and Group-Members tables
+ */ 
 trait GroupComponent{
   this: (Profile with UserComponent) =>
 
   import profile.simple._
 
+  /**
+   * The Groups table object
+   */ 
   object Groups extends Table[Group]("groups"){
     def id = column[UUID]("group_id", O.PrimaryKey)
     def name = column[String]("group_name", O.NotNull)
@@ -29,17 +38,26 @@ trait GroupComponent{
       Groups.insert(new Group(UUID.randomUUID(), group_name, owner_id))
     }
 
+    /**
+     * Returns the groups owned by a user
+     */ 
     def getUserGroups(owner_id:UUID)(implicit session:Session) = {
       Query(Groups).filter(_.ownerId === owner_id.bind).list
     }
   }
 
+  /**
+   * An enumeration of the roles users can have in a group
+   */ 
   object Roles extends Enumeration{
     val owner, coordinator, collaborator = Value
   }
 
   implicit val rolesTypeMapper = MappedTypeMapper.base[Roles.Value, Int](_.id, Roles(_))
 
+  /**
+   * The Group-Members table object
+   */ 
   object GroupMembers extends Table[(UUID,UUID,Roles.Value)]("group_members"){
     def groupId = column[UUID]("group_id")
     def userId = column[UUID]("user_id")
@@ -64,6 +82,9 @@ trait GroupComponent{
       Query(GroupMembers).filter(_.groupId === group_id.bind).map(_.userId).list
     }
 
+    /**
+     * Returns a list of groups where a user belongs.
+     */ 
     def getGroupsByMember(member_id:UUID)(implicit session:Session) = {
       Query(GroupMembers).filter(_.userId == member_id.bind).map(_.groupId).list
     }
