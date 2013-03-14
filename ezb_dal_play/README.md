@@ -5,17 +5,17 @@ This module allows to use the ezb_dal, which is play-independent, from a play ap
 
 ## How it works :
 
-1. Install the ezb_dal library to your local sbt repository:
+1-Install the ezb_dal library to your local sbt repository:
 
      $cd <where ezb_dal lives>/ezb_dal
      $sbt clean publish-local
 
-2. Install ezb_dal_play to your local sbt repository:
+2-Install ezb_dal_play to your local sbt repository:
 
      $cd <where ezb_dal_play lives>/ezb_dal_play
      $sbt clean publish-local
 
-3. Add ezb_dal_play to your dependencies:
+3-Add ezb_dal_play to your dependencies:
 
      val appDependencies = Seq(
        "ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT"
