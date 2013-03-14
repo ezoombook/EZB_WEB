@@ -2,7 +2,8 @@ Ezb DAL Play Module
 =====================================
 
 This module allows to use the ezb_dal, which is play-independent, from a play application.
-How it works :
+
+## How it works :
 
 1. Install the ezb_dal library to your local sbt repository:
 
