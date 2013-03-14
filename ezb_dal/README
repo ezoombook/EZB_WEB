@@ -1,0 +1,1 @@
+Type `sbt doc` to generate the JavaDoc into `target/scala-2.1.0/api` 
