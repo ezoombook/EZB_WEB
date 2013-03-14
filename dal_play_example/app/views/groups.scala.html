@@ -1,18 +1,20 @@
 @(userGroups:List[Group], colabGroups:List[Group])
 
+@import helper._
+
 @main("Your groups"){
     <h1>Your Groups</h1>
 
     <h2>Groups You Own:</h2>
     <u1>
-    userGroups.map{g =>
+    @userGroups.map{g =>
         <li>@g.name</li>
     }
     </u1>
 
     <h2>Groups you participate in</h2>
     <u1>
-    colabGroups.map{g =>
+    @colabGroups.map{g =>
         <li>@g.name</li>
     }
     </u1>

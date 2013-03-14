@@ -94,4 +94,13 @@ object Application extends Controller {
       }
     )
   }
+
+  def groups = Action{ implicit request =>
+    session.get("userID").map(UUID.fromString(_)).map{uid =>
+      Ok(views.html.groups(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid)))
+    }.getOrElse(
+	  Unauthorized("Oops, you are not connected")
+	)    
+  }
+  
 }

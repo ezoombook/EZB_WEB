@@ -44,6 +44,13 @@ trait GroupComponent{
     def getUserGroups(owner_id:UUID)(implicit session:Session) = {
       Query(Groups).filter(_.ownerId === owner_id.bind).list
     }
+
+    /**
+     * Returns the group identified by the id @param group_id
+     */ 
+    def getGroup(group_id:UUID)(implicit session:Session) = {
+      Query(Groups).filter(_.id === group_id.bind).firstOption
+    }
   }
 
   /**

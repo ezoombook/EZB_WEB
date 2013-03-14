@@ -1,6 +1,6 @@
 package models
 
-import users.dal.User
+import users.dal.{User, Group}
 
 import java.util.UUID
 
@@ -54,5 +54,20 @@ object UserDO{
 	AppDB.dal.Groups.add(groupName, ownerId)
     }
   }
- 
+
+  def userOwnedGroups(userId:UUID):List[Group] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.Groups.getUserGroups(userId)
+    }
+  }
+
+  def userIsMemberGroups(userId:UUID):List[Group] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.GroupMembers.getGroupsByMember(userId).flatMap{gid =>
+	  AppDB.dal.Groups.getGroup(gid).toList
+	}
+    }
+  }
 }

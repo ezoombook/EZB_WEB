@@ -13,6 +13,8 @@ GET	/login			    controllers.Application.login
 
 POST	/books			    controllers.Application.newBook
 
+GET	/groups			    controllers.Application.groups
+
 # To create some data
 GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
