@@ -20,7 +20,6 @@ How it works :
     "ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT"
   )
 
-
-You can also check the sample application.
+Check the sample application to see it in action: [Application.scala](blob/users_dal/ezb_dal_play/samples/dal_play_example/app/controllers/Application.scala)
 
 Enjoy!
