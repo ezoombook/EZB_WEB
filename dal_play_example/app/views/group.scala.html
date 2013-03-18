@@ -1,0 +1,16 @@
+@(groupId:String, groupName:String, members:List[User], memberForm:Form[(String,String)]) 
+
+@import helper._
+
+@main("Group "){
+     <h1>@groupName Group</h1>
+
+     <h2>Members:</h2>
+
+     <h2>Add Member:</h2>
+     @form(routes.Application.newGroupMember(groupId)){
+         @inputText(memberForm("member id"))
+         @inputText(memberForm("role"))
+         <input type="submit" value="Add">
+     }
+}

@@ -14,6 +14,11 @@ GET	/login			    controllers.Application.login
 POST	/books			    controllers.Application.newBook
 
 GET	/groups			    controllers.Application.groups
+GET	/group/:id		    controllers.Application.group(id:String)
+
+GET	/home			    controllers.Application.home
+
+POST	/groupmember/:id	    controllers.Application.newGroupMember(id:String)
 
 # To create some data
 GET  	/admin			    controllers.AdminApp.index

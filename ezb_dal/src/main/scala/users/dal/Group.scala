@@ -13,7 +13,7 @@ import java.util.UUID
 /**
  * The Group entitiy
  */ 
-case class Group(groupId:UUID, name:String, ownerId:UUID)
+case class Group(id:UUID, name:String, ownerId:UUID)
 
 /**
  * A component to manage the Groups and Group-Members tables
@@ -85,9 +85,12 @@ trait GroupComponent{
       mquery.update(new_role)
     }
 
-    def getGroupMembers(group_id:UUID)(implicit session:Session) = {
-      Query(GroupMembers).filter(_.groupId === group_id.bind).map(_.userId).list
-    }
+    def getGroupMembers(group_id:UUID)(implicit session:Session) = 
+      (for {
+	(g, u) <- GroupMembers innerJoin Users on (_.userId === _.id)
+	if g.groupId === group_id.bind
+      } yield (u)).list
+    
 
     /**
      * Returns a list of groups where a user belongs.

@@ -2,38 +2,20 @@ package controllers
 
 import models._
 import users.dal._
+import EzbForms._
 
 import play.api._
 import play.api.mvc._
 import play.api.data._
 import Forms._
+import cache.Cache
+
+import Play.current
 
 import java.util.UUID
 
 object Application extends Controller {
   
-  val userForm = Form(
-    mapping(
-      "username" -> text,
-      "mail" -> email,
-      "password" -> text
-    )((username, email, password) => User(java.util.UUID.randomUUID(), username, email, password))
-     ((user: User) => Some(user.name, user.email, ""))
-  )
-
-  val loginForm = Form(
-    tuple(
-      "id" -> text,
-      "password" -> text
-  ))
-
-  val bookForm = Form(
-    tuple(
-      "title" -> text,
-      "book id" -> text
-    )
-  )
-
   def index = Action {
     Redirect(routes.Application.users)
   }
@@ -61,8 +43,8 @@ object Application extends Controller {
       },
       up => {
 	if (UserDO.validateUser(up._1, up._2))
-	  UserDO.getUser(up._1).map(uid =>	
-	    Ok(views.html.workspace(UserDO.listBooks(uid), bookForm)).withSession(
+	  UserDO.getUser(up._1).map(uid =>
+	    Redirect(routes.Application.home).withSession(
 	      "userId" -> uid.toString,
 	      "userName" -> up._1
 	    )
@@ -73,6 +55,14 @@ object Application extends Controller {
 	  BadRequest(views.html.login(loginForm))
       }
     )
+  }
+
+  def home = Action { implicit request =>
+    session.get("userId").map(UUID.fromString(_)).map{uid =>
+      Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+    }.getOrElse(
+	Unauthorized("Oops, you are not connected")
+      )
   }
 
   def login = Action{ implicit request =>
@@ -96,11 +86,43 @@ object Application extends Controller {
   }
 
   def groups = Action{ implicit request =>
-    session.get("userID").map(UUID.fromString(_)).map{uid =>
+    session.get("userId").map(UUID.fromString(_)).map{uid =>
       Ok(views.html.groups(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid)))
     }.getOrElse(
 	  Unauthorized("Oops, you are not connected")
 	)    
   }
-  
+
+  def group(groupId:String) = Action{ implicit request =>
+    cachedGroup(groupId).map{group =>
+      val members = cachedGroupMembers(groupId)
+      Ok(views.html.group(group.id.toString, group.name, members, memberForm))
+    }.getOrElse(
+      NotFound("Oops, the group you're looking for does not exists :(")
+    )
+  }
+
+  def newGroupMember(groupId:String) = Action{ implicit request =>
+    memberForm.bindFromRequest.fold(
+      errors => {
+	Redirect(routes.Application.group(groupId))
+      },
+      member => {
+	UserDO.newGroupMember(UUID.fromString(groupId), UUID.fromString(member._1), member._2)
+	Redirect(routes.Application.group(groupId))
+      }
+    )
+  }
+
+  private def cachedGroup(groupId:String):Option[Group] = {
+    Cache.getOrElse("group:"+groupId, 0){
+      UserDO.getGroupById(UUID.fromString(groupId))
+    }
+  }
+
+  private def cachedGroupMembers(groupId:String):List[User] = {
+    Cache.getOrElse("groupMembers:"+groupId, 0){
+      UserDO.getGroupMembers(UUID.fromString(groupId))
+    }
+  }
 }

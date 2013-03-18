@@ -1,9 +1,14 @@
-@(books:List[(String, Long)], bookForm: Form[(String,String)])
+@(books:List[(String, Long)], bookForm:
+Form[(String,String)])(implicit session:Session)
 
 @import helper._
 
 @main("Welcome to your Workingspace"){
-    <h1>Your Working Space</h1>
+    <h1>@session.get("userName")'s Working Space</h1>
+
+    @form(routes.Application.groups){
+	<input type="submit" value="Go to groups -->" >
+    }
 
     <h2>Your books: </h2>
 
@@ -20,5 +25,5 @@
         @inputText(bookForm("book id"))
         <input type="submit" value="Go!">
     }
-    
+
 }

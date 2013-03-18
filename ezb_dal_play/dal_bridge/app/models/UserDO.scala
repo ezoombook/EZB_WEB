@@ -2,6 +2,7 @@ package models
 
 import users.dal.{User, Group}
 
+import util.DynamicVariable
 import java.util.UUID
 
 object UserDO{
@@ -70,4 +71,27 @@ object UserDO{
 	}
     }
   }
+
+  def getGroupById(groupId:UUID) = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+      AppDB.dal.Groups.getGroup(groupId)
+    }
+  }
+
+  def getGroupMembers(groupId:UUID):List[User] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+      AppDB.dal.GroupMembers.getGroupMembers(groupId)
+    }
+  }
+
+  def newGroupMember(groupId:UUID, membId:UUID, memRole:String) = {
+    AppDB.database.withSession{
+      implicit session:Session =>      
+      AppDB.dal.GroupMembers.addMember(groupId, membId)
+    }
+  }
+
+
 }
