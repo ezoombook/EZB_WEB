@@ -27,6 +27,7 @@ class UserDAL(override val profile: ExtendedProfile) extends UserComponent with 
 
     Users.createIfNotDefined (tableMap)
     UserBooks.createIfNotDefined (tableMap)
+    UserPreferences.createIfNotDefined (tableMap)
     Groups.createIfNotDefined (tableMap)
     GroupMembers.createIfNotDefined (tableMap)
   }

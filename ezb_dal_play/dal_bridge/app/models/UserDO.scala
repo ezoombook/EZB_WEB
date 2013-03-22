@@ -35,6 +35,20 @@ object UserDO{
     }
   }
 
+  def setUserMaxHistory(userId:UUID, maxItems:Int){
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.UserPreferences.insert(userId, maxItems)
+    }
+  }
+
+  def getUserMaxHistory(userId:UUID):Option[Int] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.UserPreferences.getMaxHistoryItems(userId)
+    }
+  }
+
   def newUserBook(userId:UUID, bookId:UUID) = {
     AppDB.database.withSession{
       implicit session:Session =>

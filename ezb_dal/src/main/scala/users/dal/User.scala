@@ -110,5 +110,22 @@ trait UserComponent {
       Query(UserBooks).filter(ub => ub.userId === user_Id && ub.bookId === book_Id).delete
     }
   }
+
+  /**
+   * The users_preferences table object.
+   * Unitially we only have the number of items in the history,
+   * but new preference items can be added later
+   */
+  object UserPreferences extends Table[(UUID, Int)]("users_preferences"){
+    def userId = column[UUID]("user_id", O.PrimaryKey, O.DBType("UUID"))
+    def maxHistory = column[Int]("preferences_max_history")
+    def * = userId ~ maxHistory
+
+    def user = foreignKey("fk_user", userId, Users)(_.id)
+
+    def getMaxHistoryItems(user_id:UUID)(implicit session:Session):Option[Int] = {
+      Query(UserPreferences).filter(_.userId === user_id.bind).map(_.maxHistory).firstOption 
+    }
+  }
 }
 
