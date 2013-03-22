@@ -6,11 +6,21 @@
      <h1>@groupName Group</h1>
 
      <h2>Members:</h2>
+     <u1>        
+     @members.map{member =>
+         <li>@member.name</li>
+     }
+     </u1>
 
      <h2>Add Member:</h2>
+     <div class="alert alert-error">
+       @for(err <- memberForm.errors){
+           @err.message
+       }
+     </div>
      @form(routes.Application.newGroupMember(groupId)){
          @inputText(memberForm("member id"))
-         @inputText(memberForm("role"))
+         @select(memberForm("role"), UserDO.getGroupMemberRole)
          <input type="submit" value="Add">
      }
 }

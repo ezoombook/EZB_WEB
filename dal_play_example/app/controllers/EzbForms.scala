@@ -33,7 +33,7 @@ object EzbForms {
   val memberForm = Form(
     tuple(
       "member id" -> text,
-      "role " -> text
+      "role" -> text
     )
   )
 }

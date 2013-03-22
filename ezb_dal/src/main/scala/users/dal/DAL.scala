@@ -1,6 +1,8 @@
 package users.dal
 
 import slick.driver.ExtendedProfile
+import slick.jdbc.meta.MTable
+import slick.lifted.DDL
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,10 +23,27 @@ class UserDAL(override val profile: ExtendedProfile) extends UserComponent with 
    * Helper method to create all the tables in the Users database
    * */
   def create(implicit session: Session): Unit = {
-    Users.ddl.create 
-    UserBooks.ddl.create
-    Groups.ddl.create
-    GroupMembers.ddl.create
+    implicit val tableMap:Map[String, MTable] = makeTableMap
+
+    Users.createIfNotDefined (tableMap)
+    UserBooks.createIfNotDefined (tableMap)
+    Groups.createIfNotDefined (tableMap)
+    GroupMembers.createIfNotDefined (tableMap)
   }
+
+  private def makeTableMap(implicit dbsess: Session) : Map[String, MTable] = {
+    val tableList = MTable.getTables.list()
+    val tableMap = tableList.map{t => (t.name.name, t)}.toMap;
+    tableMap;
+  }
+
+  private implicit def table2tableInvoker[T <: Table[_]](table: T):DDLTableInvoker = new DDLTableInvoker(table.tableName, table.ddl)
+
+  private class DDLTableInvoker(tableName:String, ddl: DDL){
+    def createIfNotDefined(tableMap:Map[String, MTable])(implicit session:Session){
+      if(!(tableMap isDefinedAt tableName))
+	ddl.create
+    }    
+  } 
 }
 

@@ -89,9 +89,11 @@ object UserDO{
   def newGroupMember(groupId:UUID, membId:UUID, memRole:String) = {
     AppDB.database.withSession{
       implicit session:Session =>      
-      AppDB.dal.GroupMembers.addMember(groupId, membId)
+      AppDB.dal.GroupMembers.addMember(groupId, membId, memRole)
     }
   }
 
-
+  def getGroupMemberRole:Seq[(String,String)] = {
+    AppDB.dal.Roles.values.map{v => (v.toString, v.toString.capitalize)}.toSeq
+  }
 }

@@ -104,11 +104,13 @@ object Application extends Controller {
 
   def newGroupMember(groupId:String) = Action{ implicit request =>
     memberForm.bindFromRequest.fold(
-      errors => {
-	Redirect(routes.Application.group(groupId))
-      },
+      errors => cachedGroup(groupId).map{group =>
+	println("[ERROR] " + errors)
+	BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
+      }.get, 
       member => {
 	UserDO.newGroupMember(UUID.fromString(groupId), UUID.fromString(member._1), member._2)
+	Cache.set("groupMembers:"+groupId, null)
 	Redirect(routes.Application.group(groupId))
       }
     )
@@ -121,8 +123,11 @@ object Application extends Controller {
   }
 
   private def cachedGroupMembers(groupId:String):List[User] = {
-    Cache.getOrElse("groupMembers:"+groupId, 0){
-      UserDO.getGroupMembers(UUID.fromString(groupId))
+    Cache.getAs[List[User]]("groupMembers:"+groupId) match{
+      case Some(mlst) if mlst != null => mlst
+      case _ => val ulst = UserDO.getGroupMembers(UUID.fromString(groupId))
+	Cache.set("groupMembers:"+groupId, ulst, 0)
+	ulst
     }
   }
 }

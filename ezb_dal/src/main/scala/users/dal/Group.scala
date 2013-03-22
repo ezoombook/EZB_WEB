@@ -27,9 +27,9 @@ trait GroupComponent{
    * The Groups table object
    */ 
   object Groups extends Table[Group]("groups"){
-    def id = column[UUID]("group_id", O.PrimaryKey)
+    def id = column[UUID]("group_id", O.PrimaryKey, O.DBType("UUID"))
     def name = column[String]("group_name", O.NotNull)
-    def ownerId = column[UUID]("group_owner", O.NotNull)
+    def ownerId = column[UUID]("group_owner", O.NotNull, O.DBType("UUID"))
     def * = id ~ name ~ ownerId <> (Group, Group.unapply _ )
    
     def owner = foreignKey("fk_group_owner", ownerId, Users)(_.id)
@@ -66,8 +66,8 @@ trait GroupComponent{
    * The Group-Members table object
    */ 
   object GroupMembers extends Table[(UUID,UUID,Roles.Value)]("group_members"){
-    def groupId = column[UUID]("group_id")
-    def userId = column[UUID]("user_id")
+    def groupId = column[UUID]("group_id", O.DBType("UUID"))
+    def userId = column[UUID]("user_id", O.NotNull, O.DBType("UUID"))
     def userRole = column[Roles.Value]("group_member_role")
     def * = groupId ~ userId ~ userRole
     
@@ -76,8 +76,8 @@ trait GroupComponent{
     def member = foreignKey("fk_user_id", userId, Users)(_.id)
     def group = foreignKey("fk_group_id", groupId, Groups)(_.id)
 
-    def addMember(group_id:UUID, member_id:UUID)(implicit session:Session) = {
-      GroupMembers.insert(group_id, member_id, Roles.collaborator)
+    def addMember(group_id:UUID, member_id:UUID, member_role:String)(implicit session:Session) = {
+      GroupMembers.insert(group_id, member_id, Roles.withName(member_role))
     }
 
     def changeMemberRole(group_id:UUID, member_id:UUID, new_role:Roles.Value)(implicit session:Session) = {

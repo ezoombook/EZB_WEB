@@ -31,7 +31,7 @@ trait UserComponent {
    * The Users table object
    */ 
   object Users extends Table[User]("users") {
-    def id = column[UUID]("user_id", O.PrimaryKey)
+    def id = column[UUID]("user_id", O.PrimaryKey, O.DBType("UUID"))
     def name =  column[String]("user_name", O.NotNull)
     def email = column[String]("user_email", O.NotNull)
     def password = column[String]("user_password", O.NotNull)
@@ -90,8 +90,8 @@ trait UserComponent {
    * The UserBooks table object
    */ 
   object UserBooks extends Table[(UUID, UUID, Long)]("user_books"){
-    def userId = column[UUID]("user_id", O.NotNull)
-    def bookId = column[UUID]("book_id", O.NotNull)
+    def userId = column[UUID]("user_id", O.NotNull, O.DBType("UUID"))
+    def bookId = column[UUID]("book_id", O.NotNull, O.DBType("UUID"))
     def dateCreated = column[Long]("book_date_created", O.NotNull) //Stored as Long to keep compatibility between DBs
     def * = userId ~ bookId ~ dateCreated
 
