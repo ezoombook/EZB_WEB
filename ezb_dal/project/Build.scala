@@ -8,7 +8,9 @@ object EzbDalBuild extends Build {
 
   resolvers ++= Seq(
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
-      "jBCrypt Repository" at "http://repo1.maven.org/maven2/org/"
+      "jBCrypt Repository" at "http://repo1.maven.org/maven2/org/",
+      "Mandubian repository snapshots" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots/",
+      "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/releases/"
   )
 
   lazy val root = Project(name, 
@@ -17,7 +19,8 @@ object EzbDalBuild extends Build {
 			    scalaVersion := buildScalaVersion,
 			    libraryDependencies ++= Seq(
 			      "com.typesafe" % "slick_2.10.0-RC1" % "0.11.2",
-			      "org.mindrot" % "jbcrypt" % "0.3m"
+			      "org.mindrot" % "jbcrypt" % "0.3m",
+			      "play"        %% "play-json" % "2.2-SNAPSHOT"
 			    )
 			  )
    )
