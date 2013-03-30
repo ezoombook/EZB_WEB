@@ -1,7 +1,10 @@
 package books.dal
 
-class ContentDAL(val couchClient:CouchbaseClient) extends BookComponent{
+import java.util.concurrent.TimeUnit
+import com.couchbase.client.CouchbaseClient
+
+class ContentDAL(val couchclient:CouchbaseClient) extends BookComponent{
   def disconnect(){
-    couchClient.shutdown()
+    couchclient.shutdown(5, TimeUnit.SECONDS)
   }
 }

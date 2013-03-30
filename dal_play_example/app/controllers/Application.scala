@@ -12,6 +12,7 @@ import cache.Cache
 
 import Play.current
 
+import java.io.ByteArrayInputStream
 import java.util.UUID
 
 object Application extends Controller {
@@ -67,6 +68,24 @@ object Application extends Controller {
 
   def login = Action{ implicit request =>
     Ok(views.html.login(loginForm))
+  }
+
+  val loadEPub = parse.raw
+
+  def loadBook = Action(loadEPub){implicit request =>
+    (if (request.body.size > request.body.memoryThreshold){
+println("[INFO] created from File " + request.body.asFile.getPath)
+      Some(BooksDO.newBook(request.body.asFile))
+    } else {
+println("[INFO] created from bytes")
+      request.body.asBytes().map(BooksDO.newBook(_))
+    }).map{epub =>
+      Cache.set("ebook", epub, 0)
+      Ok(views.html.workspace(List[(String,Long)](), bookForm))
+    }.getOrElse{
+      //With error message
+      Ok(views.html.workspace(List[(String,Long)](), bookForm.withGlobalError("An error occurred while trying to load the file.")))
+    }
   }
 
   def newBook = Action{ implicit request =>    

@@ -14,18 +14,22 @@ import slick.session.Session
  * Time: 9:37 PM
  * To change this template use File | Settings | File Templates.
  */
-object Global extends DalSettings{
+trait DalSettings extends GlobalSettings{
 
-/*
+  /**
+   * Initializes the tables if they are not already present in the database
+   */ 
   override def onStart(app: Application) {
-    implicit val application = app
-    lazy val database = getDb
-    lazy val dal = getDal
-    database.withSession {
-      implicit session: Session =>
-        dal.create
-	println("[INFO] Database Created!")
+    AppDB.database.withSession{
+      implicit session:Session =>
+	AppDB.dal.create
     }
   }
-*/
+
+  /**
+   * Close the couchbase client session
+   */
+  override def onStop(app: Application) {
+    AppDB.cdal.disconnect()
+  }
 }

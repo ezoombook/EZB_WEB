@@ -2,6 +2,7 @@ package controllers
 
 import models._
 import users.dal._
+import books.dal._
 
 import play.api.data._
 import Forms._

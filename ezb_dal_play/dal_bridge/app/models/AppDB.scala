@@ -8,9 +8,10 @@ import play.api.Play.current
  * Time: 10:14 PM
  * To change this template use File | Settings | File Templates.
  */
-object AppDB extends DBeable {
+object AppDB extends DBeable with SSDBeable{
 
   lazy val database = getDb
   lazy val dal = getDal
+  lazy val cdal = getContentDal
   
 }
