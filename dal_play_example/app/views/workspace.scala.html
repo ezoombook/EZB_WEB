@@ -19,6 +19,14 @@ Form[(String,String)])(implicit session:Session)
     </u1>
 
     <h2>Add a book:</h2>
+	     
+    @form(routes.Application.loadBook,
+	     'enctype -> "multipart/form-data"){
+        <input type="file" name="book">
+	<p>
+	     <input type="submit">
+	</p>
+    }
 
     @form(routes.Application.newBook){
 	@inputText(bookForm("title"))

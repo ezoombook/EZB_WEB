@@ -12,6 +12,7 @@ POST	/login			    controllers.Application.validate
 GET	/login			    controllers.Application.login
 
 POST	/books			    controllers.Application.newBook
+POST	/books/load		    controllers.Application.loadBook			    
 
 GET	/groups			    controllers.Application.groups
 GET	/group/:id		    controllers.Application.group(id:String)
