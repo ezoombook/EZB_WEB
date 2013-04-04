@@ -15,18 +15,20 @@ object EzbDalBuild extends Build {
       "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + "/.m2/repository"
   )
 
+  val libdependencies = Seq(
+      "com.typesafe.slick" %% "slick" % "1.0.0",
+      "org.mindrot" % "jbcrypt" % "0.3m",
+      "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
+      "couchbase" % "couchbase-client" % "1.1.2",
+      "nl.siegmann.epublib" % "epublib-core" % "3.1"
+  )
+
   lazy val root = Project(name, 
 			  file("."),
 			  settings = Defaults.defaultSettings ++ Seq (
 			    scalaVersion := buildScalaVersion,
 			    resolvers := libresolvers,
-			    libraryDependencies ++= Seq(
-			      "com.typesafe.slick" %% "slick" % "1.0.0",
-			      "org.mindrot" % "jbcrypt" % "0.3m",
-			      "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
-			      "couchbase" % "couchbase-client" % "1.1.2",
-			      "nl.siegmann.epublib" % "epublib-core" % "3.1"
-			    )
+			    libraryDependencies ++= libdependencies
 			  )
    )
 }

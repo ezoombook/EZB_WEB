@@ -29,7 +29,7 @@ Form[(String,String)])(implicit session:Session)
     }
 
     @form(routes.Application.newBook){
-	@inputText(bookForm("title"))
+	    @inputText(bookForm("title"))
         @inputText(bookForm("book id"))
         <input type="submit" value="Go!">
     }

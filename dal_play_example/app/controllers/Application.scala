@@ -74,16 +74,17 @@ object Application extends Controller {
 
   def loadBook = Action(loadEPub){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
-println("[INFO] created from File " + request.body.asFile.getPath)
+      println("[INFO] created from File " + request.body.asFile.getPath)
       Some(BooksDO.newBook(request.body.asFile))
     } else {
-println("[INFO] created from bytes")
+      println("[INFO] created from bytes")
       request.body.asBytes().map(BooksDO.newBook(_))
     }).map{epub =>
       Cache.set("ebook", epub, 0)
-      Ok(views.html.workspace(List[(String,Long)](), bookForm))
+      Ok(views.html.workspace(List[(String,Long)](), bookForm.fill(epub.bookTitle -> epub.bookId.toString)))
     }.getOrElse{
       //With error message
+      println("[ERROR] Could not load file")
       Ok(views.html.workspace(List[(String,Long)](), bookForm.withGlobalError("An error occurred while trying to load the file.")))
     }
   }

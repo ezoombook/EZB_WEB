@@ -4,14 +4,14 @@ import books.dal.{Book, BookPart}
 
 import java.util.UUID
 import java.io.InputStream
-import nl.siegmann.epublib.epub._
+import nl.siegmann.epublib.epub.EpubReader
 import scala.collection.JavaConversions._
+import java.util.zip.ZipFile
 
 object EpubLoader{
 
-  def loadBook(in: InputStream):Book = {
-    val epubReader = new EpubReader()
-    val epub = epubReader.readEpub(in)
+  def loadBook(in: Either[InputStream,ZipFile]):Book = {
+    val epub = readEpub(in)
     val meta = epub.getMetadata()
 
     val bookId = UUID.randomUUID()
@@ -30,6 +30,11 @@ object EpubLoader{
 	      /* Summry */ meta.getDescriptions.getOrElse(0, ""),
 	      /* Parts  */ parts)    
   }      
+
+  def readEpub(in: Either[InputStream,ZipFile]) = {
+    val epubReader = new EpubReader()
+    in.fold(epubReader.readEpub(_), epubReader.readEpub(_))
+  }
 
   implicit class optionOps[+A](list: java.util.List[A]){
     def getOrElse[B >: A](index:Int, default: => B):B = {
