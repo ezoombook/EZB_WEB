@@ -1,5 +1,4 @@
-@(books:List[(String, Long)], bookForm:
-Form[(String,String)])(implicit session:Session)
+@(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session)
 
 @import helper._
 
@@ -29,8 +28,15 @@ Form[(String,String)])(implicit session:Session)
     }
 
     @form(routes.Application.newBook){
+        @inputText(bookForm("id"))
 	    @inputText(bookForm("title"))
-        @inputText(bookForm("book id"))
+        @repeat(bookForm("authors")){f => @inputText(f)}
+        @repeat(bookForm("languages")){f => @inputText(f)}
+        @repeat(bookForm("publishers")){f => @inputText(f)}
+        @repeat(bookForm("published_dates")){f => @inputText(f)}
+        @repeat(bookForm("tags")){f => @inputText(f)}
+        @textarea(bookForm("summary"))
+        @repeat(bookForm("parts")){f => @inputText(f)}
         <input type="submit" value="Go!">
     }
 

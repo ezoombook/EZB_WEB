@@ -3,9 +3,13 @@ package controllers
 import models._
 import users.dal._
 import books.dal._
+import utils.Implicits._
 
 import play.api.data._
+import play.api.cache
+import cache.Cache
 import Forms._
+import java.util.UUID
 
 object EzbForms {
 
@@ -25,10 +29,20 @@ object EzbForms {
   ))
 
   val bookForm = Form(
-    tuple(
+    mapping(
+      "id" -> text,
       "title" -> text,
-      "book id" -> text
-    )
+      "authors" -> list(text),
+      "languages" -> list(text),
+      "publishers" -> list(text),
+      "published_dates" -> list(text),
+      "tags" -> list(text),
+      "summary" -> text,
+      "parts" -> list(text)
+    )((id,title,authors,languages,publishers,published_dates,tags,summary,parts) =>
+      Book(id,title,authors,languages,publishers,published_dates, tags, summary, parts.map(p=>BookPart(p,id,Array[Byte]()))))
+    ((book:Book) => Some(book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages, book.bookPublishers, book.bookPublishedDates,
+                      book.bookTags, book.bookSummary, book.bookParts.map(_.partId)))
   )
 
   val memberForm = Form(

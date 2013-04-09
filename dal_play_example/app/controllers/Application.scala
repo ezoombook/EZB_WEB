@@ -2,6 +2,7 @@ package controllers
 
 import models._
 import users.dal._
+import books.dal._
 import EzbForms._
 
 import play.api._
@@ -81,7 +82,7 @@ object Application extends Controller {
       request.body.asBytes().map(BooksDO.newBook(_))
     }).map{epub =>
       Cache.set("ebook", epub, 0)
-      Ok(views.html.workspace(List[(String,Long)](), bookForm.fill(epub.bookTitle -> epub.bookId.toString)))
+      Ok(views.html.workspace(List[(String,Long)](), bookForm.fill(epub)))
     }.getOrElse{
       //With error message
       println("[ERROR] Could not load file")
@@ -92,20 +93,29 @@ object Application extends Controller {
   def newBook = Action{ implicit request =>    
     bookForm.bindFromRequest.fold(
       errors => {
-	BadRequest(views.html.workspace(List[(String,Long)](), errors))
+	      BadRequest(views.html.workspace(List[(String,Long)](), errors))
       },
       book => {
-	session.get("userId").map(UUID.fromString(_)).map{uid =>
-	  UserDO.newUserBook(uid, UUID.fromString(book._2))
-	  Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
-	}.getOrElse(
-	  Unauthorized("Oops, you are not connected")
-	)
+	      session.get("userId").map(UUID.fromString(_)).map{uid =>
+          UserDO.newUserBook(uid, book.bookId)
+          Cache.get("ebook").map{cb =>
+            new Book(cb.bookId, book.bookTitle, book.bookAuthors, book.bookAuthors,
+                      book.bookPublishers, book.bookPublishedDates, book.bookTags,
+                      book.bookSummary, cb.bookParts)
+          }.getOrElse()
+  	      Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+        }.getOrElse(
+          Unauthorized("Oops, you are not connected")
+        )
       }
     )
   }
 
-  def groups = Action{ implicit request =>
+//  case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLanguages:List[String],
+//                   bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
+//                   bookSummary:String, bookParts:List[BookPart]){
+
+    def groups = Action{ implicit request =>
     session.get("userId").map(UUID.fromString(_)).map{uid =>
       Ok(views.html.groups(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid)))
     }.getOrElse(
@@ -125,13 +135,12 @@ object Application extends Controller {
   def newGroupMember(groupId:String) = Action{ implicit request =>
     memberForm.bindFromRequest.fold(
       errors => cachedGroup(groupId).map{group =>
-	println("[ERROR] " + errors)
-	BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
+      	BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
       }.get, 
       member => {
-	UserDO.newGroupMember(UUID.fromString(groupId), UUID.fromString(member._1), member._2)
-	Cache.set("groupMembers:"+groupId, null)
-	Redirect(routes.Application.group(groupId))
+	      UserDO.newGroupMember(UUID.fromString(groupId), UUID.fromString(member._1), member._2)
+	      Cache.set("groupMembers:"+groupId, null)
+	      Redirect(routes.Application.group(groupId))
       }
     )
   }
@@ -146,8 +155,10 @@ object Application extends Controller {
     Cache.getAs[List[User]]("groupMembers:"+groupId) match{
       case Some(mlst) if mlst != null => mlst
       case _ => val ulst = UserDO.getGroupMembers(UUID.fromString(groupId))
-	Cache.set("groupMembers:"+groupId, ulst, 0)
-	ulst
+	      Cache.set("groupMembers:"+groupId, ulst, 0)
+	      ulst
     }
   }
+
+  private def getCachedBook{}
 }

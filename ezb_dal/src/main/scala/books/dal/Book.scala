@@ -17,7 +17,7 @@ case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLa
 
 }
 
-class BookPart(val partId:String, val bookId:UUID, val content:Array[Byte]){}
+case class BookPart(val partId:String, val bookId:UUID, val content:Array[Byte]){}
 
 object Book{
   implicit val UUIDWrites:Writes[UUID] = new Writes[UUID] {
