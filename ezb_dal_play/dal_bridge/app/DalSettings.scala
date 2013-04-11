@@ -22,7 +22,7 @@ trait DalSettings extends GlobalSettings{
   override def onStart(app: Application) {
     AppDB.database.withSession{
       implicit session:Session =>
-	AppDB.dal.create
+	    AppDB.dal.create
     }
   }
 

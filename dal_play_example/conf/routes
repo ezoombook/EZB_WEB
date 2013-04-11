@@ -3,26 +3,29 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                   controllers.Application.index
 
-GET	/users			    controllers.Application.users
+GET	    /users			    controllers.Application.users
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
-GET	/login			    controllers.Application.login
+GET	    /login			    controllers.Application.login
 
 POST	/books			    controllers.Application.newBook
 POST	/books/load		    controllers.Application.loadBook			    
 
-GET	/groups			    controllers.Application.groups
-GET	/group/:id		    controllers.Application.group(id:String)
+GET	    /groups			    controllers.Application.groups
+GET	    /group/:id		    controllers.Application.group(id:String)
 
-GET	/home			    controllers.Application.home
+GET	    /home			    controllers.Application.home
 
-POST	/groupmember/:id	    controllers.Application.newGroupMember(id:String)
+POST	/groupmember/:id	controllers.Application.newGroupMember(id:String)
+
+# Assets
+GET     /assets/*file       controllers.Assets.at(path="/public", file)
 
 # To create some data
 GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
-POST	/admingroups		    controllers.AdminApp.createGroups
+POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks

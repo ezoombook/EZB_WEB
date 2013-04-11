@@ -2,7 +2,42 @@
 
 @import helper._
 
-@main("Welcome to your Workingspace"){
+@scripts = {
+<script type='text/javascript'>//<![CDATA[
+$(window).load(function(){
+    $('#btnAddAuth').click(function(){ cloner('auth'); });
+    $('#btnAddLang').click(function(){ cloner('lang'); });
+    $('#btnAddPublshr').click(function(){ cloner('publishr'); });
+    $('#btnAddPubDate').click(function(){ cloner('pdate'); });
+    $('#btnAddTag').click(function(){ cloner('tag'); });
+
+/*
+    $('#btnAdd').click(function () {
+    var num = $('.auth').length;
+    var newNum = num + 1;
+
+    var newElem = $('#auth').clone().attr('id', 'auth').attr('value','');
+
+    $('#auth').after(newElem);
+    });
+*/
+
+    function cloner(divName){
+        var size = $('.'+divName).length;
+        var newsize= size + 1;
+
+        var newElem = $('#'+divName+size).clone().attr('id', divName+newsize);
+        newElem.children(':first').attr('id', divName+'_'+newsize+'_').attr('name', divName+'['+(newsize - 1)+']');
+
+        $('#'+divName+num).after(newElem);
+    };
+
+});//]]>
+</script>
+}
+
+@main("Welcome to your Workingspace", scripts){
+
     <h1>@session.get("userName")'s Working Space</h1>
 
     @form(routes.Application.groups){
@@ -18,26 +53,52 @@
     </u1>
 
     <h2>Add a book:</h2>
-	     
-    @form(routes.Application.loadBook,
-	     'enctype -> "multipart/form-data"){
-        <input type="file" name="book">
-	<p>
-	     <input type="submit">
-	</p>
+
+    @if(! bookForm.value.map(b => true).getOrElse(false)){
+        @form(routes.Application.loadBook,
+             'enctype -> "multipart/form-data"){
+            <input type="file" name="book">
+        <p>
+             <input type="submit">
+        </p>
+        }
     }
 
     @form(routes.Application.newBook){
-        @inputText(bookForm("id"))
 	    @inputText(bookForm("title"))
-        @repeat(bookForm("authors")){f => @inputText(f)}
-        @repeat(bookForm("languages")){f => @inputText(f)}
-        @repeat(bookForm("publishers")){f => @inputText(f)}
-        @repeat(bookForm("published_dates")){f => @inputText(f)}
-        @repeat(bookForm("tags")){f => @inputText(f)}
+        @repeat(bookForm("authors"), min=2){f =>
+            <div id="authors1" style="margin-bottom:4px;" class="authors">
+            @inputText(f)
+            </div>
+        }
+        <input type="button" id="btnAddAuth" value="Add another author" >
+
+        @repeat(bookForm("languages")){f =>
+            <div id="languages1" class="languages">
+                @inputText(f)
+            </div>
+        }
+        <input type="button" id="btnAddLang" value="Add another language" >
+
+        @repeat(bookForm("publishers")){f =>
+            <div id="publishers1" class="publishers">
+                @inputText(f)
+            </div>
+        }
+        <input type="button" id="btnAddPublshr" value="Add another publisher" >
+
+        @repeat(bookForm("published_dates")){f =>
+            <div id="published_dates1" class="published_dates">@inputText(f)</div>
+        }
+        <input type="button" id="btnAddPubDate" value="Add another published date" >
+
+        @repeat(bookForm("tags")){f =>
+            <div id="tags1" class="tags">@inputText(f)</div>
+        }
+        <input type="button" id="btnAddTag" value="Add another tag" >
+
         @textarea(bookForm("summary"))
-        @repeat(bookForm("parts")){f => @inputText(f)}
         <input type="submit" value="Go!">
     }
-
 }
+

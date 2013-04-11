@@ -76,10 +76,10 @@ object Application extends Controller {
   def loadBook = Action(loadEPub){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
       println("[INFO] created from File " + request.body.asFile.getPath)
-      Some(BooksDO.newBook(request.body.asFile))
+      Some(BookDO.newBook(request.body.asFile))
     } else {
       println("[INFO] created from bytes")
-      request.body.asBytes().map(BooksDO.newBook(_))
+      request.body.asBytes().map(BookDO.newBook(_))
     }).map{epub =>
       Cache.set("ebook", epub, 0)
       Ok(views.html.workspace(List[(String,Long)](), bookForm.fill(epub)))
@@ -97,12 +97,14 @@ object Application extends Controller {
       },
       book => {
 	      session.get("userId").map(UUID.fromString(_)).map{uid =>
-          UserDO.newUserBook(uid, book.bookId)
-          Cache.get("ebook").map{cb =>
-            new Book(cb.bookId, book.bookTitle, book.bookAuthors, book.bookAuthors,
+          getCachedBook.map{cb =>
+            val newbook = new Book(cb.bookId, book.bookTitle, book.bookAuthors, book.bookAuthors,
                       book.bookPublishers, book.bookPublishedDates, book.bookTags,
                       book.bookSummary, cb.bookParts)
+println("My new book: " + newbook)
+//            UserDO.newUserBook(uid, book.bookId)
           }.getOrElse()
+
   	      Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
         }.getOrElse(
           Unauthorized("Oops, you are not connected")
@@ -110,10 +112,6 @@ object Application extends Controller {
       }
     )
   }
-
-//  case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLanguages:List[String],
-//                   bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
-//                   bookSummary:String, bookParts:List[BookPart]){
 
     def groups = Action{ implicit request =>
     session.get("userId").map(UUID.fromString(_)).map{uid =>
@@ -160,5 +158,7 @@ object Application extends Controller {
     }
   }
 
-  private def getCachedBook{}
+  private def getCachedBook:Option[Book] = {
+    Cache.getAs[Book]("ebook")
+  }
 }

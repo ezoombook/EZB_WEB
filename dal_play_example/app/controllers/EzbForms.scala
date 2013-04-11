@@ -28,21 +28,19 @@ object EzbForms {
       "password" -> text
   ))
 
-  val bookForm = Form(
+  val bookForm = Form[Book](
     mapping(
-      "id" -> text,
       "title" -> text,
       "authors" -> list(text),
       "languages" -> list(text),
       "publishers" -> list(text),
       "published_dates" -> list(text),
       "tags" -> list(text),
-      "summary" -> text,
-      "parts" -> list(text)
-    )((id,title,authors,languages,publishers,published_dates,tags,summary,parts) =>
-      Book(id,title,authors,languages,publishers,published_dates, tags, summary, parts.map(p=>BookPart(p,id,Array[Byte]()))))
-    ((book:Book) => Some(book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages, book.bookPublishers, book.bookPublishedDates,
-                      book.bookTags, book.bookSummary, book.bookParts.map(_.partId)))
+      "summary" -> text
+    )((title,authors,languages,publishers,published_dates,tags,summary) =>
+      Book(null,title,authors,languages,publishers,published_dates, tags, summary, List[BookPart]()))
+    ((book:Book) => Some(book.bookTitle, book.bookAuthors, book.bookLanguages, book.bookPublishers, book.bookPublishedDates,
+                      book.bookTags, book.bookSummary))
   )
 
   val memberForm = Form(
