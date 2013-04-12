@@ -86,7 +86,8 @@ object Application extends Controller {
     }.getOrElse{
       //With error message
       println("[ERROR] Could not load file")
-      Ok(views.html.workspace(List[(String,Long)](), bookForm.withGlobalError("An error occurred while trying to load the file.")))
+      Ok(views.html.workspace(List[(String,Long)](),
+        bookForm.withGlobalError("An error occurred while trying to load the file.")))
     }
   }
 
@@ -102,10 +103,13 @@ object Application extends Controller {
                       book.bookPublishers, book.bookPublishedDates, book.bookTags,
                       book.bookSummary, cb.bookParts)
 println("My new book: " + newbook)
-//            UserDO.newUserBook(uid, book.bookId)
-          }.getOrElse()
-
-  	      Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+              BookDO.saveBook(newbook)
+              UserDO.newUserBook(uid, newbook.bookId)
+              Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+          }.getOrElse(
+            Ok(views.html.workspace(UserDO.listBooks(uid),
+              bookForm.withGlobalError("An error occurred while trying to save the file.")))
+          )
         }.getOrElse(
           Unauthorized("Oops, you are not connected")
         )

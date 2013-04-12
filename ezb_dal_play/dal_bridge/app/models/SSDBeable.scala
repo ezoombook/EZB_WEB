@@ -22,7 +22,7 @@ trait SSDBeable {
   val COUCHBASE_PASSWORD="cb.books.password"
 
   def getContentDal(implicit app : Application):ContentDAL = {
-    val uris = ArrayBuffer(URI.create(app.configuration.getString(COUCHBASE_URL).getOrElse("http://localhost/pools:8091")))
+    val uris = ArrayBuffer(URI.create(app.configuration.getString(COUCHBASE_URL).getOrElse("http://localhost:8091/pools")))
     val bucket = app.configuration.getString(COUCHBASE_BUCKET).getOrElse("default")
     val password = app.configuration.getString(COUCHBASE_PASSWORD).getOrElse("")
 

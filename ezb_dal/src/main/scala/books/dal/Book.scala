@@ -15,6 +15,11 @@ case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLa
 		 bookPublishers, bookPublishedDates, bookTags,
 	         bookSummary, bookParts)
 
+  override def toString = "{id = "+bookId+", title=" + bookTitle+ ", authors= "+bookAuthors.mkString("[",",","]") +
+                          ", publishers= " + bookPublishers.mkString("[",",","]") +
+                          ", published dates= " + bookPublishedDates.mkString("[",",","]") +
+                          ", tags= " + bookTags.mkString("[",",","]") +
+                          ", summary= " + bookSummary
 }
 
 case class BookPart(val partId:String, val bookId:UUID, val content:Array[Byte]){}
