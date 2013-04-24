@@ -1,5 +1,6 @@
 package books.dal
 
+import books.util.UUIDjsParser
 import play.api.libs.json._
 import play.api.libs.functional._
 import java.util.UUID
@@ -24,18 +25,8 @@ case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLa
 
 case class BookPart(val partId:String, val bookId:UUID, val content:Array[Byte]){}
 
-object Book{
-  implicit val UUIDWrites:Writes[UUID] = new Writes[UUID] {
-    def writes(o:UUID) = JsString(o.toString)
-  }
+object Book extends UUIDjsParser{
 
-  implicit val UUIDReads:Reads[UUID] = new Reads[UUID] {
-    def reads(jval: JsValue) = jval match{
-      case JsString(s) => JsSuccess(UUID.fromString(s))
-      case _ => JsError("Expected: UUID. Found: " + jval)
-    }
-  }
-  
   implicit val BookPartWrites:Writes[BookPart] = new Writes[BookPart]{
     def writes(b:BookPart) = JsString(b.partId) 
   }
