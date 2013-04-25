@@ -81,51 +81,52 @@ trait MarkedLine{
   /** removes all whitespace, nl and trailing hashes from the payload
     * "  foo ##  \n" => "foo"
     */
-  def trim() = {
+  def trim() = if (!empty){
     val s = payload.trim
     var idx = s.length - 1
     while (idx >= 0 && s.charAt(idx) == marker) idx -= 1
     s.substring(0,idx+1).trim
-  }
+  } else { "" }
 
   def level = prefix.length
 
+  def empty:Boolean = prefix.isEmpty && payload.isEmpty
 }
 
 case class Title(val prefix:String, val payload:String) extends MarkedLine{
-  override def toString = level match{
-    case 1 => s"\"ezb_title\" : \"$payload\""
-    case 2 => s"\"part_title\" : \"$payload\""
-    case _ => "Undefinded Title Level"
-  }
+  override def trim = super.trim.filterNot(_ == '"')
+//    level match{
+//    case 1 => s""" "ezb_title" : "$payload" """
+//    case 2 => s""" "part_title" : "$payload" """
+//    case _ => "Undefinded Title Level"
+//  }
 }
 
 case class Summary(val prefix:String, val payload:String) extends MarkedLine{
-  override def toString = level match{
-    case 1 => s"\"ezb_summary\" : \"$payload\"
-    case 2 => s"\"contrib_content\" : \"$payload"
-  }
+  override def trim = if (!empty){ super.trim.replaceAll("\"", "'") } else ""
+  override def toString = trim
 }
 
 case class Quote(val prefix:String, val payload:String) extends MarkedLine{
-  override def toString = s"\"contrib_content\" : \"$payload"
+  override def trim = if(!empty){ super.trim.replaceAll("\"", "'")} else ""
+  override def toString = trim
 }
 
 case class NormalLine(content:String) extends MarkedLine{
   val prefix = ""
   val payload = content
 
-  override def toString = content
+  override def toString = if (!empty){ content.replaceAll("\"", "'") } else ""
 }
 
 class EmptyLine extends NormalLine("")
 
 class MarkedLineReader private (val lines:Seq[MarkedLine],
-                                 val lineCoutn:Int) extends Reader[MarkedLine]{
+                                 val lineCount:Int) extends Reader[MarkedLine]{
 
   def this(lines:Seq[MarkedLine]) = this(lines, 1)
 
-  private object EofLine
+  private object EofLine extends NormalLine("\nEOF\n")
 
   def first = if (lines.isEmpty) EofLine else lines.head
   def rest  = if (lines.isEmpty) this else new MarkedLineReader(lines.tail, lineCount+1)
@@ -133,7 +134,7 @@ class MarkedLineReader private (val lines:Seq[MarkedLine],
   def pos   = new Position {
     def line   = lineCount
     def column = 1
-    protected def lineContents = first.fullLine
+    protected def lineContents = first.payload
   }
 }
 
@@ -197,91 +198,122 @@ case class LineReader private (val lines:Seq[String],
 class BlockParser extends Parsers{
   type Elem = MarkedLine
 
-  def appy(in:MarkedLineReader):String = { //TODO or a Json object
-    phrase(...)(in) match{
+  def apply(in:MarkedLineReader):String = { //TODO or a Json object
+    phrase(ezoombook)(in) match{
       case Success(blst, _) =>
-        //TODO process result
-        ""
+        blst.mkString
       case e: NoSuccess => throw new IllegalArgumentException("Could not parse " + in + ": " + e)
     }
   }
 
-  def normalLine:Parser[String] = Parser{
+  def normalLine:Parser[String] = Parser{in =>
     if(in.atEnd) Failure("End of input reached", in)
     else in.first match{
-      case nl:NormalLine => Success(nl.toString)
+      case nl:NormalLine => Success(nl.toString, in.rest)
       case _ => Failure("Not a normal line", in)
+    }
+  }
+
+  def emptyLine:Parser[String] = Parser{in =>
+    if(in.atEnd) Failure("End of input reached", in)
+    else in.first match{
+      case nl:NormalLine if nl.empty => Success(nl.toString, in.rest)
+      case _ => Failure("Not an empty line", in)
     }
   }
 
   def partTitle:Parser[String] = Parser{in =>
     if(in.atEnd) Failure("End of input reached", in)
     else in.first match{
-      case tl:Title if tl.level == 2 => Success(tl.payload, in.rest)
-      case _ => Failure("Not a title line", in)
+      case tl:Title if tl.level == 2 => Success(tl.trim, in.rest)
+      case _ => Failure("Not a part title line", in)
     }
   }
 
-  def ezbTitle:Parser[String] => Parser{in =>
-    if(in.atEnd) Failure(in)
+  def ezbTitle:Parser[String] = Parser{in =>
+    if(in.atEnd) Failure("End of input", in)
     else in.first match{
-      case tl:Title if tl.level == 1 => Success(tl.payload, in.rest)
-      case _ => Failure(in)
+      case tl:Title if tl.level == 1 => Success(tl.trim, in.rest)
+      case _ => Failure("End of input", in)
     }
   }
 
-  def summaryLine:Parser[Summary] = Parser{in =>
+  def bookSummaryLine:Parser[String] = Parser{in =>
     if(in.atEnd) Failure("End of input reached", in)
     else in.first match{
-      case sl:Summary => Success(sl, in.rest)
+      case sl:Summary if sl.level ==1 => Success(sl.trim, in.rest)
       case _ => Failure("Not a summary line", in)
     }
   }
 
-  def ezoombook:Parser[String] = ezbTitle ~ rest ^^ {
-    case title ~ rst => s"""{"type" : "ezoombook", "title" : \"$title\", $rst }"""
+  def contribSummaryLine:Parser[String] = Parser{in =>
+    if(in.atEnd) Failure("End of input reached", in)
+    else in.first match{
+      case sl:Summary if sl.level == 2 => Success(sl.trim, in.rest)
+      case _ => Failure("Not a summary line", in)
+    }
   }
 
-  def partBlock:Parser[String] = partTitle ~ rest ^^ {
-    case title ~ rst => s"""{"type" : "part", "part_title" : \"$title\", $rst }"""
+  def quoteLine:Parser[Quote] = Parser{in =>
+    if(in.atEnd) Failure("End of input reached", in)
+    else in.first match{
+      case sl:Quote => Success(sl, in.rest)
+      case _ => Failure("Not a quote line", in)
+    }
   }
 
-  def summaryBlock:Parser[String] = summaryLine ~ (normalLine*) ^^ {
-    case first ~ rest => s"""{"type" : "contrib.Summary", "content" : ${rest.flatten} }"""
+  def ezoombook:Parser[String] = ezbTitle ~ ((emptyLine*) ~> (bookSummary*)) ~ (contrib+) ^^ {
+    case title ~ bsumm ~ rst =>
+      s"""{"type" : "ezoombook",
+      "ezb_title" : \"$title\",
+      "ezb_summaries" : [${bsumm.mkString(",")}],
+      "ezb_contribs" : [${rst.mkString(",")}] }"""
+    case title ~ rsr =>  ""
   }
 
+  def bookSummary = bookSummaryLine ~ (normalLine*) ^^ {
+    case sumtitle ~ rest =>
+      s""" "${sumtitle.trim} ${rest.mkString}" """
+  }
 
+  def contrib = partBlock | summaryBlock
+
+  def partBlock:Parser[String] = partTitle ~ (partContrib*) ^^ {
+    case title ~ rst =>
+      s"""{"type" : "part", "part_title" : \"$title\",
+           "part_contribs" : [${rst.mkString(",")}] }"""
+  }
+
+  def partContrib = quoteBlock | summaryBlock
+
+  def summaryBlock:Parser[String] = contribSummaryLine ~ (normalLine*) ^^ {
+    case first ~ rest =>
+      s"""{"type" : "contrib.Summary",
+           "contrib_content" : "$first ${rest.mkString}" }"""
+  }
+
+  def quoteBlock:Parser[String] = quoteLine ~ (normalLine*) ^^ {
+    case first ~ rest =>
+      s"""{"type" : "contrib.Summary",
+           "contrib_content" : "$first ${rest.mkString}" }"""
+  }
+
+  def rest = (summaryBlock*) | (partBlock*) | (quoteBlock*)
 }
 
+/**
+ * Transformed a marked-down-ish text into a Json object
+ */
 object Transformer{
-  val parser = new EzbParser()
+  val lineParser = new EzbParser()
+  val blockParser = new BlockParser()
 
-  def apply(in:Seq[String]):String = {
+  def apply(in:Seq[String]):JsValue = {
     val lineReader = new LineReader(in)
-    val parsedLines = parser(lineReader)
-    //parsedLines.mkString("\n")
-    createEzoombook(parsedLines)
-  }
+    val parsedLines = lineParser(lineReader)
 
-  def createEzoombook(lines:List[MarkedLine]) = {
-    val out = new StringBuilder("""{"type":"ezoombook"""")
-
-//    lines.foreach{
-//      case t:Title if t.level==1 => out.append(s"\"title\":\"$t.payload\"")
-//      case t:Title if t.level==2 => out.append(s"\"title\":\"$t.payload\"")
-//      case _ =>
-//    }
-
-//     out.append("}")
-//     out.toString
-
-    lines.foldLeft("""{"type":"ezoombook,""""){(str,ln) => str + processLine(ln)}
-  }
-
-  def processLine(ln:MarkedLine):String = ln match{
-    case t:Title if t.level==1 => s""" "title":"${t.payload},""""
-    case t:Title if t.level==2 => s"""{title":"${t.payload},""""
-    case _ => ""
+    val blockReader = new MarkedLineReader(parsedLines)
+    Json.parse(blockParser(blockReader))
   }
 }
 
