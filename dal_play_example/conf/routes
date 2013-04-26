@@ -21,6 +21,10 @@ GET	    /home			    controllers.Application.home
 
 POST	/groupmember/:id	controllers.Application.newGroupMember(id:String)
 
+#EZOOMBOOK
+GET     /ezbform            controllers.Application.newEzoomlayer
+
+
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
 

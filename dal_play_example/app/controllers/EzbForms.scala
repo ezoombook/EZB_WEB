@@ -49,4 +49,31 @@ object EzbForms {
       "role" -> text
     )
   )
+
+  def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form(
+    mapping(
+      "id" -> ignored(layerid),
+      "ezb_id" -> ignored(ezoombookid),
+      "level" -> text,
+      "owner" -> ignored(userid),
+      "status" -> default(text, Status.workInProgress.toString),
+      "locked" -> boolean,
+      "summaries" -> list(text),
+      "contribs" -> list(
+         mapping(
+             "contrib_id" -> text,
+             "contrib_type" -> text,
+             "ezoomlayer_id" -> ignored(layerid),
+             "ezoombook_id" -> ignored(ezoombookid),
+             "user_id" -> ignored(userid),
+             "contrib_part" -> text,
+             "contrib_status" -> default(text, Status.workInProgress.toString),
+             "contrib_locked" -> boolean,
+             "contrib_content" -> text
+         )(Contrib.apply)(Contrib.unapply)
+      )
+    )(EzoomLayer.apply, EzoomLayer.unapply)
+  )
+
+  implicit def str2Status(strVal:String):Status.Value = Status.withName(strVal)
 }

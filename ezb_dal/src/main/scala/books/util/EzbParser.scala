@@ -264,10 +264,10 @@ class BlockParser extends Parsers{
 
   def ezoombook:Parser[String] = ezbTitle ~ ((emptyLine*) ~> (bookSummary*)) ~ (contrib+) ^^ {
     case title ~ bsumm ~ rst =>
-      s"""{"type" : "ezoombook",
-      "ezb_title" : \"$title\",
-      "ezb_summaries" : [${bsumm.mkString(",")}],
-      "ezb_contribs" : [${rst.mkString(",")}] }"""
+      s"""{"type" : "ezoomlayer",
+      "ezl_title" : \"$title\",
+      "ezl_summaries" : [${bsumm.mkString(",")}],
+      "ezl_contribs" : [${rst.mkString(",")}] }"""
     case title ~ rsr =>  ""
   }
 

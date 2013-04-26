@@ -147,6 +147,14 @@ println("My new book: " + newbook)
     )
   }
 
+  def newEzoomlayer = Action{implicit request =>
+    val ezoombookid = UUID.randomUUID
+    val layerid = UUID.randomUUID
+    val userid = UUID.randomUUID
+    Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid)))
+  }
+
+
   private def cachedGroup(groupId:String):Option[Group] = {
     Cache.getOrElse("group:"+groupId, 0){
       UserDO.getGroupById(UUID.fromString(groupId))

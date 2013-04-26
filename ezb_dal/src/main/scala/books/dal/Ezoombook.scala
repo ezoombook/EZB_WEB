@@ -37,8 +37,8 @@ case class Ezoombook (ezoombook_id:UUID,
                        ezoombook_owner:String,
                        ezoombook_status:Status.Value,
                        ezoombook_title:String,
-                       ezoombook_public:Boolean,
-                       ezoombook_summaries:List[String]) {}
+                       ezoombook_public:Boolean
+                       )
 
 object Ezoombook extends UUIDjsParser{
   implicit val fmt = Json.format[Ezoombook]
@@ -48,22 +48,26 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoombook_id: UUID,
                       ezoomlayer_level: Int,
                       ezoomlayer_owner: String,
-                      ezoomlayer_status: String,
+                      ezoomlayer_status: Status.Value,
                       ezoomlayer_locked: Boolean,
-                      ezoomlayer_contribs: List[String])
+                      ezoomlayer_summaries:List[String],
+                      ezoomlayer_contribs: List[Contrib])
 
 object EzoomLayer extends UUIDjsParser{
-//  implicit val ContribWrites:Writes[Contrib] = new Writes[Contrib]{
-//    def writes(b:Contrib) = JsString(b.contrib_id)
-//  }
-//
-//  implicit val ContribReads:Reads[Contrib] = new Reads[Contrib]{
-//    def reads(jval: JsValue) = jval match{
-//      case JsString(s) => JsSuccess(new Contrib(s))
-//      case _ => JsError("Expected: id. Found: " + jval)
-//    }
-//  }
+  import Contrib.contribFmt
   implicit val fmt = Json.format[EzoomLayer]
+
+  implicit val ContribListWrites:Writes[List[Contrib]] = new Writes[List[Contrib]]{
+    def writes(clst:List[Contrib]) = JsArray(clst.map(/**TODO what here?**/))
+  }
+
+  implicit val ContribListReads:Reads[List[Contrib]] = new Reads[List[Contrib]]{
+    def reads(jval:JsValue) =
+      jval match{
+      case JsArray(lst) => JsSuccess(lst.map(/**TODO what here?**/))
+      case _ => JsError("Expected: value, found: " + jval)
+    }
+  }
 }
 
 case class Contrib(contrib_id: String,
@@ -74,12 +78,8 @@ case class Contrib(contrib_id: String,
                     part_id: String,
                     contrib_status: Status.Value,
                     contrib_locked: Boolean,
-                    contrib_content: String){
-//  def this (id:String) = {
-//    this(id, null, null, null, null, null, null, null, null)
-//  }
-}
+                    contrib_content: String)
 
 object Contrib extends UUIDjsParser{
-  implicit val fmt = Json.format[Contrib]
+  implicit val contribFmt = Json.format[Contrib]
 }

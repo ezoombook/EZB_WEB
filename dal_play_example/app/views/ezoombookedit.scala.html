@@ -1,0 +1,28 @@
+@(ezlForm:Form[EzoomLayer])
+
+@import helper._
+
+@main("Ezoombook Edition"){
+
+    <h1>Create an eZoomBook Layer</h1>
+
+    @form(routes.Application.newEzoomlayer){
+        @inputText(ezlForm("ezoomlayer_level"))
+        @repeat(ezlForm("ezoomlayer_summaries")){f =>
+            <div id="summary0" class="sumary_field">
+                @textarea(f)
+            </div>
+        }
+        @repeat(ezlForm("ezoomlayer_contribs")){f =>
+            <div id="contrib0" class="contrib_field">
+                @select(field = f("contrib_type"), options = options(("contrib.Summary","contrib.Quote")))
+                @inputText(f("contrib_part"))
+                @textarea(f("contrib_content"))
+            </div>
+        }
+        <input type="submit" value="Go!">
+    }
+
+
+}
+
