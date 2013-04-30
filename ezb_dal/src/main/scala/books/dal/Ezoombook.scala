@@ -44,6 +44,85 @@ object Ezoombook extends UUIDjsParser{
   implicit val fmt = Json.format[Ezoombook]
 }
 
+trait Contrib{
+  def contrib_id: String
+  def contrib_type: String
+  def ezoomlayer_id: UUID
+  def ezoombook_id: UUID
+  def user_id: UUID
+  def part_id: String
+  def contrib_status: Status.Value
+  def contrib_locked: Boolean
+  def contrib_content: String
+}
+
+//class Contrib(contrib_id: String,
+//                   contrib_type: String,
+//                   ezoomlayer_id: UUID,
+//                   ezoombook_id: UUID,
+//                   user_id: UUID,
+//                   part_id: String,
+//                   contrib_status: Status.Value,
+//                   contrib_locked: Boolean,
+//                   contrib_content: String)
+//object Contrib extends UUIDjsParser{
+//  implicit val contribFmt = Json.format[Contrib]
+//}
+
+case class AtomicContrib(val contrib_id:String,
+                         val contrib_type:String,
+                         val ezoomlayer_id:UUID,
+                         val ezoombook_id: UUID,
+                         val user_id: UUID,
+                         val part_id: String,
+                         val contrib_status: Status.Value,
+                         val contrib_locked: Boolean,
+                         val contrib_content: String) extends Contrib
+
+object AtomicContrib extends UUIDjsParser{
+  import play.api.libs.functional.syntax._
+  import play.api.data.validation.ValidationError
+
+//  def contribTypeReads(implicit r:Reads[String]):Reads[String] =
+//    r.map{
+//      case "contrib.Summary" => "quote:" +UUID.randomUUID.toString
+//      case "contrib.Quote" => "summary:" +UUID.randomUUID.toString
+//      case _ => throw new RuntimeException("Unrecognized type of contrib!")
+//    }
+//
+//  val typeFormat:Format[String] = Format(contribTypeReads, Writes.StringWrites)
+
+  implicit val contribFmt: Format[AtomicContrib] = (
+    (__ \ "contrib_id").format[String] ~
+    (__ \ "contrib_type").format[String] ~
+    (__ \ "ezoomlayer_id").format[UUID] ~
+    (__ \ "ezoombook_id").format[UUID] ~
+    (__ \ "user_id").format[UUID] ~
+    (__ \ "part_id").format[String] ~
+    (__ \ "contrib_status").format[Status.Value] ~
+    (__ \ "contrib_locked").format[Boolean] ~
+    (__ \ "contrib_content").format[String]
+  )(AtomicContrib.apply, unlift(AtomicContrib.unapply))
+}
+
+case class EzlPart(val contrib_id:String,
+              val ezoomlayer_id:UUID,
+              val ezoombook_id: UUID,
+              val user_id: UUID,
+              val part_id: String,
+              val contrib_status: Status.Value,
+              val contrib_locked: Boolean,
+              part_title: String,
+              part_summary: String,
+              part_contribs: List[AtomicContrib]) extends Contrib{
+  val contrib_type = "contrib.Part"
+  val contrib_content = ""
+}
+
+object EzlPart extends UUIDjsParser{
+  implicit val fmt = Json.format[EzlPart]
+}
+
 case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoombook_id: UUID,
                       ezoomlayer_level: Int,
@@ -51,35 +130,23 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoomlayer_status: Status.Value,
                       ezoomlayer_locked: Boolean,
                       ezoomlayer_summaries:List[String],
-                      ezoomlayer_contribs: List[Contrib])
+                      ezoomlayer_parts: List[Contrib])
 
 object EzoomLayer extends UUIDjsParser{
-  import Contrib.contribFmt
+
   implicit val fmt = Json.format[EzoomLayer]
 
-  implicit val ContribListWrites:Writes[List[Contrib]] = new Writes[List[Contrib]]{
-    def writes(clst:List[Contrib]) = JsArray(clst.map(/**TODO what here?**/))
-  }
+  implicit val contribFormat:Format[Contrib] = new Format[Contrib]{
+    def reads(json:JsValue):JsResult[Contrib] = (json \ "contrib_type") match {
+      case JsString(s) if s == "contrib.Part" => JsSuccess(json.as[EzlPart])
+      case _ => JsSuccess(json.as[AtomicContrib])
+    }
 
-  implicit val ContribListReads:Reads[List[Contrib]] = new Reads[List[Contrib]]{
-    def reads(jval:JsValue) =
-      jval match{
-      case JsArray(lst) => JsSuccess(lst.map(/**TODO what here?**/))
-      case _ => JsError("Expected: value, found: " + jval)
+    def writes(c:Contrib):JsValue = c match{
+      case p:EzlPart => Json.toJson(p)
+      case c:AtomicContrib => Json.toJson(c)
+      case _ => throw new RuntimeException("Unknown type for writes[Contrib]")
     }
   }
 }
 
-case class Contrib(contrib_id: String,
-                    contrib_type: String,
-                    ezoomlayer_id: UUID,
-                    ezoombook_id: UUID,
-                    user_id: UUID,
-                    part_id: String,
-                    contrib_status: Status.Value,
-                    contrib_locked: Boolean,
-                    contrib_content: String)
-
-object Contrib extends UUIDjsParser{
-  implicit val contribFmt = Json.format[Contrib]
-}

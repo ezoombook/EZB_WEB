@@ -15,6 +15,7 @@ import Play.current
 
 import java.io.ByteArrayInputStream
 import java.util.UUID
+import play.api.libs.json.Json
 
 object Application extends Controller {
   
@@ -71,9 +72,9 @@ object Application extends Controller {
     Ok(views.html.login(loginForm))
   }
 
-  val loadEPub = parse.raw
+  val loadFile = parse.raw
 
-  def loadBook = Action(loadEPub){implicit request =>
+  def loadBook = Action(loadFile){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
       println("[INFO] created from File " + request.body.asFile.getPath)
       Some(BookDO.newBook(request.body.asFile))
@@ -154,6 +155,37 @@ println("My new book: " + newbook)
     Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid)))
   }
 
+  def loadEzoomLayer = Action(parse.multipartFormData){request =>
+    val ezoombookid = UUID.randomUUID
+    val layerid = UUID.randomUUID
+    val userid = UUID.randomUUID
+    request.body.file("ezlfile").map{filePart =>
+      val lines = scala.io.Source.fromFile(filePart.ref.file).getLines.toSeq
+      books.util.Transformer(lines) match{
+        case Right(layerData) =>
+          val filledForm = ezoomlayerForm(ezoombookid, layerid, userid).bind(layerData)
+          println("[INFO] Ze doc: " + Json.prettyPrint(layerData))
+          filledForm.fold(
+            errors =>{
+              println("[INFO] Error form")
+              Ok(views.html.ezoombookedit(errors))
+            },
+            ezl => {
+              println("[INFO] ezl: " + ezl);
+              Ok(views.html.ezoombookedit(ezoomlayerForm.fill(ezl)))
+            }
+          )
+        case Left(error) =>
+          println("[ERROR] " + error)
+          Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid).
+          withGlobalError("An error occurred while trying to load the file. " + error)))
+      }
+    }.getOrElse{
+      println("[ERROR] oops!")
+      Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid).
+        withGlobalError("An error occurred while trying to load the file.")))
+    }
+  }
 
   private def cachedGroup(groupId:String):Option[Group] = {
     Cache.getOrElse("group:"+groupId, 0){

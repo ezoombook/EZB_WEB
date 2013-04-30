@@ -1,28 +1,39 @@
 @(ezlForm:Form[EzoomLayer])
 
 @import helper._
+@import utils.EzbHelpers._
 
 @main("Ezoombook Edition"){
 
     <h1>Create an eZoomBook Layer</h1>
 
     @form(routes.Application.newEzoomlayer){
-        @inputText(ezlForm("ezoomlayer_level"))
-        @repeat(ezlForm("ezoomlayer_summaries")){f =>
+        @select(ezlForm("level"), options = for(i <- 1 to 5) yield(i.toString -> i.toString), '_label -> "Level:")
+        @select(ezlForm("status"), Status.values.map(v => (v.toString, v.toString)).toSeq, '_label -> "Status: ")
+        @select(ezlForm("locked"), Seq("Yes" -> "true", "No" -> "false"), '_label -> "Locked: ")
+        @repeat(ezlForm("ezl_summaries")){f =>
             <div id="summary0" class="sumary_field">
-                @textarea(f)
+                @textarea(f, '_label -> "Summary")
             </div>
         }
-        @repeat(ezlForm("ezoomlayer_contribs")){f =>
+        @repeat(ezlForm("contribs")){f =>
             <div id="contrib0" class="contrib_field">
-                @select(field = f("contrib_type"), options = options(("contrib.Summary","contrib.Quote")))
-                @inputText(f("contrib_part"))
-                @textarea(f("contrib_content"))
+                @select(field = f("contrib_type"),
+                    options("Contrib.Quote" -> "Quote", "Contrib.Summary" -> "Summary"),
+                    '_label -> "Contribution Type")
+                @inputText(f("contrib_part"), '_label -> "Part")
+                @textarea(f("contrib_content"), '_label -> "Content")
             </div>
         }
         <input type="submit" value="Go!">
     }
 
+    <hr>
+
+    @form(routes.Application.loadEzoomLayer, 'enctype -> "multipart/form-data"){
+        <input type="file" name="ezlfile">
+        <input type="submit">
+    }
 
 }
 

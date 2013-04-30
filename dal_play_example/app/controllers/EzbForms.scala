@@ -6,10 +6,17 @@ import books.dal._
 import utils.Implicits._
 
 import play.api.data._
+import format.Formats._
+import play.api.data.format.Formatter
 import play.api.cache
 import cache.Cache
 import Forms._
 import java.util.UUID
+import users.dal.User
+import books.dal.BookPart
+import play.api.data.FormError
+import scala.Some
+import play.api.libs.json.JsValue
 
 object EzbForms {
 
@@ -50,15 +57,15 @@ object EzbForms {
     )
   )
 
-  def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form(
+  def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form[EzoomLayer](
     mapping(
       "id" -> ignored(layerid),
-      "ezb_id" -> ignored(ezoombookid),
-      "level" -> text,
-      "owner" -> ignored(userid),
-      "status" -> default(text, Status.workInProgress.toString),
-      "locked" -> boolean,
-      "summaries" -> list(text),
+      "ezoombook_id" -> ignored(ezoombookid),
+      "level" -> default(number, 1),
+      "owner" -> ignored("user:"+userid),
+      "status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+      "locked" -> default(boolean, true),
+      "ezl_summaries" -> list(text),
       "contribs" -> list(
          mapping(
              "contrib_id" -> text,
@@ -67,13 +74,53 @@ object EzbForms {
              "ezoombook_id" -> ignored(ezoombookid),
              "user_id" -> ignored(userid),
              "contrib_part" -> text,
-             "contrib_status" -> default(text, Status.workInProgress.toString),
+             "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
              "contrib_locked" -> boolean,
              "contrib_content" -> text
          )(Contrib.apply)(Contrib.unapply)
       )
-    )(EzoomLayer.apply, EzoomLayer.unapply)
+    )(EzoomLayer.apply)(EzoomLayer.unapply)
+  )
+
+  def ezoomlayerForm = Form[EzoomLayer](
+    mapping(
+      "id" -> of[UUID],
+      "ezb_id" -> of[UUID],
+      "level" -> number,
+      "owner" -> text,
+      "status" -> of[Status.Value],
+      "locked" -> boolean,
+      "ezl_summaries" -> list(text),
+      "contribs" -> list(
+        mapping(
+          "contrib_id" -> text,
+          "contrib_type" -> text,
+          "ezoomlayer_id" -> of[UUID],
+          "ezoombook_id" -> of[UUID],
+          "user_id" -> of[UUID],
+          "contrib_part" -> text,
+          "contrib_status" -> of[Status.Value],
+          "contrib_locked" -> boolean,
+          "contrib_content" -> text
+        )(Contrib.apply)(Contrib.unapply)
+      )
+    )(EzoomLayer.apply)
+      (EzoomLayer.unapply)
   )
 
   implicit def str2Status(strVal:String):Status.Value = Status.withName(strVal)
+
+  implicit def statusFormat: Formatter[Status.Value] = new Formatter[Status.Value]{
+    def bind(key: String, data: Map[String, String]) =
+      data.get(key).map(Status.withName(_)).toRight(Seq(FormError(key, "error.required", Nil)))
+
+    def unbind(key: String, value: Status.Value): Map[String, String] = Map(key -> value.toString)
+  }
+
+  implicit def uuidForam:Formatter[UUID] = new Formatter[UUID]{
+    def bind(key:String, data:Map[String,String]) =
+      data.get(key).map(UUID.fromString(_)).toRight(Seq(FormError(key, "error.required", Nil)))
+
+    def unbind(key:String, value: UUID):Map[String, String] = Map(key -> value.toString)
+  }
 }

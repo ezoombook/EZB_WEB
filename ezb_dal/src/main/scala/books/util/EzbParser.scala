@@ -198,11 +198,11 @@ case class LineReader private (val lines:Seq[String],
 class BlockParser extends Parsers{
   type Elem = MarkedLine
 
-  def apply(in:MarkedLineReader):String = { //TODO or a Json object
+  def apply(in:MarkedLineReader):Either[String, JsValue] = {
     phrase(ezoombook)(in) match{
       case Success(blst, _) =>
-        blst.mkString
-      case e: NoSuccess => throw new IllegalArgumentException("Could not parse " + in + ": " + e)
+        Right(Json.parse(blst.mkString))
+      case e: NoSuccess => Left("Could not parse " + in + ": " + e)
     }
   }
 
@@ -265,9 +265,9 @@ class BlockParser extends Parsers{
   def ezoombook:Parser[String] = ezbTitle ~ ((emptyLine*) ~> (bookSummary*)) ~ (contrib+) ^^ {
     case title ~ bsumm ~ rst =>
       s"""{"type" : "ezoomlayer",
-      "ezl_title" : \"$title\",
-      "ezl_summaries" : [${bsumm.mkString(",")}],
-      "ezl_contribs" : [${rst.mkString(",")}] }"""
+      "ezoombook_title" : \"$title\",
+      "ezoomlayer_summaries" : [${bsumm.mkString(",")}],
+      "ezoomlayer_contribs" : [${rst.mkString(",")}] }"""
     case title ~ rsr =>  ""
   }
 
@@ -280,7 +280,7 @@ class BlockParser extends Parsers{
 
   def partBlock:Parser[String] = partTitle ~ (partContrib*) ^^ {
     case title ~ rst =>
-      s"""{"type" : "part", "part_title" : \"$title\",
+      s"""{"contrib_type" : "part", "part_title" : \"$title\",
            "part_contribs" : [${rst.mkString(",")}] }"""
   }
 
@@ -288,13 +288,13 @@ class BlockParser extends Parsers{
 
   def summaryBlock:Parser[String] = contribSummaryLine ~ (normalLine*) ^^ {
     case first ~ rest =>
-      s"""{"type" : "contrib.Summary",
+      s"""{"contrib_type" : "contrib.Summary",
            "contrib_content" : "$first ${rest.mkString}" }"""
   }
 
   def quoteBlock:Parser[String] = quoteLine ~ (normalLine*) ^^ {
     case first ~ rest =>
-      s"""{"type" : "contrib.Summary",
+      s"""{"contrib_type" : "contrib.Summary",
            "contrib_content" : "$first ${rest.mkString}" }"""
   }
 
@@ -308,12 +308,12 @@ object Transformer{
   val lineParser = new EzbParser()
   val blockParser = new BlockParser()
 
-  def apply(in:Seq[String]):JsValue = {
+  def apply(in:Seq[String]):Either[String,JsValue] = {
     val lineReader = new LineReader(in)
     val parsedLines = lineParser(lineReader)
 
     val blockReader = new MarkedLineReader(parsedLines)
-    Json.parse(blockParser(blockReader))
+    blockParser(blockReader)
   }
 }
 
