@@ -59,53 +59,128 @@ object EzbForms {
 
   def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form[EzoomLayer](
     mapping(
-      "id" -> ignored(layerid),
+      "ezoomlayer_id" -> ignored(layerid),
       "ezoombook_id" -> ignored(ezoombookid),
-      "level" -> default(number, 1),
-      "owner" -> ignored("user:"+userid),
-      "status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
-      "locked" -> default(boolean, true),
-      "ezl_summaries" -> list(text),
-      "contribs" -> list(
-         mapping(
-             "contrib_id" -> text,
-             "contrib_type" -> text,
-             "ezoomlayer_id" -> ignored(layerid),
-             "ezoombook_id" -> ignored(ezoombookid),
-             "user_id" -> ignored(userid),
-             "contrib_part" -> text,
-             "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
-             "contrib_locked" -> boolean,
-             "contrib_content" -> text
-         )(Contrib.apply)(Contrib.unapply)
-      )
+      "ezoomlayer_level" -> default(number, 1),
+      "ezoomlayer_owner" -> ignored("user:"+userid),
+      "ezoomlayer_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+      "ezoomlayer_locked" -> default(boolean, false),
+      "ezoomlayer_summaries" -> list(text),
+      "ezoomlayer_contribs" -> list(contribMapping("",layerid,ezoombookid,userid))
     )(EzoomLayer.apply)(EzoomLayer.unapply)
   )
 
   def ezoomlayerForm = Form[EzoomLayer](
     mapping(
-      "id" -> of[UUID],
-      "ezb_id" -> of[UUID],
-      "level" -> number,
-      "owner" -> text,
-      "status" -> of[Status.Value],
-      "locked" -> boolean,
-      "ezl_summaries" -> list(text),
-      "contribs" -> list(
-        mapping(
-          "contrib_id" -> text,
-          "contrib_type" -> text,
-          "ezoomlayer_id" -> of[UUID],
-          "ezoombook_id" -> of[UUID],
-          "user_id" -> of[UUID],
-          "contrib_part" -> text,
-          "contrib_status" -> of[Status.Value],
-          "contrib_locked" -> boolean,
-          "contrib_content" -> text
-        )(Contrib.apply)(Contrib.unapply)
-      )
+      "ezoomlayer_id" -> of[UUID],
+      "ezoombook_id" -> of[UUID],
+      "ezoomlayer_level" -> number,
+      "ezoomlayer_owner" -> text,
+      "ezoomlayer_status" -> of[Status.Value],
+      "ezoomlayer_locked" -> boolean,
+      "ezoomlayer_summaries" -> list(text),
+      "ezoomlayer_contribs" -> list(contribMapping)
     )(EzoomLayer.apply)
       (EzoomLayer.unapply)
+  )
+
+  def contribMapping(partId:String,ezlId:UUID,ezbId:UUID,uid:UUID):Mapping[Contrib] = mapping(
+    "contrib_id" -> ignored(UUID.randomUUID().toString),
+    "contrib_type" -> text,
+    "ezoomlayer_id" -> ignored(ezlId),
+    "ezoombook_id" -> ignored(ezbId),
+    "user_id" -> ignored(uid),
+    "contrib_part" -> ignored(partId),
+    "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+    "contrib_locked" -> default(boolean, false),
+    "contrib_content" -> default(text, ""),
+    "part_title" -> optional(text),
+    "part_summary" -> optional(text),
+    "part_contribs" -> optional(list(atomicContribMapping(ezlId,ezbId,uid,partId)))
+  )(contribApply)(contribUnapply)
+
+  def contribMapping:Mapping[Contrib] = mapping(
+    "contrib_id" -> text,
+    "contrib_type" -> text,
+    "ezoomlayer_id" -> of[UUID],
+    "ezoombook_id" -> of[UUID],
+    "user_id" -> of[UUID],
+    "contrib_part" -> text,
+    "contrib_status" -> of[Status.Value],
+    "contrib_locked" -> boolean,
+    "contrib_content" -> text,
+    "part_title" -> optional(text),
+    "part_summary" -> optional(text),
+    "part_contribs" -> optional(list(atomicContribMapping))
+  )(contribApply)(contribUnapply)
+
+  def atomicContribMapping:Mapping[AtomicContrib] = mapping(
+    "contrib_id" -> text,
+    "contrib_type" -> text,
+    "ezoomlayer_id" -> of[UUID],
+    "ezoombook_id" -> of[UUID],
+    "user_id" -> of[UUID],
+    "contrib_part" -> text,
+    "contrib_status" -> of[Status.Value],
+    "contrib_locked" -> boolean,
+    "contrib_content" -> text
+  )(AtomicContrib.apply)(AtomicContrib.unapply)
+
+  def atomicContribMapping(ezlid:UUID,ezbid:UUID,uid:UUID,partid:String):Mapping[AtomicContrib] = mapping(
+    "contrib_id" -> ignored(UUID.randomUUID().toString),
+    "contrib_type" -> text,
+    "ezoomlayer_id" -> ignored(ezlid),
+    "ezoombook_id" -> ignored(ezbid),
+    "user_id" -> ignored(uid),
+    "contrib_part" -> ignored(partid),
+    "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+    "contrib_locked" -> default(boolean, true),
+    "contrib_content" -> text
+  )(AtomicContrib.apply)(AtomicContrib.unapply)
+
+  def contribApply(
+    contrib_id: String,
+    contrib_type: String,
+    ezoomlayer_id: UUID,
+    ezoombook_id: UUID,
+    user_id: UUID,
+    part_id: String,
+    contrib_status: Status.Value,
+    contrib_locked: Boolean,
+    contrib_content: String,
+    part_title: Option[String],
+    part_summary: Option[String],
+    part_contribs: Option[List[AtomicContrib]]):Contrib = contrib_type match{
+      case "contrib.Part" =>
+        EzlPart(contrib_id,ezoomlayer_id,ezoombook_id,user_id,part_id,contrib_status,contrib_locked,
+          part_title.getOrElse(""),part_summary.getOrElse(""),part_contribs.getOrElse(List[AtomicContrib]()))
+      case _ =>
+        AtomicContrib(contrib_id,contrib_type,ezoomlayer_id,ezoombook_id,
+          user_id,part_id,contrib_status,contrib_locked,contrib_content)
+  }
+
+  def contribUnapply(contrib:Contrib) = Some(
+    contrib.contrib_id,
+    contrib.contrib_type,
+    contrib.ezoomlayer_id,
+    contrib.ezoombook_id,
+    contrib.user_id,
+    contrib.part_id,
+    contrib.contrib_status,
+    contrib.contrib_locked,
+    contrib.contrib_content,
+    contrib match{
+      case part:EzlPart => Some(part.part_title)
+      case _ => None
+    },
+    contrib match{
+      case part:EzlPart => Some(part.part_summary)
+      case _ => None
+    },
+    contrib match{
+      case part:EzlPart => Some(part.part_contribs)
+      case _ => None
+    }
   )
 
   implicit def str2Status(strVal:String):Status.Value = Status.withName(strVal)

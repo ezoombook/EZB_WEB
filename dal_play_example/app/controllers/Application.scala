@@ -152,7 +152,7 @@ println("My new book: " + newbook)
     val ezoombookid = UUID.randomUUID
     val layerid = UUID.randomUUID
     val userid = UUID.randomUUID
-    Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid)))
+    Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
   }
 
   def loadEzoomLayer = Action(parse.multipartFormData){request =>
@@ -163,26 +163,27 @@ println("My new book: " + newbook)
       val lines = scala.io.Source.fromFile(filePart.ref.file).getLines.toSeq
       books.util.Transformer(lines) match{
         case Right(layerData) =>
+          val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
           val filledForm = ezoomlayerForm(ezoombookid, layerid, userid).bind(layerData)
-          println("[INFO] Ze doc: " + Json.prettyPrint(layerData))
+//          println("[INFO] Ze doc: " + Json.stringify(layerData))
           filledForm.fold(
             errors =>{
-              println("[INFO] Error form")
-              Ok(views.html.ezoombookedit(errors))
+//              println("[INFO] Error form: " + errors.errors.mkString("\n"))
+              Ok(views.html.ezoombookedit(None, errors))
             },
             ezl => {
-              println("[INFO] ezl: " + ezl);
-              Ok(views.html.ezoombookedit(ezoomlayerForm.fill(ezl)))
+//              println("[INFO] ezl: " + ezl);
+              Ok(views.html.ezoombookedit(None, ezoomlayerForm.fill(ezl)))
             }
           )
         case Left(error) =>
           println("[ERROR] " + error)
-          Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid).
+          Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid).
           withGlobalError("An error occurred while trying to load the file. " + error)))
       }
     }.getOrElse{
       println("[ERROR] oops!")
-      Ok(views.html.ezoombookedit(ezoomlayerForm(ezoombookid, layerid, userid).
+      Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid).
         withGlobalError("An error occurred while trying to load the file.")))
     }
   }

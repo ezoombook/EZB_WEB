@@ -14,7 +14,10 @@ import slick.session.Session
  * Time: 9:37 PM
  * To change this template use File | Settings | File Templates.
  */
+
 object Global extends DalSettings{
+
+  override def onStart(app: Application) { /* Does nothing */ }
 
 /*
   override def onStart(app: Application) {

@@ -254,6 +254,14 @@ class BlockParser extends Parsers{
     }
   }
 
+  def partSummaryLine:Parser[String] = Parser{in =>
+    if(in.atEnd) Failure("End of input reached", in)
+    else in.first match{
+      case sl:Summary if sl.level == 3 => Success(sl.trim, in.rest)
+      case _ => Failure("Not a summary line", in)
+    }
+  }
+
   def quoteLine:Parser[Quote] = Parser{in =>
     if(in.atEnd) Failure("End of input reached", in)
     else in.first match{
@@ -280,11 +288,9 @@ class BlockParser extends Parsers{
 
   def partBlock:Parser[String] = partTitle ~ (partContrib*) ^^ {
     case title ~ rst =>
-      s"""{"contrib_type" : "part", "part_title" : \"$title\",
+      s"""{"contrib_type" : "contrib.Part", "part_title" : \"$title\",
            "part_contribs" : [${rst.mkString(",")}] }"""
   }
-
-  def partContrib = quoteBlock | summaryBlock
 
   def summaryBlock:Parser[String] = contribSummaryLine ~ (normalLine*) ^^ {
     case first ~ rest =>
@@ -292,9 +298,17 @@ class BlockParser extends Parsers{
            "contrib_content" : "$first ${rest.mkString}" }"""
   }
 
-  def quoteBlock:Parser[String] = quoteLine ~ (normalLine*) ^^ {
+  def partContrib = quoteBlock | partSummaryBlock
+
+  def partSummaryBlock:Parser[String] = partSummaryLine ~ (normalLine*) ^^ {
     case first ~ rest =>
       s"""{"contrib_type" : "contrib.Summary",
+           "contrib_content" : "$first ${rest.mkString}" }"""
+  }
+
+  def quoteBlock:Parser[String] = quoteLine ~ (normalLine*) ^^ {
+    case first ~ rest =>
+      s"""{"contrib_type" : "contrib.Quote",
            "contrib_content" : "$first ${rest.mkString}" }"""
   }
 

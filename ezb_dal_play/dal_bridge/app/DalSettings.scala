@@ -28,8 +28,10 @@ trait DalSettings extends GlobalSettings{
 
   /**
    * Close the couchbase client session
+   * Close database open connections
    */
   override def onStop(app: Application) {
     AppDB.cdal.disconnect()
+    AppDB.database
   }
 }
