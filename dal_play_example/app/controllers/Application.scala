@@ -155,6 +155,21 @@ println("My new book: " + newbook)
     Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
   }
 
+  def saveEzoomlayer = Action{implicit request =>
+    ezoomlayerForm.bindFromRequest.fold(
+      errors => {
+        BadRequest(views.html.ezoombookedit(None, errors))
+      },
+      ezl => {
+        println("EZB ok!!")
+        val ezoombookid = UUID.randomUUID
+        val layerid = UUID.randomUUID
+        val userid = UUID.randomUUID
+        Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
+      }
+    )
+  }
+
   def loadEzoomLayer = Action(parse.multipartFormData){request =>
     val ezoombookid = UUID.randomUUID
     val layerid = UUID.randomUUID

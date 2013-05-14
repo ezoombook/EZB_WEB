@@ -24,6 +24,7 @@ POST	/groupmember/:id	controllers.Application.newGroupMember(id:String)
 #EZOOMBOOK
 GET     /ezlayer/form       controllers.Application.newEzoomlayer
 POST    /ezlayer/load       controllers.Application.loadEzoomLayer
+POST    /ezlayer/save       controllers.Application.saveEzoomlayer
 
 
 # Assets

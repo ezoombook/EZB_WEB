@@ -1,68 +1,89 @@
 body{
-background-color:#CCCCFF;
+    background-color:#CCCCFF;
 }
+
 div.container{
-width:100%;
-margin:0px;
-border:1px solid gray;
-line-height:150%;
+    width:100%;
+    margin:0px;
+    border:1px solid gray;
+    line-height:150%;
 }
 
 /* This is for the ezoomlayer form */
 #ezoombook_title{
-font-size:1.1em;
+    font-size:1.1em;
 }
+
 #book_info_header{
-font-size:1.1em;
+    font-size:1.1em;
 }
+
 #ezoomlayer_locked{
-float:left;
+    float:left;
 }
+
 #ezoomlayer_status{
-float:left;
+    float:left;
 }
+
 div.ezoomlayer{
-width:500px;
-margin-left:190px;
-border-left:1px solid gray;
-padding:1em;
+    width:500px;
+    margin-left:190px;
+    border-left:1px solid gray;
+    padding:1em;
 }
+
 div.left_panel{
-float:left;
-width:160px;
-margin:0;
-padding:1em;
+    float:left;
+    width:160px;
+    margin:0;
+    padding:1em;
 }
+
 div.ezb_info{
-width:100%;
-border-bottom: solid;
+    width:100%;
+    border-bottom: solid;
 }
+
 div.book_info{
-width:100%;
+    width:100%;
 }
+
 li.ezl_action{
-display:inline;
+    display:inline;
 }
+
 textarea.ezb_summary{
-/*float:left;*/
-width:100%;
-height:auto;
-}
-input.part_title{
-font-weight:bold;
-background-color:rgba(255, 255, 255, 0);
-border:0;
+    /*float:left;*/
+    width:100%;
+    height:auto;
 }
 textarea.part_summary{
-width:100%;
-height:auto;
+    width:100%;
+    height:auto;
 }
+textarea.contrib_summary{
+    width:100%;
+    height:auto;
+}
+
+input.part_title{
+    font-weight:bold;
+    background-color:rgba(255, 255, 255, 0);
+    border-style:inset;
+}
+
+input.addquote{
+    font-weight:bold;
+    visibility: hidden;
+}
+
 textarea.quote{
-width:90%;
-position:relative;
-left:20px;
-border-style:dotted;
+    width:90%;
+    position:relative;
+    left:20px;
+    border-style:dotted;
 }
 fieldset.part_field{
-border=0;
+    border=0;
 }

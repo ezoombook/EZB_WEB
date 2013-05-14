@@ -42,7 +42,10 @@
             createField("ezb_summary", "textarea", "ezoomlayer_summaries", "", "summaries_set")
         });
         $('#btnAddSummary').click(function () {
-            createField("summary", "textarea", "ezoomlayer_contribs", "contrib_content", "contribs_set")
+            addContrib("summary")
+        });
+        $('#btnAddPart').click(function () {
+            addContrib("part")
         });
     });
 //]]>
@@ -72,19 +75,24 @@
     </div>
 
     <div class="ezoomlayer">
-    @form(routes.Application.newEzoomlayer, 'id -> "ezl_form"){
+    @form(routes.Application.saveEzoomlayer, 'id -> "ezl_form"){
         <fieldset>
             <legend>eZoomLayer</legend>
-            @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 5) yield(i.toString -> i.toString),
-            '_label -> "Level:")
-            @checkbox(ezlForm("ezoomlayer_locked"), '_label -> "Locked")
-            @checkbox(ezlForm("ezoomlayer_status"), '_label -> "Mark as published", 'value -> "Published")
+            <div>
+                @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 5) yield(i.toString -> i.toString),
+                '_label -> "Level:")
+            </div>
+            <div>
+                @checkbox(ezlForm("ezoomlayer_locked"), '_label -> "Locked")
+            </div>
+            <div>
+                @checkbox(ezlForm("ezoomlayer_status"), '_label -> "Mark as published", 'value -> "Published")
+            </div>
 
             <ul>
                 <li class="ezl_action"><input type="button" id="btnAddezbSummary" value="+ Book Summary"></li>
                 <li class="ezl_action"><input type="button" id="btnAddSummary" value="+ Summary"></li>
                 <li class="ezl_action"><input type="button" id="btnAddPart" value="+ Part"></li>
-                <li class="ezl_action"><input type="button" id="btnAddQuote" value="+ Quote"></li>
             </ul>
         </fieldset>
         <fieldset id="summaries_set">
@@ -96,10 +104,14 @@
         <fieldset id="contribs_set">
             <legend>Contributions</legend>
             @repeat(ezlForm("ezoomlayer_contribs")){f =>
-                @f("contrib_type").value.map{cf => @cf match{
-                        case "contrib.Part" => {@displayPart(f)}
-                        case _ => {@displayAtomic(cf, f, "")}
+
+                @f("contrib_type").value.map{cf =>
+                    <div class="contrib">
+                    @cf match{
+                        case "contrib.Part" => { @displayPart(f) }
+                        case _ => { @displayAtomic(cf, f, "contrib_") }
                     }
+                    </div>
                 }.getOrElse{
                         <p>Add a contribution from the menu above!</p>
                 }
