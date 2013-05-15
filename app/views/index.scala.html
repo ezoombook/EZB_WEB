@@ -1,7 +1,25 @@
-@(message: String)
+@(users: List[User], userForm: Form[User] )
 
-@main("Welcome to Play 2.1") {
+@import helper._
+
+@main("User Management App") {
     
-    @play20.welcome(message)
-    
+    <h1>@users.size user(s)</h1>
+
+    <u1>
+         @users.map { user =>
+             <li>
+                   @user.id : @user.name
+             </li>
+         }
+    </u1>
+
+    <h2>Create User</h2>
+
+    @form(routes.Application.newUser) {
+        @inputText(userForm("username"))
+	@inputText(userForm("mail"))
+	@inputText(userForm("password"))
+	<input type="submit" value"Create">     
+    }	     
 }

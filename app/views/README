@@ -1,0 +1,4 @@
+This is an example play application using the ezb_dal module.
+In order to compile this project, you have to publish **ezb_dal** to your local .ivy repository with:
+
+    $sbt publish-local 
