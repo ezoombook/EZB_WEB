@@ -1,0 +1,125 @@
+@(ezoombook:Option[Ezoombook], ezlForm:Form[EzoomLayer])
+
+@import helper._
+@import utils.EzbHelpers._
+
+@displayPart(part:Field) = {
+    <fieldset class="part_field">
+    @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
+    @repeat(part("part_contribs")){pc =>
+        @pc("contrib_type").value.map{ct =>
+            @displayAtomic(ct,pc,"part_")
+        }.getOrElse{
+            <p>Cannot display part content</p>
+        }
+    }
+    </fieldset>
+}
+
+@displayAtomic(ctype:String, c:Field, level:String) = {
+    @ctype match{
+        case "contrib.Quote" => {
+             @textarea(c("contrib_content"), '_label -> "", 'class -> "quote")
+        }
+        case "contrib.Summary" => {
+            @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary"))
+        }
+    }
+}
+
+@displayEzbInfo(ezb:Ezoombook) = {
+    <dl>
+        <dt>Title:</dt><dd>@ezb.ezoombook_title</dd>
+        <dt>Is Public:</dt><dd>@ezb.ezoombook_public</dd>
+        <dt>Status:</dt><dd>@ezb.ezoombook_status</dd>
+    </dl>
+}
+
+@scripts = {
+<script type="text/javascript">//<![CDATA[
+    $(document).ready(function(){
+        $('#btnAddezbSummary').click(function () {
+            createField("ezb_summary", "textarea", "ezoomlayer_summaries", "", "summaries_set")
+        });
+        $('#btnAddSummary').click(function () {
+            addContrib("summary")
+        });
+        $('#btnAddPart').click(function () {
+            addContrib("part")
+        });
+    });
+//]]>
+</script>
+}
+
+@main("Ezoombook Edition", scripts){
+
+    <h1>eZoomBook Edition</h1>
+
+    <div class="left_panel">
+        <div class="ezb_info">
+        <h2 id="ezoombook_title">eZoomBook Info</h2>
+            @ezoombook.map{ezb => @displayEzbInfo(ezb)}.getOrElse{
+                <a href="create-ezoombook.html">Create a new eZoomBook</a>
+            }
+
+        <p>Load a layer from a file: </p>
+        @form(routes.Application.loadEzoomLayer, 'enctype -> "multipart/form-data"){
+            <input type="file" name="ezlfile">
+            <input type="submit">
+        }
+        </div>
+        <div class="book_info">
+            <h2 id="book_info_header">Book Info</h2>
+        </div>
+    </div>
+
+    <div class="ezoomlayer">
+    @form(routes.Application.saveEzoomlayer, 'id -> "ezl_form"){
+        <fieldset>
+            <legend>eZoomLayer</legend>
+            <div>
+                @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 5) yield(i.toString -> i.toString),
+                '_label -> "Level:")
+            </div>
+            <div>
+                @checkbox(ezlForm("ezoomlayer_locked"), '_label -> "Locked")
+            </div>
+            <div>
+                @checkbox(ezlForm("ezoomlayer_status"), '_label -> "Mark as published", 'value -> "Published")
+            </div>
+
+            <ul>
+                <li class="ezl_action"><input type="button" id="btnAddezbSummary" value="+ Book Summary"></li>
+                <li class="ezl_action"><input type="button" id="btnAddSummary" value="+ Summary"></li>
+                <li class="ezl_action"><input type="button" id="btnAddPart" value="+ Part"></li>
+            </ul>
+        </fieldset>
+        <fieldset id="summaries_set">
+            <legend>Book Summaries</legend>
+            @repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
+                @textarea(f, '_label -> "", 'class -> "ezb_summary")
+            }
+        </fieldset>
+        <fieldset id="contribs_set">
+            <legend>Contributions</legend>
+            @repeat(ezlForm("ezoomlayer_contribs")){f =>
+
+                @f("contrib_type").value.map{cf =>
+                    <div class="contrib">
+                    @cf match{
+                        case "contrib.Part" => { @displayPart(f) }
+                        case _ => { @displayAtomic(cf, f, "contrib_") }
+                    }
+                    </div>
+                }.getOrElse{
+                        <p>Add a contribution from the menu above!</p>
+                }
+            }
+        </fieldset>
+        <input type="submit" value="Go!">
+    }
+    </div>
+
+}
+
