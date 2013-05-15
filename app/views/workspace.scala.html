@@ -29,7 +29,7 @@ $(document).ready(function(){
 
     <h1>@session.get("userName")'s Working Space</h1>
 
-    @form(routes.Application.groups){
+    @form(routes.Community.groups){
 	<input type="submit" value="Go to groups -->" >
     }
 
@@ -44,7 +44,7 @@ $(document).ready(function(){
     <h2>Add a book:</h2>
 
     @if(! bookForm.value.map(b => true).getOrElse(false)){
-        @form(routes.Application.loadBook,
+        @form(routes.EzoomBooks.loadBook,
              'enctype -> "multipart/form-data"){
             <input type="file" name="book">
         <p>
@@ -53,7 +53,7 @@ $(document).ready(function(){
         }
     }
 
-    @form(routes.Application.newBook){
+    @form(routes.EzoomBooks.newBook){
 	    @inputText(bookForm("title"))
         @repeat(bookForm("authors")){f =>
             <div id="authors0" style="margin-bottom:4px;" class="authors">
