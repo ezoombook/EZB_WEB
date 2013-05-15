@@ -18,7 +18,7 @@
            @err.message
        }
      </div>
-     @form(routes.Application.newGroupMember(groupId)){
+     @form(routes.Community.newGroupMember(groupId)){
          @inputText(memberForm("member id"))
          @select(memberForm("role"), UserDO.getGroupMemberRole)
          <input type="submit" value="Add">

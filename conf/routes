@@ -5,26 +5,28 @@
 # Home page
 GET     /                   controllers.Application.index
 
-GET	    /users			    controllers.Application.users
+GET	    /home			    controllers.Application.home
+
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
 GET	    /login			    controllers.Application.login
 
-POST	/books			    controllers.Application.newBook
-POST	/books/load		    controllers.Application.loadBook			    
+# Community
+GET	    /groups			    controllers.Community.groups
+GET	    /group/:id		    controllers.Community.group(id:String)
 
-GET	    /groups			    controllers.Application.groups
-GET	    /group/:id		    controllers.Application.group(id:String)
+POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
-GET	    /home			    controllers.Application.home
+# Books
+POST	/books			    controllers.EzoomBooks.newBook
+POST	/books/load		    controllers.EzoomBooks.loadBook
 
-POST	/groupmember/:id	controllers.Application.newGroupMember(id:String)
 
 #EZOOMBOOK
-GET     /ezlayer/form       controllers.Application.newEzoomlayer
-POST    /ezlayer/load       controllers.Application.loadEzoomLayer
-POST    /ezlayer/save       controllers.Application.saveEzoomlayer
+GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer
+POST    /ezlayer/load       controllers.EzoomBooks.loadEzoomLayer
+POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
 
 
 # Assets
