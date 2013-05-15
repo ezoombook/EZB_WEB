@@ -64,7 +64,7 @@
             }
 
         <p>Load a layer from a file: </p>
-        @form(routes.Application.loadEzoomLayer, 'enctype -> "multipart/form-data"){
+        @form(routes.EzoomBooks.loadEzoomLayer, 'enctype -> "multipart/form-data"){
             <input type="file" name="ezlfile">
             <input type="submit">
         }
@@ -75,7 +75,7 @@
     </div>
 
     <div class="ezoomlayer">
-    @form(routes.Application.saveEzoomlayer, 'id -> "ezl_form"){
+    @form(routes.EzoomBooks.saveEzoomlayer, 'id -> "ezl_form"){
         <fieldset>
             <legend>eZoomLayer</legend>
             <div>

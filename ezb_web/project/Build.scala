@@ -5,7 +5,7 @@ import java.io.File
 
 object ApplicationBuild extends Build {
 
-  val appName         = "example"
+  val appName         = "ezb-web"
   val appVersion      = "1.0-SNAPSHOT"
   val localIvyPath    = Path.userHome + File.separator + ".ivy2" + File.separator + "local"
 
