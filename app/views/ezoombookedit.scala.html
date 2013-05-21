@@ -2,10 +2,12 @@
 
 @import helper._
 @import utils.EzbHelpers._
+@import ezbhelper._
 
 @displayPart(part:Field) = {
     <fieldset class="part_field">
     @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
+    @hidden(part("contrib_type"), 'value -> "contrib.Part")
     @repeat(part("part_contribs")){pc =>
         @pc("contrib_type").value.map{ct =>
             @displayAtomic(ct,pc,"part_")
@@ -19,9 +21,11 @@
 @displayAtomic(ctype:String, c:Field, level:String) = {
     @ctype match{
         case "contrib.Quote" => {
+             @hidden(c("contrib_type"), 'value -> "contrib.Quote")
              @textarea(c("contrib_content"), '_label -> "", 'class -> "quote")
         }
         case "contrib.Summary" => {
+            @hidden(c("contrib_type"), 'value -> "contrib.Summary")
             @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary"))
         }
     }
@@ -78,6 +82,12 @@
     @form(routes.EzoomBooks.saveEzoomlayer, 'id -> "ezl_form"){
         <fieldset>
             <legend>eZoomLayer</legend>
+            @hidden(ezlForm("ezoomlayer_id"))
+            @hidden(ezlForm("ezoombook_id"))
+            @hidden(ezlForm("ezoomlayer_owner"))
+            <div class="save">
+                <input type="submit" value="Save eZoomLayer">
+            </div>
             <div>
                 @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 5) yield(i.toString -> i.toString),
                 '_label -> "Level:")
@@ -104,20 +114,25 @@
         <fieldset id="contribs_set">
             <legend>Contributions</legend>
             @repeat(ezlForm("ezoomlayer_contribs")){f =>
+                @hidden(ezlForm("contrib_id"))
+                @hidden(ezlForm("ezoomlayer_id"))
+                @hidden(ezlForm("ezoombook_id"))
+                @hidden(ezlForm("user_id"))
+                @hidden(ezlForm("contrib_part"))
+                @hidden(ezlForm("contrib_status"))
+                @hidden(ezlForm("contrib_locked"))
 
-                @f("contrib_type").value.map{cf =>
+            @f("contrib_type").value.map{cf =>
                     <div class="contrib">
                     @cf match{
                         case "contrib.Part" => { @displayPart(f) }
                         case _ => { @displayAtomic(cf, f, "contrib_") }
                     }
                     </div>
-                }.getOrElse{
-                        <p>Add a contribution from the menu above!</p>
-                }
+                }.getOrElse{ }
             }
         </fieldset>
-        <input type="submit" value="Go!">
+
     }
     </div>
 

@@ -15,6 +15,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import Forms._
+import play.api.libs.json.Json
 
 /**
  * Created with IntelliJ IDEA.
@@ -88,23 +89,31 @@ object EzoomBooks extends Controller{
     val ezoombookid = UUID.randomUUID
     val layerid = UUID.randomUUID
     val userid = UUID.randomUUID
-    Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
+    Ok(views.html.ezoombookedit(None, ezoomlayerForm))
   }
 
   /**
    * Stores an ezoomlayer in the databasse
    */
   def saveEzoomlayer = Action{implicit request =>
-    ezoomlayerForm.bindFromRequest.fold(
+    val ezoombookid = UUID.randomUUID //TODO from session
+    val layerid = UUID.randomUUID //TODO from session
+    val userid = UUID.randomUUID //TODO from session
+    ezoomlayerForm(ezoombookid, layerid, userid).bindFromRequest.fold(
       errors => {
+        println("oops: " + errors.errors)
         BadRequest(views.html.ezoombookedit(None, errors))
       },
       ezl => {
-        println("EZB ok!!")
-        val ezoombookid = UUID.randomUUID
-        val layerid = UUID.randomUUID
-        val userid = UUID.randomUUID
-        Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
+        try{
+          println("EZB ok!!" + Json.toJson(ezl))
+        }catch{
+          case e => println("[ERROR] Oops caught an exception while parsing object:")
+                    e.printStackTrace()
+        }
+
+//        BookDO.saveLayer(ezl)
+        Ok(views.html.ezoombookedit(None, ezoomlayerForm.fill(ezl)))
       }
     )
   }

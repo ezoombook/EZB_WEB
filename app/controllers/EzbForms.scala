@@ -36,10 +36,10 @@ object EzbForms {
 
   def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form[EzoomLayer](
     mapping(
-      "ezoomlayer_id" -> ignored(layerid),
-      "ezoombook_id" -> ignored(ezoombookid),
+      "ezoomlayer_id" -> default(of[UUID], layerid),
+      "ezoombook_id" -> default(of[UUID], ezoombookid),
       "ezoomlayer_level" -> default(number, 1),
-      "ezoomlayer_owner" -> ignored("user:"+userid),
+      "ezoomlayer_owner" -> default(text, "user:"+userid),
       "ezoomlayer_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezoomlayer_locked" -> default(boolean, false),
       "ezoomlayer_summaries" -> list(text),
@@ -62,12 +62,12 @@ object EzbForms {
   )
 
   def contribMapping(partId:String,ezlId:UUID,ezbId:UUID,uid:UUID):Mapping[Contrib] = mapping(
-    "contrib_id" -> ignored(UUID.randomUUID().toString),
-    "contrib_type" -> text,
-    "ezoomlayer_id" -> ignored(ezlId),
-    "ezoombook_id" -> ignored(ezbId),
-    "user_id" -> ignored(uid),
-    "contrib_part" -> ignored(partId),
+    "contrib_id" -> default(text, UUID.randomUUID().toString),
+    "contrib_type" -> nonEmptyText,
+    "ezoomlayer_id" -> default(of[UUID], ezlId),
+    "ezoombook_id" -> default(of[UUID], ezbId),
+    "user_id" -> default(of[UUID], uid),
+    "contrib_part" -> default(text, partId),
     "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
     "contrib_locked" -> default(boolean, false),
     "contrib_content" -> default(text, ""),
