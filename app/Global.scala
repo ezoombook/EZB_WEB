@@ -15,11 +15,10 @@ import slick.session.Session
  * To change this template use File | Settings | File Templates.
  */
 
-object Global extends DalSettings{
+object Global extends DalSettings with DBeable{
 
-  override def onStart(app: Application) { /* Does nothing */ }
+//  override def onStart(app: Application) { /* Does nothing */ }
 
-/*
   override def onStart(app: Application) {
     implicit val application = app
     lazy val database = getDb
@@ -30,5 +29,4 @@ object Global extends DalSettings{
 	println("[INFO] Database Created!")
     }
   }
-*/
 }
