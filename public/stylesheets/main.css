@@ -32,7 +32,9 @@ div.ezoomlayer{
     border-left:1px solid gray;
     padding:1em;
 }
-
+div.save{
+    float:right;
+}
 div.left_panel{
     float:left;
     width:160px;
