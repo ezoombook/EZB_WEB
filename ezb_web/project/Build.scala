@@ -12,8 +12,8 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     // Add your project dependencies here,
     jdbc,
-    "ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT",
-    "postgresql" % "postgresql" % "9.2-1002.jdbc4"
+    "ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT"
+   // "postgresql" % "postgresql" % "9.2-1002.jdbc4"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
