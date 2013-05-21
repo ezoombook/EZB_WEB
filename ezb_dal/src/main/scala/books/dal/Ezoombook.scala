@@ -81,7 +81,6 @@ case class AtomicContrib(val contrib_id:String,
 
 object AtomicContrib extends UUIDjsParser{
   import play.api.libs.functional.syntax._
-  import play.api.data.validation.ValidationError
 
 //  def contribTypeReads(implicit r:Reads[String]):Reads[String] =
 //    r.map{
@@ -133,8 +132,33 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoomlayer_parts: List[Contrib])
 
 object EzoomLayer extends UUIDjsParser{
+  import play.api.libs.functional.syntax._
 
-  implicit val fmt = Json.format[EzoomLayer]
+  implicit val fmt: Format[EzoomLayer] = (
+    (__ \ "ezoomlayer_id").format[UUID] ~
+        (__ \ "ezoombook_id").format[UUID] ~
+        (__ \ "ezoomlayer_level").format[Int] ~
+        (__ \ "ezoomlayer_owner").format[String] ~
+        (__ \ "ezoomlayer_status").format[Status.Value] ~
+        (__ \ "ezoomlayer_locked").format[Boolean] ~
+        (__ \ "ezoomlayer_summaries").format[List[String]] ~
+        (__ \ "ezoomlayer_parts").format[List[Contrib]]
+  )(EzoomLayer.apply, unlift(EzoomLayer.unapply))
+
+//  implicit val fmt = new Format[EzoomLayer]{ //Json.format[EzoomLayer]
+//    def reads(json:JsValue):JsResult[EzoomLayer] =
+//    (__ \ "ezoomlayer_id").read[UUID] ~
+//      (__ \ "ezoombook_id").read[UUID] ~
+//      (__ \ "ezoomlayer_level").read[Int] ~
+//      (__ \ "ezoomlayer_owner").read[String] ~
+//      (__ \ "ezoomlayer_status").read[Status.Value] ~
+//      (__ \ "ezoomlayer_locked").read[Boolean] ~
+//      (__ \ "ezoomlayer_summaries").read(list[String]) ~
+//      (__ \ "ezoomlayer_parts").read(list[Contrib])
+//    )(EzoomLayer)
+//
+//    def writes
+//  }
 
   implicit val contribFormat:Format[Contrib] = new Format[Contrib]{
     def reads(json:JsValue):JsResult[Contrib] = (json \ "contrib_type") match {
@@ -143,8 +167,10 @@ object EzoomLayer extends UUIDjsParser{
     }
 
     def writes(c:Contrib):JsValue = c match{
-      case p:EzlPart => Json.toJson(p)
-      case c:AtomicContrib => Json.toJson(c)
+      case p:EzlPart => println("[DBG] - writing part... ")
+        Json.toJson(p)
+      case c:AtomicContrib => println("[DBG] - writing atomic contrib")
+        Json.toJson(c)
       case _ => throw new RuntimeException("Unknown type for writes[Contrib]")
     }
   }

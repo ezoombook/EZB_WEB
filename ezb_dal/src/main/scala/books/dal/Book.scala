@@ -56,4 +56,12 @@ trait BookComponent{
     couchclient.set("part:"+part.partId, 0, part.content) 
   }
 
+  def saveEzoomBook(ezb:Ezoombook){
+
+  }
+
+  def saveLayer(ezl:EzoomLayer){
+    val key = "ezoomlayer:"+ezl.ezoomlayer_id
+    couchclient.set(key, 0, Json.toJson(ezl).toString())
+  }
 }

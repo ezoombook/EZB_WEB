@@ -16,5 +16,7 @@ object BookDO{
     AppDB.cdal.addBook(book)
   }
 
-  //def newLayer(byArray:Array[Byte]):EzoomLayer =
+  def saveLayer(ezl:EzoomLayer){
+    AppDB.cdal.saveLayer(ezl)
+  }
 }
