@@ -3,7 +3,7 @@ package controllers
 import models._
 import users.dal._
 import books.dal._
-import EzbForms._
+import controllers.EzbForms._
 
 import play.api._
 import play.api.mvc._
@@ -15,6 +15,8 @@ import Play.current
 import java.io.ByteArrayInputStream
 import java.util.UUID
 import play.api.libs.json.Json
+import users.dal.User
+import scala.Some
 
 object Application extends Controller {
 
@@ -35,6 +37,14 @@ object Application extends Controller {
 
   def index = Action {
     Redirect(routes.Application.login)
+  }
+
+  /**
+   * Lists existing users
+   * @return
+   */
+  def users = Action {
+    Ok(views.html.index(UserDO.listUsers, userForm))
   }
 
   /**

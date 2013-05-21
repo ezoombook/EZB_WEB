@@ -7,6 +7,7 @@ GET     /                   controllers.Application.index
 
 GET	    /home			    controllers.Application.home
 
+GET	    /users			    controllers.Application.users
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
