@@ -3,6 +3,17 @@
 <!DOCTYPE html>
 
 <html>
+<style>
+
+li.e
+{
+float:left;
+}
+a.e
+{
+float:right;
+}
+</style>
     <head>
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
@@ -10,11 +21,66 @@
     </head>
     <body>
         <div class="container">
-        @content
+        
         </div>
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/underscore-min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/utils.js")" type="text/javascript"></script>
-        @scripts
-    </body>
+        
+         
+	
+         <header>
+			<p>
+			<strong>Main menu</strong>
+			<p>
+		</header>
+		<div><section id="article34" class="menu cool">
+		<dl>
+			<li class=e><a href="/profile" class="bulle">Home
+				<span><p> Reache the main menue </p></span>
+			</a></li>
+		
+			<li class=e><a href="/createagame" class="bulle">Books
+				<span><p> Read a book </p></span>
+			</a></li>
+		
+			<li class=e><a href="/login" class="bulle">Login
+				<span><p> Go to your account </p></span>
+			</a></li>
+		
+			<li class=e><a href="/playagame" class="bulle">Tutorial
+				<span><p> Learn to use the plateform </p></span>
+			</a></li>
+		
+			<li class=e><a href="#" class="bulle">FAQ
+				<span><p> Usual quesions of users</p></span>
+			</a></li>
+		
+			<li class=e><a href="/groups" class="bulle">Groups
+				<span><p> Groups of your interest</p></span>
+			</a></li>
+		
+			<li class=e><a href="#" class="bulle">Contact
+				<span><p> Be social</p></span>
+			</a></li>
+		</dl>
+		
+		<dl>
+			<li><a href="/" class=e>Twitter</a></li>
+		
+			<li ><a href="/" class=e>Facebook</a></li>
+		</dl>
+	
+		</section>
+		</div>
+		
+		</br>
+		</br>
+		<hr>
+	
+	 @scripts
+	@content
+	 </body>
+	 
+	
 </html>

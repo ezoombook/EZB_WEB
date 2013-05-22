@@ -90,7 +90,7 @@ object Application extends Controller {
    * Displays the user home page
    */
   def home = Action { implicit request =>
-    session.get("userId").map(UUID.fromString(_)).map{uid =>
+    session.get("userId").map(UUID.fromString(_)).map{uid => 
       Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
     }.getOrElse(
 	    Unauthorized("Oops, you are not connected")

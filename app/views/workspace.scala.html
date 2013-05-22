@@ -21,9 +21,23 @@ $(document).ready(function(){
         cloner('tags');
     });
 });
+
+
+
+function toggle(divtag){
+		if(document.getElementById(divtag).style.display=="none"){
+			document.getElementById(divtag).style.display="block";
+		} else {
+			document.getElementById(divtag).style.display="none";
+		}
+	}
+
+
 //]]>
+
 </script>
 }
+
 
 @main("Welcome to your Workingspace", scripts){
 
@@ -33,13 +47,13 @@ $(document).ready(function(){
 	<input type="submit" value="Go to groups -->" >
     }
 
-    <h2>Your books: </h2>
-
+    <h2>Your books: </h2>  
     <u1>
          @books.map {b =>
              <li>@b._1 : @b._2</li>
 	 }
     </u1>
+    </br>
 
     <h2>Add a book:</h2>
 
@@ -54,39 +68,39 @@ $(document).ready(function(){
     }
 
     @form(routes.EzoomBooks.newBook){
-	    @inputText(bookForm("title"))
+	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
         @repeat(bookForm("authors")){f =>
             <div id="authors0" style="margin-bottom:4px;" class="authors">
-            @inputText(f)
+            <h4>@inputText(f,'_label->"author")</h4>
             </div>
         }
         <input type="button" id="btnAddAuth" value="Add another author" >
 
         @repeat(bookForm("languages")){f =>
             <div id="languages0" class="languages">
-                @inputText(f)
+                <h4>@inputText(f,'_label->"languages")</h4>
             </div>
         }
         <input type="button" id="btnAddLang" value="Add another language" >
 
         @repeat(bookForm("publishers")){f =>
             <div id="publishers0" class="publishers">
-                @inputText(f)
+                <h4>@inputText(f,'_label->"publishers")</h4>
             </div>
         }
         <input type="button" id="btnAddPublshr" value="Add another publisher" >
 
         @repeat(bookForm("published_dates")){f =>
-            <div id="published_dates0" class="published_dates">@inputText(f)</div>
+            <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
         }
         <input type="button" id="btnAddPubDate" value="Add another published date" >
 
         @repeat(bookForm("tags")){f =>
-            <div id="tags0" class="tags">@inputText(f)</div>
+            <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
         }
         <input type="button" id="btnAddTag" value="Add another tag" >
 
-        @textarea(bookForm("summary"))
+        <h4>@textarea(bookForm("summary"))</h4>
         <input type="submit" value="Go!">
     }
 }
