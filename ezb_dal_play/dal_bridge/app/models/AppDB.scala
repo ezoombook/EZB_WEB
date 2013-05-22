@@ -10,7 +10,7 @@ import play.api.Play.current
  */
 object AppDB extends DBeable with SSDBeable{
 
-  lazy val database = getDb
+  def database = getDb
   lazy val dal = getDal
   lazy val cdal = getContentDal
 
