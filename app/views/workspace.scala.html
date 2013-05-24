@@ -1,6 +1,9 @@
-@(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session)
+@(userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session)
 
+@import utils.EzbHelpers._
 @import helper._
+@import ezbhelper._
+
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
@@ -41,67 +44,184 @@ function toggle(divtag){
 
 @main("Welcome to your Workingspace", scripts){
 
-    <h1>@session.get("userName")'s Working Space</h1>
+<style>
 
-    @form(routes.Community.groups){
-	<input type="submit" value="Go to groups -->" >
-    }
+.raccount{
 
-    <h2>Your books: </h2>  
-    <u1>
-         @books.map {b =>
-             <li>@b._1 : @b._2</li>
-	 }
-    </u1>
-    </br>
-
-    <h2>Add a book:</h2>
-
-    @if(! bookForm.value.map(b => true).getOrElse(false)){
-        @form(routes.EzoomBooks.loadBook,
-             'enctype -> "multipart/form-data"){
-            <input type="file" name="book">
-        <p>
-             <input type="submit">
-        </p>
-        }
-    }
-
-    @form(routes.EzoomBooks.newBook){
-	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
-        @repeat(bookForm("authors")){f =>
-            <div id="authors0" style="margin-bottom:4px;" class="authors">
-            <h4>@inputText(f,'_label->"author")</h4>
-            </div>
-        }
-        <input type="button" id="btnAddAuth" value="Add another author" >
-
-        @repeat(bookForm("languages")){f =>
-            <div id="languages0" class="languages">
-                <h4>@inputText(f,'_label->"languages")</h4>
-            </div>
-        }
-        <input type="button" id="btnAddLang" value="Add another language" >
-
-        @repeat(bookForm("publishers")){f =>
-            <div id="publishers0" class="publishers">
-                <h4>@inputText(f,'_label->"publishers")</h4>
-            </div>
-        }
-        <input type="button" id="btnAddPublshr" value="Add another publisher" >
-
-        @repeat(bookForm("published_dates")){f =>
-            <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
-        }
-        <input type="button" id="btnAddPubDate" value="Add another published date" >
-
-        @repeat(bookForm("tags")){f =>
-            <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
-        }
-        <input type="button" id="btnAddTag" value="Add another tag" >
-
-        <h4>@textarea(bookForm("summary"))</h4>
-        <input type="submit" value="Go!">
-    }
+float:right;
 }
 
+.rightpannel{
+
+float:right;
+width:50%;
+}
+
+.leftpannel{
+clear : both;	
+float:left;
+width:50%;
+}
+</style>
+
+<section id="article34" class="menu cool">
+
+    <h1>@session.get("userName")'s Working Space</h1>
+
+      <div class="leftpannel">
+    <fieldset>
+            <legend><h1>project</h1></legend>
+     <div class="CSSTableCool" >
+     <table>
+				<tbody>
+					<tr>
+						<th>Project</th><th>group</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+		
+   </fieldset> 
+   
+   <fieldset>
+            <legend><h1>Readlist</h1></legend>
+     <div class="CSSTableCool" >
+     <table>
+				<tbody>
+					<tr>
+						<th>Books</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+   </fieldset> 
+   <fieldset>
+            <legend><h1>Favorite books</h1></legend>
+     <div class="CSSTableCool" >
+     <table>
+				<tbody>
+					<tr>
+						<th>Book</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+   </fieldset> 
+   <fieldset>
+            <legend><h1>My friends</h1></legend>
+     <div class="CSSTableCool" >
+     <table>
+				<tbody>
+					<tr>
+						<th>Name</th><th>Groups</th><th>Favorite books</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+		<h4>@inputText(groupForm(""))</h4>
+		<dl>
+		<li onClick="toggle('seeuser')"><h3>Add a friend
+			
+		</h3></li>
+		
+			<div id="seeuser" style="display:none" class="CSSTableCool">
+				<table>
+				<tbody>
+					<tr>
+						<th>Name</th><th>Groups</th><th>Favorite books</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+		
+		</dl>
+		
+   </fieldset>
+    </div>
+    
+  <div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+      <form href="#" method="GET">
+   <button type="submit">parameter</button></td>
+ 
+   <button type="submit">log out</button></td>
+   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </form>
+   </fieldset>
+</div>
+
+</br></br> </br></br></br> </br></br></br> 
+
+  <div class="rightpannel">
+<fieldset>
+<h1 style="float:left">Create a group</h1>
+</br></br></br></br>
+
+ @form(routes.Community.newGroup){
+	    <h4>@inputText(groupForm("groupName"),'_label->"Name of the group")</h4>
+	   
+	   @hidden(groupForm("ownerId"), 'value -> session.get("userId"))
+	    <input type="submit" value="Create a group">
+	     }
+</br>
+<fieldset>
+            <legend><h1>My groups</h1></legend>
+  
+    
+    <div class="CSSTableCool" >
+			<table>
+				<tbody>
+					<tr>
+						<th>Title</th><th>You own</th><th></th>
+					</tr>
+					@for(g<-userGroups){
+					<tr>
+						<td>@g.name</td>
+						<td>X</td>
+						<td>
+						@form(routes.Community.group(g.id.toString())){
+						<input type="submit" value="choose this group"></td>
+					}	
+					</tr>
+					}
+					
+					@for(g<-colabGroups){
+					<tr>
+						<td>@g.name</td>
+						<td></td>
+						<td>
+						@form(routes.Community.group(g.id.toString())){
+						<input type="submit" value="choose this group"></td>
+						}
+					</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+    </fieldset>
+    </fieldset>
+  <fieldset>
+            <legend><h1>New Message</h1></legend>
+     <div class="CSSTableCool" >
+     <table>
+				<tbody>
+					<tr>
+						<th>Message</th><th>author</th><th>date</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+   </fieldset> 
+    </div>
+</section
+   
+    }  

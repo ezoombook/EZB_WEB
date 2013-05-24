@@ -23,12 +23,16 @@ POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
+# Tutorial
+GET	/tutorial		   controllers.Application.tutorial
 
 #EZOOMBOOK
 GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer
 POST    /ezlayer/load       controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
 
+#Groups
+POST	/groups		       controllers.Community.newGroup	
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
