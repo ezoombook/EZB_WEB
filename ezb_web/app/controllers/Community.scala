@@ -39,13 +39,22 @@ object Community extends Controller{
       "role" -> text
     )
   )
+  
+  val groupForm = Form(
+    tuple(
+      "groupName" -> text,
+      "ownerId" -> text
+    )
+  
+    )
+   
 
   /**
    * Displays the groups owned by a user
    */
   def groups = Action{ implicit request =>
     session.get("userId").map(UUID.fromString(_)).map{uid =>
-      Ok(views.html.groups(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid)))
+      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
     }.getOrElse(
       Unauthorized("Oops, you are not connected")
     )
@@ -78,7 +87,25 @@ object Community extends Controller{
       }
     )
   }
-
+  
+ 
+    //((name, ownerId)=>Group(UUID.randomUUID, name, ownerId))
+    //((group:Group)=>(group.name, group.ownerId))
+   def newGroup = Action{ implicit request =>
+    session.get("userId").map(UUID.fromString(_)).map{uid =>
+      groupForm.bindFromRequest.fold(
+      errors => 
+        BadRequest(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+      ,
+      (group)=>{UserDO.newGroup(group._1, uid)
+      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+      }
+    )}
+    .getOrElse(
+      Unauthorized("Oops, you are not connected")
+    )
+  }
+    
   /**
    * Gets a group from the cache if it is there.
    * Otherwise it gets it from the database and store it in the cache

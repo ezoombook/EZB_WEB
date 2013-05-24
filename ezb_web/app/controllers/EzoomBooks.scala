@@ -44,11 +44,11 @@ object EzoomBooks extends Controller{
       request.body.asBytes().map(BookDO.newBook(_))
     }).map{epub =>
       Cache.set("ebook", epub, 0)
-      Ok(views.html.workspace(List[(String,Long)](), bookForm.fill(epub)))
+      Ok(views.html.bookedit(List[(String,Long)](), bookForm.fill(epub)))
     }.getOrElse{
       //With error message
       println("[ERROR] Could not load file")
-      Ok(views.html.workspace(List[(String,Long)](),
+      Ok(views.html.bookedit(List[(String,Long)](),
         bookForm.withGlobalError("An error occurred while trying to load the file.")))
     }
   }
@@ -59,7 +59,7 @@ object EzoomBooks extends Controller{
   def newBook = Action{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
-        BadRequest(views.html.workspace(List[(String,Long)](), errors))
+        BadRequest(views.html.bookedit(List[(String,Long)](), errors))
       },
       book => {
         session.get("userId").map(UUID.fromString(_)).map{uid =>
@@ -70,9 +70,9 @@ object EzoomBooks extends Controller{
             println("My new book: " + newbook)
             BookDO.saveBook(newbook)
             UserDO.newUserBook(uid, newbook.bookId)
-            Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+            Ok(views.html.bookedit(UserDO.listBooks(uid), bookForm))
           }.getOrElse(
-            Ok(views.html.workspace(UserDO.listBooks(uid),
+            Ok(views.html.bookedit(UserDO.listBooks(uid),
               bookForm.withGlobalError("An error occurred while trying to save the file.")))
           )
         }.getOrElse(
