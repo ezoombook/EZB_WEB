@@ -34,7 +34,20 @@ object Application extends Controller {
       "id" -> text,
       "password" -> text
     ))
-
+    
+      val groupForm = Form(
+    tuple(
+      "groupName" -> text,
+      "ownerId" -> text
+    )
+  
+    )
+   
+def tutorial = Action {
+    Ok(views.html.tutorial())
+  }
+    
+    
   def index = Action {
     Redirect(routes.Application.login)
   }
@@ -91,7 +104,7 @@ object Application extends Controller {
    */
   def home = Action { implicit request =>
     session.get("userId").map(UUID.fromString(_)).map{uid => 
-      Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
     }.getOrElse(
 	    Unauthorized("Oops, you are not connected")
     )
