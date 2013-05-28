@@ -20,6 +20,7 @@ GET	    /group/:id		    controllers.Community.group(id:String)
 POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
 # Books
+GET	/readbook				controllers.Application.readbook
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
