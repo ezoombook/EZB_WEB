@@ -66,21 +66,4 @@ object ExampleWithEpubLoader extends App{
   println("Ze book: " + book)
 }
 
-import books.util.Transformer
 
-object EZBLoader extends App{
-  val path = "/Users/mayleen/Documents/eZoomBook/colab_sample/RELNA DOU FEVRE.txt"
-
-  val lines = scala.io.Source.fromFile(path).getLines.toSeq
-
-  val result = Transformer(lines)
-  if(result.isRight){
-    val jsonResult = result.right.get
-    println(Json.prettyPrint(jsonResult))
-    jsonResult.validate[EzoomLayer].fold(
-      valid = (res => println("A valid ezoomlayer " + res)),
-      invalid = (e => println("Invalid object: " + e))
-    )
-  }else
-    println("Error: " + result.left.get)
-}

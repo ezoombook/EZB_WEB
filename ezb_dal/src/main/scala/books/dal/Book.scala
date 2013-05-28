@@ -52,6 +52,10 @@ trait BookComponent{
     }
   }
 
+  def getBook(bookId:UUID){
+
+  }
+
   def addPart(part:BookPart){
     couchclient.set("part:"+part.partId, 0, part.content) 
   }
