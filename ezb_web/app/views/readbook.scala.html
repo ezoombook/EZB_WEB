@@ -1,0 +1,61 @@
+@(listbook:List[Book])(implicit session:Session)
+
+<script>
+
+function toggle(divtag){
+		if(document.getElementById(divtag).style.display=="none"){
+			document.getElementById(divtag).style.display="block";
+		} else {
+			document.getElementById(divtag).style.display="none";
+		}
+	}
+</script>
+
+@main("read a book"){
+<style>
+
+.raccount{
+
+float:right;
+}
+</style>
+<h1>Books</h1>
+
+
+<div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+      <form href="#" method="GET">
+   <button type="submit">parameter</button></td>
+ 
+   <button type="submit">log out</button></td>
+   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </form>
+   </fieldset>
+</div>
+<li class=e><a href="/bookedit" class="bulle">Add a book</a></li>
+</br></br></br></br></br></br></br></br></br>
+
+
+<div class="CSSTableCool" >
+			<table>
+				<tbody>
+					<tr>
+						<th>Title</th><th>author</th><th>summary</th><th>dates of publication</th><th>edition</th><th>tags</th><th></th>
+					</tr>
+					@for(abook<-listbook){
+					<tr>
+						<td>@abook.bookTitle</td><td>@abook.bookAuthors</td><td>@abook.bookSummary</td><td>@abook.bookPublishedDates</td><td>@abook.bookPublishers</td><td>@abook.bookTags</td>
+						
+						<td></td>
+						
+						<input type="submit" value="read"></td>
+					}	
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+}

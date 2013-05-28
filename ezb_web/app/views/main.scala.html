@@ -3,6 +3,23 @@
 <!DOCTYPE html>
 
 <html>
+<style>
+
+li.e
+{
+float:left;
+}
+a.e
+{
+float:right;
+background-color:#696969;
+}
+p.two 
+{
+border-style:solid;
+border-width:medium;
+}
+</style>
     <head>
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
@@ -10,11 +27,68 @@
     </head>
     <body>
         <div class="container">
-        @content
+        
         </div>
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/underscore-min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/utils.js")" type="text/javascript"></script>
-        @scripts
-    </body>
+        
+         
+	
+         <header>
+			<p>
+			
+			<p>
+		</header>
+		<section id="article34" class="menu cool">
+		<fieldset><dl>
+			<li class=e><a href="/truehome" class="bulle">Home
+				<span><p> Reache the main menue </p></span>
+			</a></li>
+			
+			<li class=e><a href="/home" class="bulle">Workspace
+				<span><p> Your wall </p></span>
+			</a></li>
+		
+			<li class=e><a href="/readbook" class="bulle">Books
+				<span><p> Read a book </p></span>
+			</a></li>
+		
+			<li class=e><a href="/login" class="bulle">Login
+				<span><p> Go to your account </p></span>
+			</a></li>
+		
+			<li class=e><a href="/tutorial" class="bulle">Tutorial
+				<span><p> Learn to use the plateform </p></span>
+			</a></li>
+		
+			<li class=e><a href="/faq" class="bulle">FAQ
+				<span><p> Usual quesions of users</p></span>
+			</a></li>
+		
+			
+		
+			<li class=e><a href="#" class="bulle">Contact
+				<span><p> Us, not your friends</p></span>
+			</a></li>
+		</dl>
+		
+		<dl>
+			<li><a href="https://twitter.com" class=e >Twitter</a></li>
+			
+			<li ><a href="https://www.facebook.com" class=e >Facebook</a></li>
+		</dl>
+	
+		</section>
+		</fieldset>
+		
+		</br>
+		</br>
+		</br>
+	
+	 @scripts
+	@content
+	 </body>
+	 
+	
 </html>

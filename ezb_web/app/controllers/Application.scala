@@ -34,7 +34,28 @@ object Application extends Controller {
       "id" -> text,
       "password" -> text
     ))
+    
+      val groupForm = Form(
+    tuple(
+      "groupName" -> text,
+      "ownerId" -> text
+    )
+  
+    )
+    
+       def faq = Action {implicit request =>
+    Ok(views.html.faq())
+       }
+    
+       def truehome = Action {implicit request =>
+    Ok(views.html.truehome())
+       }
 
+def tutorial = Action {implicit request =>
+    Ok(views.html.tutorial())
+  }
+        
+    
   def index = Action {
     Redirect(routes.Application.login)
   }
@@ -68,7 +89,7 @@ object Application extends Controller {
   def validate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       errors => {
-	      BadRequest(views.html.login(errors))
+	      BadRequest(views.html.login(errors, UserDO.listUsers, userForm ))
       },
       up => {
       	if (UserDO.validateUser(up._1, up._2))
@@ -78,10 +99,10 @@ object Application extends Controller {
                 "userName" -> up._1
               )
             }.getOrElse(
-	            BadRequest(views.html.login(loginForm))
+	            BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
 	          )
 	      else
-	        BadRequest(views.html.login(loginForm))
+	        BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
       }
     )
   }
@@ -90,8 +111,8 @@ object Application extends Controller {
    * Displays the user home page
    */
   def home = Action { implicit request =>
-    session.get("userId").map(UUID.fromString(_)).map{uid =>
-      Ok(views.html.workspace(UserDO.listBooks(uid), bookForm))
+    session.get("userId").map(UUID.fromString(_)).map{uid => 
+      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
     }.getOrElse(
 	    Unauthorized("Oops, you are not connected")
     )
@@ -101,7 +122,11 @@ object Application extends Controller {
    * Displays the login form
    */
   def login = Action{ implicit request =>
-    Ok(views.html.login(loginForm))
+    Ok(views.html.login(loginForm, UserDO.listUsers, userForm ))
   }
 
+  /**
+  * Logout the user
+  */
+  
 }

@@ -1,0 +1,124 @@
+@(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session)
+
+@import helper._
+
+@scripts = {
+<script type="text/javascript">//<![CDATA[
+$(document).ready(function(){
+    $('#btnAddAuth').click(function () {
+        cloner('authors');
+    });
+    $('#btnAddLang').click(function () {
+        cloner('languages');
+    });
+    $('#btnAddPublshr').click(function () {
+        cloner('publishers');
+    });
+    $('#btnAddPubDate').click(function () {
+        cloner('published_dates');
+    });
+    $('#btnAddTag').click(function () {
+        cloner('tags');
+    });
+});
+
+
+
+function toggle(divtag){
+		if(document.getElementById(divtag).style.display=="none"){
+			document.getElementById(divtag).style.display="block";
+		} else {
+			document.getElementById(divtag).style.display="none";
+		}
+	}
+
+
+//]]>
+
+</script>
+}
+
+
+@main("Welcome to your Workingspace", scripts){
+
+<style>
+
+.raccount{
+
+float:right;
+}
+</style>
+
+    <h1>@session.get("userName")'s Working Space</h1>
+
+  <div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+      <form href="#" method="GET">
+   <button type="submit">parameter</button></td>
+ 
+   <button type="submit">log out</button></td>
+   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </form>
+   </fieldset>
+</div>
+
+    <h2>Your books: </h2>  
+    <u1>
+         @books.map {b =>
+             <f>@b._1 : @b._2</f>
+	 }
+    </u1>
+    </br>
+
+    <h2>Add a book:</h2>
+
+    @if(! bookForm.value.map(b => true).getOrElse(false)){
+        @form(routes.EzoomBooks.loadBook,
+             'enctype -> "multipart/form-data"){
+            <input type="file" name="book">
+        <p>
+             <input type="submit">
+        </p>
+        }
+    }
+
+    @form(routes.EzoomBooks.newBook){
+	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
+        @repeat(bookForm("authors")){f =>
+            <div id="authors0" style="margin-bottom:4px;" class="authors">
+            <h4>@inputText(f,'_label->"author")</h4>
+            </div>
+        }
+        <input type="button" id="btnAddAuth" value="Add another author" >
+
+        @repeat(bookForm("languages")){f =>
+            <div id="languages0" class="languages">
+                <h4>@inputText(f,'_label->"languages")</h4>
+            </div>
+        }
+        <input type="button" id="btnAddLang" value="Add another language" >
+
+        @repeat(bookForm("publishers")){f =>
+            <div id="publishers0" class="publishers">
+                <h4>@inputText(f,'_label->"publishers")</h4>
+            </div>
+        }
+        <input type="button" id="btnAddPublshr" value="Add another publisher" >
+
+        @repeat(bookForm("published_dates")){f =>
+            <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
+        }
+        <input type="button" id="btnAddPubDate" value="Add another published date" >
+
+        @repeat(bookForm("tags")){f =>
+            <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
+        }
+        <input type="button" id="btnAddTag" value="Add another tag" >
+
+        <h4>@textarea(bookForm("summary"))</h4>
+        <input type="submit" value="Go!">
+    }
+}
+
