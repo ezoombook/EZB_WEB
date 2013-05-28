@@ -42,11 +42,15 @@ object Application extends Controller {
     )
   
     )
-   
+    
+
 def tutorial = Action {
     Ok(views.html.tutorial())
   }
     
+  def readbook = Action {
+    Ok(views.html.readbook())
+  }
     
   def index = Action {
     Redirect(routes.Application.login)
@@ -81,7 +85,7 @@ def tutorial = Action {
   def validate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       errors => {
-	      BadRequest(views.html.login(errors))
+	      BadRequest(views.html.login(errors, UserDO.listUsers, userForm ))
       },
       up => {
       	if (UserDO.validateUser(up._1, up._2))
@@ -91,10 +95,10 @@ def tutorial = Action {
                 "userName" -> up._1
               )
             }.getOrElse(
-	            BadRequest(views.html.login(loginForm))
+	            BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
 	          )
 	      else
-	        BadRequest(views.html.login(loginForm))
+	        BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
       }
     )
   }
@@ -114,7 +118,7 @@ def tutorial = Action {
    * Displays the login form
    */
   def login = Action{ implicit request =>
-    Ok(views.html.login(loginForm))
+    Ok(views.html.login(loginForm, UserDO.listUsers, userForm ))
   }
 
 }
