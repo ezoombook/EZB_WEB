@@ -43,14 +43,18 @@ object Application extends Controller {
   
     )
     
+       def faq = Action {implicit request =>
+    Ok(views.html.faq())
+       }
+    
+       def truehome = Action {implicit request =>
+    Ok(views.html.truehome())
+       }
 
-def tutorial = Action {
+def tutorial = Action {implicit request =>
     Ok(views.html.tutorial())
   }
-    
-  def readbook = Action {
-    Ok(views.html.readbook())
-  }
+        
     
   def index = Action {
     Redirect(routes.Application.login)
@@ -121,4 +125,8 @@ def tutorial = Action {
     Ok(views.html.login(loginForm, UserDO.listUsers, userForm ))
   }
 
+  /**
+  * Logout the user
+  */
+  
 }

@@ -6,6 +6,7 @@
 GET     /                   controllers.Application.index
 
 GET	    /home			    controllers.Application.home
+GET	/truehome				controllers.Application.truehome
 
 GET	    /users			    controllers.Application.users
 POST	/users			    controllers.Application.newUser
@@ -20,12 +21,16 @@ GET	    /group/:id		    controllers.Community.group(id:String)
 POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
 # Books
-GET	/readbook				controllers.Application.readbook
+GET	/bookedit				controllers.EzoomBooks.bookedit
+GET	/readbook				controllers.EzoomBooks.readbook
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
 # Tutorial
 GET	/tutorial		   controllers.Application.tutorial
+
+# FAQ
+GET	/faq			controllers.Application.faq
 
 #EZOOMBOOK
 GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer

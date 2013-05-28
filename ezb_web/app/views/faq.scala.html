@@ -1,0 +1,24 @@
+@()(implicit session:Session)
+@main("FAQ"){
+<style>
+
+.raccount{
+
+float:right;
+}
+</style>
+<h1>FAQ</h1>
+<div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+      <form href="#" method="GET">
+   <button type="submit">parameter</button></td>
+ 
+   <button type="submit">log out</button></td>
+   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </form>
+   </fieldset>
+</div>
+
+}

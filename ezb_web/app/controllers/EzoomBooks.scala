@@ -163,4 +163,11 @@ object EzoomBooks extends Controller{
     Cache.getAs[Book]("ebook")
   }
 
+   def readbook = Action {implicit request =>
+    Ok(views.html.readbook(List[Book]()))
+  }
+   def bookedit = Action {implicit request =>
+    Ok(views.html.bookedit(List[(String, Long)](),bookForm))
+  }
+  
 }
