@@ -106,7 +106,8 @@ object EzoomBooks extends Controller{
       },
       ezl => {
         try{
-          println("EZB ok!!" + Json.toJson(ezl))
+          //println("EZB ok!!" + Json.toJson(ezl))
+          BookDO.saveLayer(ezl)
         }catch{
           case e => println("[ERROR] Oops caught an exception while parsing object:")
                     e.printStackTrace()
