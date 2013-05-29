@@ -1,0 +1,123 @@
+@(listbook:List[Book])(implicit session:Session)
+@main("advanced search"){
+<style>
+	
+.photo{
+  position: absolute;
+   top: 280px;
+  right: 30%;
+}
+.raccount{
+
+float:right;
+}
+
+.text{
+  position: absolute;
+   top: 300px;
+  left: 3%;
+}
+.author{
+  position: absolute;
+   top: 380px;
+  left: 3%;
+}
+.category{
+  position: absolute;
+   top: 460px;
+  left: 3%;
+}
+.year{
+  position: absolute;
+   top: 300px;
+  right: 3%;
+}
+.type{
+  position: absolute;
+   top: 380px;
+  right: 3%;
+}
+.abutton{
+  position: absolute;
+   top: 490px;
+  right: 10%;
+}
+</style>
+  <img border="0" src=@routes.Assets.at("/images/paysage.jpg") width="40%" height="300" alt="WTF" class="photo"  >
+</br>
+
+<div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+      <form href="#" method="GET">
+   <button type="submit">parameter</button></td>
+ 
+   <button type="submit">log out</button></td>
+   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </form>
+   </fieldset>
+</div>
+
+<fieldset>
+    <form id="searchbox" action="" style="width:50%">
+    <input id="search" type="text" placeholder="Search"style="width:75%">
+    <input id="submit" type="submit" value="Search">
+   
+</form>
+ <body>
+    </fieldset>
+</br></br></br></br>
+<fieldset>
+ <form id="searchbox" action="" class="author">
+    <input id="search" type="text" placeholder="Author">
+    <input id="submit" type="submit" value="Search">
+   
+</form>
+ <form id="searchbox" action="" class="category">
+    <input id="search" type="text" placeholder="Category">
+    <input id="submit" type="submit" value="Search">
+   
+</form>
+ <form id="searchbox" action="" class="year">
+    <input id="search" type="text" placeholder="Year">
+    <input id="submit" type="submit" value="Search">
+   
+</form>
+
+ <form id="searchbox" action="" class="type">
+    <input id="search" type="text" placeholder="Type">
+    <input id="submit" type="submit" value="Search">
+   
+</form> 
+ <form id="searchbox" action="" class="text">
+    <input id="search" type="text" placeholder="Text">
+    <input id="submit" type="submit" value="Search">
+   
+</form>
+<button type="submit" class="abutton" style="width:100px ; height: 35px">Search</button>
+
+</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
+<div class="CSSTableCool" >
+			<table>
+				<tbody>
+					<tr>
+						<th>Title</th><th>Author</th><th>Category</th><th>Year</th><th>Type</th><th>Rating</th><th></th>
+					</tr>
+					@for(abook<-listbook){
+					<tr>
+						<td>@abook.bookTitle</td><td>@abook.bookAuthors</td><td></td><td>@abook.bookPublishedDates</td><td></td>
+						
+						<td></td>
+						
+						<input type="submit" value="read"></td>
+					}	
+					</tr>
+				</tbody>
+			</table>
+	
+			</div>
+			</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
+</fieldset>
+</body>
+}

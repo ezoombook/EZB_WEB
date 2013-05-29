@@ -1,12 +1,28 @@
-@()(implicit session:Session)
+@(listbook:List[Book])(implicit session:Session)
 @main("Homeland"){
 
 <style>
-
+#search{
+width: 75%;
+}
+#searchbox
+{
+width: 90%;	
+}
 .raccount{
 
-float:right;
+position: absolute;
+   top: 150px;
+  left: 75%;
+  right: 0;
 }
+
+.logo{
+  position: absolute;
+   top: 150px;
+  right: 25%;
+}
+
 
 .rightpannel{
 		
@@ -31,10 +47,14 @@ width:25%;
 	
 }
 </style>
+<body>
 <section id="article34" class="menu cool">
+</br></br></br>
 
-   
-    </br></br></br>
+  <img border="0" src=@routes.Assets.at("/images/ezoombook2.png") width="50%" alt="eZoomBook" class="logo"  >
+
+  
+ </br>
  <div class="raccount">
     <fieldset>
    <legend><P><strong>My account</strong></p></legend>
@@ -47,6 +67,9 @@ width:25%;
    </form>
    </fieldset>
 </div>
+  
+ 
+   
 </br>
     </br></br>
     </br></br>
@@ -55,7 +78,27 @@ width:25%;
 <div class="leftpannel">
     <fieldset>
     </br>
-    
+    <p>Top books:</p>
+    </br>
+    <div class="CSSTableCool" >
+			<table>
+				<tbody>
+					<tr>
+						<th>Title</th><th></th>
+					</tr>
+					@for(abook<-listbook){
+					<tr>
+						//<td>@abook.bookTitle</td>
+						
+						<td></td>
+						
+						<input type="submit" value="read"></td>
+					}	
+					</tr>
+				</tbody>
+			</table>
+		</div>
+    </br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
     </fieldset>
 </div>
 
@@ -96,8 +139,30 @@ width:25%;
 </div>
 <div class="midlepannel">
     <fieldset>
+    <p>Find your text in a few clicks :</p>
+    <fieldset>
+    <form id="searchbox" action="">
+    <input id="search" type="text" placeholder="Type here">
+    <input id="submit" type="submit" value="Search">
+   
+</form>
+ <a href="/asearch"><button type="submit">advence search</button></a>
+    </fieldset>
+ </br>
     </br>
+    </br> </br> </br>
     </br>
+    </br> </br> </br>
+    </br> </br>
+    </br>
+    </br> </br> </br>
+    </br> </br>
+    </br>
+    </br> </br> </br>
+    </br>
+    </br> </br> </br></br> </br> </br>
+    
+   
     </fieldset>
 </div>
 
@@ -105,4 +170,5 @@ width:25%;
 
 </div>
 </section>
+</body>
 }
