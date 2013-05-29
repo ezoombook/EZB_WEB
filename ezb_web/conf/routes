@@ -43,6 +43,9 @@ POST	/groups		       controllers.Community.newGroup
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
 
+#Advanced search
+GET	/asearch		controllers.Application.asearch
+
 # To create some data
 GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
