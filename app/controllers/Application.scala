@@ -29,6 +29,8 @@ object Application extends Controller {
       ((user: User) => Some(user.name, user.email, ""))
   )
 
+
+  
   val loginForm = Form(
     tuple(
       "id" -> text,
@@ -43,12 +45,17 @@ object Application extends Controller {
   
     )
     
+    
        def faq = Action {implicit request =>
     Ok(views.html.faq())
        }
+       
+       def asearch = Action {implicit request =>
+    Ok(views.html.asearch(List[Book]()))
+       }
     
        def truehome = Action {implicit request =>
-    Ok(views.html.truehome())
+    Ok(views.html.truehome(List[Book]()))
        }
 
 def tutorial = Action {implicit request =>
@@ -59,6 +66,8 @@ def tutorial = Action {implicit request =>
   def index = Action {
     Redirect(routes.Application.login)
   }
+  
+
 
   /**
    * Lists existing users
