@@ -67,7 +67,7 @@ object EzbForms {
     "ezoomlayer_id" -> default(of[UUID], ezlId),
     "ezoombook_id" -> default(of[UUID], ezbId),
     "user_id" -> default(of[UUID], uid),
-    "contrib_part" -> default(text, partId),
+    "contrib_part" -> optional(text),
     "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
     "contrib_locked" -> default(boolean, false),
     "contrib_content" -> default(text, ""),
@@ -82,7 +82,7 @@ object EzbForms {
     "ezoomlayer_id" -> of[UUID],
     "ezoombook_id" -> of[UUID],
     "user_id" -> of[UUID],
-    "contrib_part" -> text,
+    "contrib_part" -> optional(text),
     "contrib_status" -> of[Status.Value],
     "contrib_locked" -> boolean,
     "contrib_content" -> text,
@@ -97,7 +97,7 @@ object EzbForms {
     "ezoomlayer_id" -> of[UUID],
     "ezoombook_id" -> of[UUID],
     "user_id" -> of[UUID],
-    "contrib_part" -> text,
+    "contrib_part" -> optional(text),
     "contrib_status" -> of[Status.Value],
     "contrib_locked" -> boolean,
     "contrib_content" -> text
@@ -109,7 +109,7 @@ object EzbForms {
     "ezoomlayer_id" -> ignored(ezlid),
     "ezoombook_id" -> ignored(ezbid),
     "user_id" -> ignored(uid),
-    "contrib_part" -> ignored(partid),
+    "contrib_part" -> optional(ignored(partid)),
     "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
     "contrib_locked" -> default(boolean, true),
     "contrib_content" -> text
@@ -121,7 +121,7 @@ object EzbForms {
     ezoomlayer_id: UUID,
     ezoombook_id: UUID,
     user_id: UUID,
-    part_id: String,
+    part_id: Option[String],
     contrib_status: Status.Value,
     contrib_locked: Boolean,
     contrib_content: String,
@@ -130,7 +130,7 @@ object EzbForms {
     part_contribs: Option[List[AtomicContrib]]):Contrib = contrib_type match{
       case "contrib.Part" =>
         EzlPart(contrib_id,ezoomlayer_id,ezoombook_id,user_id,part_id,contrib_status,contrib_locked,
-          part_title.getOrElse(""),part_summary.getOrElse(""),part_contribs.getOrElse(List[AtomicContrib]()))
+          part_title.getOrElse(""),part_summary,part_contribs.getOrElse(List[AtomicContrib]()))
       case _ =>
         AtomicContrib(contrib_id,contrib_type,ezoomlayer_id,ezoombook_id,
           user_id,part_id,contrib_status,contrib_locked,contrib_content)
@@ -151,7 +151,7 @@ object EzbForms {
       case _ => None
     },
     contrib match{
-      case part:EzlPart => Some(part.part_summary)
+      case part:EzlPart => part.part_summary
       case _ => None
     },
     contrib match{
