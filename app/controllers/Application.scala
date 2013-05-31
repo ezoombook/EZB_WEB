@@ -50,6 +50,10 @@ object Application extends Controller {
     Ok(views.html.faq())
        }
        
+       def contact = Action {implicit request =>
+    Ok(views.html.contact())
+       }
+       
        def asearch = Action {implicit request =>
     Ok(views.html.asearch(List[Book]()))
        }
