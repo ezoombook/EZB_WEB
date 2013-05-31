@@ -156,6 +156,10 @@ object EzoomBooks extends Controller{
     }
   }
 
+  def listBooks = Action{implicit request =>
+    Ok(views.html.listbooks(BookDO.listBooks))
+  }
+
   /**
    * Gets the current working book from the cache
    * @return
