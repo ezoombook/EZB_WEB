@@ -106,7 +106,8 @@ object EzoomBooks extends Controller{
       },
       ezl => {
         try{
-          println("EZB ok!!" + Json.toJson(ezl))
+          //println("EZB ok!!" + Json.toJson(ezl))
+          BookDO.saveLayer(ezl)
         }catch{
           case e => println("[ERROR] Oops caught an exception while parsing object:")
                     e.printStackTrace()
@@ -153,6 +154,10 @@ object EzoomBooks extends Controller{
       Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid).
         withGlobalError("An error occurred while trying to load the file.")))
     }
+  }
+
+  def listBooks = Action{implicit request =>
+    Ok(views.html.listbooks(BookDO.listBooks))
   }
 
   /**
