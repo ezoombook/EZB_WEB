@@ -17,6 +17,7 @@ GET	    /login			    controllers.Application.login
 # Community
 GET	    /groups			    controllers.Community.groups
 GET	    /group/:id		    controllers.Community.group(id:String)
+GET	    /project            controllers.Community.project
 
 POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
@@ -42,6 +43,7 @@ POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
 
 #Groups
 POST	/groups		       controllers.Community.newGroup	
+
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)

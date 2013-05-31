@@ -1,8 +1,16 @@
-@(groupId:String, groupName:String, members:List[User], memberForm:Form[(String,String)])(implicit session:Session)
+@(groupId:String, groupName:String, members:List[User], memberForm:Form[(String,String)] )(implicit session:Session)
 
 @import helper._
 
+<script>
+function overlay() {
+	el = document.getElementById("overlay");
+	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+}
+</script>
+
 @main("Group "){
+
 <style>
 
 .raccount{
@@ -34,7 +42,7 @@
   left: 0;
 }
 </style>
-</br><a href="/asearch"><button type="submit">add a member</button></a></br>
+</br><a href='#' onclick='overlay()'>add a member</a></br>
 <div class="raccount">
     <fieldset>
    <legend><P><strong>My account</strong></p></legend>
@@ -50,17 +58,35 @@
 </br></br></br></br></br></br></br>
 <div class="leftpannel">
 <fieldset>
-<legend><h1>My groups</h1></legend>
-<div class="CSSTableCool" >
+<h1 style="float:left">Create a project</h1>
+</br></br></br></br>
+
+ @** @form(routes.Community.newProject){
+	    <h4>@inputText(projectForm("projectName"),'_label->"Name of the project")</h4>
+	   
+	   @hidden(projectForm("ownerId"), 'value -> session.get("userId"))
+	    <input type="submit" value="Create a project"> }**@
+	     
+</br>
+<fieldset>
+            <legend><h1>My project</h1></legend>
+  
+    
+    <div class="CSSTableCool" >
 			<table>
 				<tbody>
 					<tr>
-						<th>Title</th><th>Your status</th><th></th>
+						<th>Title</th><th>You own</th><th></th>
 					</tr>
+				
+					
 					
 				</tbody>
 			</table>
 		</div>
+
+    </fieldset>
+    </fieldset>
 		</fieldset>
 </div>
 
@@ -99,32 +125,8 @@
    <fieldset>
    <legend><h1>@groupName Group</h1></legend>
     </br></br></br><div style="height:750px;width:100%;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
-<p>
-Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In porttitor placerat purus, at fringilla felis euismod sed. Maecenas augue neque, placerat in pharetra ac, rutrum eu metus. Nunc a nisi neque. Sed enim quam, tristique quis iaculis nec, tincidunt quis sem. Duis dolor massa, ornare sit amet fermentum eu, lobortis in mauris.
-</p>
-<p>
-Nulla suscipit, magna eget posuere hendrerit, lectus massa mollis turpis, vitae commodo enim lorem pharetra tortor. Mauris sit amet massa justo. Praesent eget nibh quis neque congue ultricies. Fusce ut neque vel arcu euismod condimentum. Nunc suscipit sem et libero tincidunt scelerisque. Mauris ac elit lorem, nec tincidunt mi. Quisque dictum purus eu ipsum consectetur tempus. Maecenas vel elit ac velit molestie congue eu ac orci. Duis scelerisque lacus risus, ut euismod nulla.
-</p>
-<p>
-Pellentesque placerat ornare massa, nec laoreet lorem varius in. Aliquam vehicula fringilla diam, id gravida quam suscipit eu. Phasellus mauris magna, imperdiet vel posuere ut, iaculis et ante. Aliquam nec sem augue, at venenatis ipsum. Duis vehicula eleifend pharetra. Sed consectetur erat eget diam rutrum eu bibendum dui imperdiet. Aliquam erat volutpat. Suspendisse sodales elementum elit sit amet dapibus. Nulla lacinia convallis odio, eget laoreet odio fringilla eget. Nulla a elementum justo. Morbi interdum commodo risus sed rutrum. Sed vel libero ipsum, ut lacinia dolor.
-</p>
-<p>
-Mauris lobortis, neque nec hendrerit facilisis, felis lacus tristique elit, tincidunt iaculis mauris justo ut nulla. Mauris venenatis, dui in fermentum mollis, nisi enim condimentum mi, adipiscing facilisis odio turpis eget velit. Vestibulum a magna non nibh luctus sodales gravida ut mi. Pellentesque sollicitudin consectetur sapien sit amet ornare. Morbi porttitor, arcu ut cursus fermentum, augue magna tincidunt leo, vitae eleifend risus sem at leo. Integer consectetur pharetra arcu, sit amet semper lectus vulputate id. Donec iaculis libero eu eros tincidunt in vulputate mauris vehicula. Integer leo nisi, adipiscing vitae blandit eget, ullamcorper sit amet ante. Suspendisse imperdiet, mi eget molestie vestibulum, tortor ante venenatis orci, vel facilisis ipsum leo ut mauris. Nunc eget magna quis nibh feugiat mollis ut quis enim. Fusce tincidunt, tortor eget tristique hendrerit, metus sem rutrum augue, et venenatis velit massa vitae sapien. Pellentesque vitae viverra nibh.
-</p>
-<p>
-Pellentesque justo libero, facilisis mollis porta at, accumsan sed est. Phasellus eleifend aliquet magna. Aliquam vestibulum leo id odio dapibus bibendum. Aliquam fringilla aliquam vulputate. Sed nec purus rhoncus lectus blandit lacinia. Pellentesque ut ante sed nisi laoreet ullamcorper. Sed cursus elementum felis ac iaculis.
-</p>
-<p>
-Vivamus in eros eu libero faucibus rutrum. Ut luctus ligula eget ante mollis consequat. Morbi et diam id nisl pellentesque ultrices et vitae magna. Integer ultrices sagittis consectetur. Pellentesque vitae lobortis nisi. Nunc porta eros sed mi vulputate ac commodo elit dapibus. Fusce lobortis magna in nibh sodales quis lobortis erat cursus.
-</p>
-<p>
-Cras ac velit tellus. Aliquam eu justo ut felis ullamcorper venenatis ac non libero. Cras ut libero consectetur nisi tristique aliquet. Etiam vitae mi elit, quis consequat tortor. Nullam sagittis auctor sodales. Praesent arcu tellus, tincidunt ut consectetur et, porta vel ante. Vivamus nec consequat massa.
-</p>
-<p>
-Phasellus ullamcorper hendrerit elit, quis semper tortor tincidunt at. Morbi vitae diam id massa consectetur feugiat in ut augue. Vivamus viverra, mi vitae varius dignissim, dolor nibh ornare tellus, facilisis imperdiet risus tellus non est. Aliquam erat volutpat. Aliquam dignissim adipiscing neque quis elementum. Integer quis odio ante, eu tincidunt ante. Curabitur lobortis quam quis nunc laoreet pulvinar. Mauris sed augue non tortor molestie ultricies. Aenean placerat semper ornare. In tincidunt velit sed leo feugiat sed tincidunt felis pharetra. Donec at nibh elit. Donec dignissim augue ut leo tempor at mattis purus volutpat. Sed consequat consectetur vulputate. Curabitur volutpat, justo vel facilisis malesuada, leo urna facilisis mi, quis mollis magna purus vitae purus. Nulla id rutrum felis. Phasellus in erat mi.
-</p>
-<p>
-Nulla tincidunt rutrum nulla eu ornare. Fusce sed odio quis erat consequat consectetur dictum quis eros. Aliquam erat volutpat. Cras at tristique leo. Morbi id dolor et urna blandit ullamcorper. Donec neque lectus, tincidunt nec vehicula quis, aliquam nec ligula. Sed est nisi, semper in iaculis id, malesuada a felis. Morbi posuere, erat vel vehicula rutrum, magna urna vulputate leo, vitae adipiscing lacus leo at mi.
+ 
+  <noscript>Enable Javascript to get full functionality of this <a href="http://www.freeshoutbox.net/">shoutbox</a><br /></noscript><iframe src="http://artorius.freeshoutbox.net/" height="752" width="100%" frameborder="0"></iframe>
 
 </div>
    
@@ -146,22 +148,23 @@ Nulla tincidunt rutrum nulla eu ornare. Fusce sed odio quis erat consequat conse
     </br>
     </br> </br> </br>
     
-     <h2>Members:</h2>
-     <u1>        
-     @members.map{member =>
-         <li>@member.name</li>
-     }
-     </u1>
+    
 
+     
+     
+     <div id="overlay">
+     <div style="width:300px">
      <h2>Add Member:</h2>
-     <div class="alert alert-error">
-       @for(err <- memberForm.errors){
-           @err.message
-       }
-     </div>
+     
      @form(routes.Community.newGroupMember(groupId)){
          @inputText(memberForm("member id"))
          @select(memberForm("role"), UserDO.getGroupMemberRole)
          <input type="submit" value="Add">
      }
+     
+     <a href='#' onclick='overlay()'>close</a>
+          
+          </p>
+     </div>
+</div>
 }

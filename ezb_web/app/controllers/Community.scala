@@ -48,6 +48,14 @@ object Community extends Controller{
   
     )
    
+      val projectForm = Form(
+    tuple(
+      "projectName" -> text,
+      "ownerId" -> text
+    )
+  
+    )
+    
 
   /**
    * Displays the groups owned by a user
@@ -72,6 +80,20 @@ object Community extends Controller{
     )
   }
 
+    /**
+   * Displays the deails of a project
+   */
+ def project/*(projectId:String)*/ = Action{ implicit request =>
+   
+    //cachedProject(projectId).map{project =>
+      //val members = cachedProjectMembers(projectId)
+      //project.id.toString, project.name, members, memberForm
+      Ok(views.html.project())
+    //}.getOrElse(
+      //NotFound("Oops, the project you're looking for does not exists :(")
+    //)
+  }
+  
   /**
    * Adds a new member to a group
    */
@@ -105,6 +127,22 @@ object Community extends Controller{
       Unauthorized("Oops, you are not connected")
     )
   }
+  
+  
+  //def newProject = Action{ implicit request =>
+    //session.get("userId").map(UUID.fromString(_)).map{uid =>
+      //projectForm.bindFromRequest.fold(
+      //errors => 
+        //BadRequest(views.html.group(group.id.toString, group.name, members, memberForm, projectForm))
+      //,
+      //(project)=>{UserDO.newProject(project._1, uid)
+      //Ok(views.html.workspace(group.id.toString, group.name, members, memberForm, projectForm))
+      //}
+    //)}
+    //.getOrElse(
+      //Unauthorized("Oops, you are not connected")
+    //)
+  //}
     
   /**
    * Gets a group from the cache if it is there.

@@ -44,12 +44,36 @@ function toggle(divtag){
 <style>
 
 .raccount{
+position: absolute;
+   top: 170px;
+  left: 75%;
+  right:0;
+}
 
-float:right;
+.rightpannel{
+  position: absolute;
+   top: 170px;
+  left: 50%;
+ right:25%
+}
+
+.midlepannel{
+  position: absolute;
+   top: 170px;
+  right: 50%;
+  left: 25%;
+  
+}
+
+.leftpannel{
+  position: absolute;
+   top: 170px;
+  right: 75%;
+  left: 0%;
 }
 </style>
 
-    <h1>@session.get("userName")'s Working Space</h1>
+    <h1>Add a book</h1>
 
   <div class="raccount">
     <fieldset>
@@ -64,15 +88,10 @@ float:right;
    </fieldset>
 </div>
 
-    <h2>Your books: </h2>  
-    <u1>
-         @books.map {b =>
-             <f>@b._1 : @b._2</f>
-	 }
-    </u1>
+  
     </br>
-
-    <h2>Add a book:</h2>
+<fieldset class="leftpannel">
+    
 
     @if(! bookForm.value.map(b => true).getOrElse(false)){
         @form(routes.EzoomBooks.loadBook,
@@ -92,7 +111,9 @@ float:right;
             </div>
         }
         <input type="button" id="btnAddAuth" value="Add another author" >
-
+        
+      </fieldset>
+      <fieldset class="midlepannel">
         @repeat(bookForm("languages")){f =>
             <div id="languages0" class="languages">
                 <h4>@inputText(f,'_label->"languages")</h4>
@@ -111,7 +132,8 @@ float:right;
             <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
         }
         <input type="button" id="btnAddPubDate" value="Add another published date" >
-
+</fieldset>
+<fieldset class="rightpannel">
         @repeat(bookForm("tags")){f =>
             <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
         }
@@ -119,6 +141,7 @@ float:right;
 
         <h4>@textarea(bookForm("summary"))</h4>
         <input type="submit" value="Go!">
+        </fieldset>
     }
 }
 
