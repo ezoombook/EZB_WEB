@@ -27,6 +27,9 @@ GET	/readbook				controllers.EzoomBooks.readbook
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
+GET     /books              controllers.EzoomBooks.listBooks
+#GET     /books/:id          controllers.EzoomBooks.readBook
+
 # Tutorial
 GET	/tutorial		   controllers.Application.tutorial
 

@@ -19,4 +19,8 @@ object BookDO{
   def saveLayer(ezl:EzoomLayer){
     AppDB.cdal.saveLayer(ezl)
   }
+
+  def listBooks():List[Book] = {
+    AppDB.cdal.listBooks()
+  }
 }

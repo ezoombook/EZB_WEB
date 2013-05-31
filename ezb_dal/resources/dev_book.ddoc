@@ -1,0 +1,58 @@
+{
+    "views" : {
+        "by_tag" : {
+            "map" :
+                "function(doc, meta) {
+                    if(doc.bookTags){
+                        for(i=0; i < doc.bookTags.length; i++)
+                        {
+                           emit(doc.bookTags[i], null)
+                        }
+                    }
+                 }"
+        },
+        "by_author" : {
+            "map" :
+                "function(doc, meta) {
+                    if(doc.bookAuthors){
+                        for(i=0; i < doc.bookAuthors.length; i++)
+                        {
+                            emit(doc.bookAuthors[i], null)
+                        }
+                    }
+                 }"
+        },
+        "by_language" : {
+            "map" :
+                "function(doc, meta) {
+                     if(doc.bookLanguages){
+                        for(i=0; i < doc.bookLanguages.length; i++)
+                        {
+                           emit(doc.bookLanguages[i], null)
+                        }
+                     }
+                 }"
+        },
+        "by_date" : {
+            "map" :
+                "function(doc, meta) {
+                     if(doc.bookPublishedDate && doc.bookPublishedDate.length > 0){
+                       var dstr = doc.bookPublishedDate;
+                       if (dstr.indexOf('T') != -1)
+                         dstr = dstr.split('T')[0];
+
+                       var date = new Date(dstr);
+                       emit([date.getFullYear(), date.getMonth(), date.getDay()], null)
+                     }
+                 }"
+        },
+        "by_title" : {
+            "map" :
+                "function(doc,meta){
+                    if(doc.bookId && doc.bookTitle){
+                        emit(doc.bookTitle,[doc.bookAuthors,doc.bookPublishedDate,doc.bookTags,doc.bookSummary])
+                    }
+                }"
+        }
+    }
+}
