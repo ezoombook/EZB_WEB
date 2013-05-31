@@ -32,6 +32,9 @@ GET	/tutorial		   controllers.Application.tutorial
 # FAQ
 GET	/faq			controllers.Application.faq
 
+# Contact
+GET	/contact		controllers.Application.contact
+
 #EZOOMBOOK
 GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer
 POST    /ezlayer/load       controllers.EzoomBooks.loadEzoomLayer
