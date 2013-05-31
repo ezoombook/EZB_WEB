@@ -1,0 +1,24 @@
+@(bookList:List[Book])
+
+@import helper._
+
+@main("List of Books"){
+        <h1>Here are the books:</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th><th>author</th><th>dates of publication</th><th>tags</th><th>rating</th>
+                </tr>
+            </thead>
+            <tbody>
+            @bookList.map{book =>
+            <tr>
+                <td><a href="">@book.bookTitle</a></td>
+                <td>@book.bookAuthors(0)</td>
+                <td>@book.bookPublishedDates.mkString(",")</td>
+                <td>@book.bookTags.mkString(",")</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+}
