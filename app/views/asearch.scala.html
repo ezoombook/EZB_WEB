@@ -102,11 +102,11 @@ float:right;
 			<table>
 				<tbody>
 					<tr>
-						<th>Title</th><th>Author</th><th>Category</th><th>Year</th><th>Type</th><th>Rating</th><th></th>
+						<th>Title</th><th>Author</th><th>Year</th><th>Tag</th><th>Rating</th><th></th>
 					</tr>
 					@for(abook<-listbook){
 					<tr>
-						<td>@abook.bookTitle</td><td>@abook.bookAuthors</td><td></td><td>@abook.bookPublishedDates</td><td></td>
+						<td>@abook.bookTitle</td><td>@abook.bookAuthors</td><td>@abook.bookPublishedDates</td><td>@abook.bookTags</td><td></td>
 						
 						<td></td>
 						

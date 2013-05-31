@@ -1,0 +1,133 @@
+ @()(implicit session:Session) 
+
+@import helper._
+
+@import helper._
+@import utils.EzbHelpers._
+@import ezbhelper._
+
+
+
+@scripts = {
+<script type="text/javascript">//<![CDATA[
+    $(document).ready(function(){
+      
+         $('#btnAddezbsection').click(function () {
+         createField("projectsection", "textarea", "project_section", "", "section_set")
+        });
+        $('#btnAddezbsummary').click(function () {
+         createField("projectsummary", "textarea", "project_summary", "", "section_set")
+        });
+    });
+//]]>
+
+function overlay() {
+	el = document.getElementById("overlay");
+	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+}
+</script>
+}
+@main("Project", scripts){
+<style>
+.projectsection{
+width:100%;
+height:130px;
+ resize: none; 
+
+}
+.raccount{
+  position: absolute;
+   top: 150px;
+  right: 0;
+  left:75%;
+}
+
+.rightpannel{
+  position: absolute;
+   top: 300px;
+  left: 75%;
+  right: 0;
+}
+
+.midlepannel{
+  position: absolute;
+   top: 150px;
+  right: 25%;
+  left: 25%;
+  
+}
+
+.leftpannel{
+  position: absolute;
+   top: 150px;
+  right: 75%;
+  left: 0;
+}
+</style>
+</br><a href='#' onclick='overlay()'>add a member</a></br>
+<div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+      <form href="#" method="GET">
+   <button type="submit">parameter</button></td>
+ 
+   <button type="submit">log out</button></td>
+   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </form>
+   </fieldset>
+</div>
+</br></br></br></br></br></br></br>
+<div class="leftpannel">
+<fieldset>
+<legend><h1>Members</h1></legend>
+    <div class="CSSTableCool" >
+			<table>
+				<tbody>
+					<tr>
+						<th>Name</th><th>Status</th><th></th>
+					</tr>
+					
+				</tbody>
+			</table>
+		</div>
+		</fieldset>
+</div>
+
+
+<div class="rightpannel">
+
+    <fieldset>
+   
+  <noscript>Enable Javascript to get full functionality of this <a href="http://www.freeshoutbox.net/">shoutbox</a><br /></noscript><iframe src="http://artorius.freeshoutbox.net/" height="690" width="100%" frameborder="0"></iframe>
+
+    </fieldset>
+</div>
+<div class="midlepannel">
+   <fieldset id="section_set">
+    </br><input type="button" id="btnAddezbsection" value="add section"> 
+    <input type="button" id="btnAddezbsummary" value="add summary"><input type="button" value="validate"></br></br> 
+    </fieldset>
+</div>
+ </br>
+ 
+    
+<div id="overlay">
+     <div style="width:300px">
+     <h2>Add Member:</h2>
+     
+     @** @form(routes.Community.newGroupMember(groupId)){
+         @inputText(memberForm("member id"))
+         @select(memberForm("role"), UserDO.getGroupMemberRole)  **@
+         
+         <input type="submit" value="Add">
+     
+     
+     <a href='#' onclick='overlay()'>close</a>
+          
+          </p>
+     </div>
+</div>
+     
+     
+}
