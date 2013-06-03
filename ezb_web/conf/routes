@@ -32,7 +32,7 @@ POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
 
-#GET     /books/:id          controllers.EzoomBooks.readBook
+GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 
 
 # Tutorial
