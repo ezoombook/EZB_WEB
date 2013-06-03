@@ -1,0 +1,11 @@
+@(book:Book)
+
+@import helper._
+
+@main("Book Page"){
+    <h1>@book.bookTitle</h1>
+    <h2>Summary: </h2>
+    <p>
+        @book.bookSummary
+    </p>
+}
