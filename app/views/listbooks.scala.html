@@ -1,6 +1,7 @@
 @(bookList:List[Book])(implicit session:Session)
 
 @import helper._
+@import ezbhelper._
 
 <script>
 
@@ -40,21 +41,8 @@ float:right;
 <h1>Books</h1>
 
 
-<div class="raccount">
-    <fieldset>
-   <legend><P><strong>My account</strong></p></legend>
-   <p>Welcome @session.get("userName")</p>
-   <div>
-      <form href="#" method="GET">
-   <button type="submit" class="parameter">parameter</button>
-   	</form>
-   @form(routes.Application.userLogout){
-   	<input type="submit" class="logout" value="log out">
-   }
-   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </fieldset>
-   
-</div>
+@myaccount()
+
 <li class=e><a href="/bookedit" class="bulle">Add a book</a></li>
 </br></br></br></br></br></br></br></br></br>
 
