@@ -26,12 +26,14 @@ POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
 # Books
 GET	/bookedit				controllers.EzoomBooks.bookedit
+
 GET	/listbooks				controllers.EzoomBooks.listbooks
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
 
 #GET     /books/:id          controllers.EzoomBooks.readBook
+
 
 # Tutorial
 GET	/tutorial		   controllers.Application.tutorial

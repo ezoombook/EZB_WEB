@@ -87,8 +87,18 @@ trait BookComponent{
     }.toList
   }
 
-  def getBook(bookId:UUID){
-
+  def getBook(bookId:UUID):Option[Book] = {
+    couchclient.get("book:"+bookId) match{
+      case str:String => Json.parse(str).validate[Book].fold(
+        err => {
+          println(s"[ERROR] Invalid Json document with id ${bookId.toString}. Expected: Book")
+          println("[ERROR] " + err)
+          None
+        },
+        book => Some(book)
+      )
+      case _ => None
+    }
   }
 
   def addPart(part:BookPart){
