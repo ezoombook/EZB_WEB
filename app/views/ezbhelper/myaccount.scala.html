@@ -1,0 +1,20 @@
+@**
+* Generates HTML for "My Account" Box
+*
+*@
+
+@()(implicit session:Session)
+
+<div id="raccount">
+    <div class="titlebox"><P><strong>My account</strong></p></div>
+    <p>Welcome @session.get("userName")</p>
+    <div>
+        <form href="#" method="GET">
+            <button type="submit" class="parameter">parameter</button>
+        </form>
+        <form href="/logout" method="POST">
+            <input type="submit" class="logout" value="log out">
+        </form>
+    </div>
+    <img src="smiley.gif" alt="Smiley face" width="42" height="42">
+</div>
