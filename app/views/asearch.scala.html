@@ -1,4 +1,5 @@
 @(listbook:List[Book])(implicit session:Session)
+@import helper._
 @main("advanced search"){
 <style>
 	
@@ -8,8 +9,20 @@
   right: 30%;
 }
 .raccount{
-
+width:200px;
 float:right;
+}
+
+.parameter{
+  position: absolute;
+   top: 180px;
+  right: 75px;
+}
+
+.logout{
+  position: absolute;
+   top: 180px;
+  right: 15px;  
 }
 
 .text{
@@ -50,13 +63,16 @@ float:right;
     <fieldset>
    <legend><P><strong>My account</strong></p></legend>
    <p>Welcome @session.get("userName")</p>
+   <div>
       <form href="#" method="GET">
-   <button type="submit">parameter</button></td>
- 
-   <button type="submit">log out</button></td>
-   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </form>
+   <button type="submit" class="parameter">parameter</button>
+   	</form>
+   @form(routes.Application.userLogout){
+   	<input type="submit" class="logout" value="log out">
+   }
+   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
    </fieldset>
+   
 </div>
 
 <fieldset>
@@ -69,6 +85,7 @@ float:right;
     </fieldset>
 <h1>Advance search</h1>
 <fieldset>
+<form id="searchbox" action="" class="author">
  <form id="searchbox" action="" class="author">
     <input id="search" type="text" placeholder="Author">
     <input id="submit" type="submit" value="Search">
@@ -95,7 +112,8 @@ float:right;
     <input id="submit" type="submit" value="Search">
    
 </form>
-<button type="submit" class="abutton" style="width:100px ; height: 35px">Search</button>
+<button type="submit" class="abutton"  style="width:100px ; height: 35px">Search</button>
+</form>
 
 </br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 <div class="CSSTableCool" >

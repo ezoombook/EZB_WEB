@@ -42,6 +42,19 @@ height:130px;
   left:75%;
 }
 
+
+.parameter{
+  position: absolute;
+   top: 80px;
+  right: 75px;
+}
+
+.logout{
+  position: absolute;
+   top: 80px;
+  right: 15px;  
+}
+
 .rightpannel{
   position: absolute;
    top: 300px;
@@ -69,13 +82,16 @@ height:130px;
     <fieldset>
    <legend><P><strong>My account</strong></p></legend>
    <p>Welcome @session.get("userName")</p>
+   <div>
       <form href="#" method="GET">
-   <button type="submit">parameter</button></td>
- 
-   <button type="submit">log out</button></td>
-   <img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </form>
+   <button type="submit" class="parameter">parameter</button>
+   	</form>
+   @form(routes.Application.userLogout){
+   	<input type="submit" class="logout" value="log out">
+   }
+   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
    </fieldset>
+   
 </div>
 </br></br></br></br></br></br></br>
 <div class="leftpannel">
@@ -98,9 +114,8 @@ height:130px;
 <div class="rightpannel">
 
     <fieldset>
-   
-  <noscript>Enable Javascript to get full functionality of this <a href="http://www.freeshoutbox.net/">shoutbox</a><br /></noscript><iframe src="http://artorius.freeshoutbox.net/" height="690" width="100%" frameborder="0"></iframe>
-
+  <!-- Start HTML Code --><iframe WIDTH="100%" HEIGHT="690" title="Shoutbox" src="http://shoutbox.widget.me/window.html?uid=" frameborder="0" scrolling="auto"></iframe><script src="http://shoutbox.widget.me/v1.js" type="text/javascript"></script><br><!-- End --> 
+  
     </fieldset>
 </div>
 <div class="midlepannel">

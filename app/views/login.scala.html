@@ -28,6 +28,9 @@ clear : both;
 float:left;
 width:50%;
 }
+.label {
+   display:block;
+}
 </style>
     
 
@@ -36,8 +39,8 @@ width:50%;
     <fieldset> </br></br></br>
     	<fieldset>
     @form(routes.Application.validate){
-        @inputText(loginForm("id"), '_label -> "Username or email:")
-        @inputPassword(loginForm("password"))
+        @inputText(loginForm("id"), '_label -> <p>Username or email</p>)
+        @inputPassword(loginForm("password"), '_label -> <p>password</p>)
         <a href="#">forgot your password?</a>
         <input type="submit" value="Log in" style='float:right'>
     }
@@ -45,6 +48,7 @@ width:50%;
    </br></br>
   <hr style="color:black; background-color:black; height:1px;" /> 
    </br></br> <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a></br>
+  </br>
    </fieldset>
    </div>
    
@@ -55,14 +59,14 @@ width:50%;
 	<h2>Create User</h2>
 
     @form(routes.Application.newUser) {
-        @inputText(userForm("username"))
-	@inputText(userForm("mail"))
-	@inputText(userForm("password"))
+        @inputText(userForm("username"), '_label -> <p>Username</p>)
+	@inputText(userForm("mail"), '_label -> <p>Mail</p>)
+	@inputText(userForm("password"), '_label -> <p>password</p>)
 	
 	<a href='#' onclick='overlay()'>Contract license</a>
 	<form action="">
-<input type="checkbox" onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >I agree with Contract License<br>
-<input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook
+<a><input type="checkbox" onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >I agree with Contract License</a>
+<a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
 
 <input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
 </form>
