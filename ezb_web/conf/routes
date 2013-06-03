@@ -22,12 +22,12 @@ POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
 # Books
 GET	/bookedit				controllers.EzoomBooks.bookedit
-GET	/readbook				controllers.EzoomBooks.readbook
+# GET	/readbook				controllers.EzoomBooks.readbook
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
 GET     /books              controllers.EzoomBooks.listBooks
-#GET     /books/:id          controllers.EzoomBooks.readBook
+GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 
 # Tutorial
 GET	/tutorial		   controllers.Application.tutorial

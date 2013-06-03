@@ -3,6 +3,7 @@ package models
 import books.dal._
 import books.util._
 
+import java.util.UUID
 import java.io.{InputStream, FileInputStream, ByteArrayInputStream, File}
 import java.util.zip.ZipFile
 
@@ -22,5 +23,9 @@ object BookDO{
 
   def listBooks():List[Book] = {
     AppDB.cdal.listBooks()
+  }
+
+  def getBook(bookId:String):Option[Book] = {
+    AppDB.cdal.getBook(UUID.fromString(bookId))
   }
 }
