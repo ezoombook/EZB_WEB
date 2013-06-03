@@ -160,6 +160,15 @@ object EzoomBooks extends Controller{
     Ok(views.html.listbooks(BookDO.listBooks))
   }
 
+  def readBook(id:String) = Action{implicit request =>
+    BookDO.getBook(id).map(book =>
+      Ok(views.html.book(book))
+    ).getOrElse{
+      println("[ERROR] Could not load book " + id)
+      BadRequest(views.html.listbooks(BookDO.listBooks))
+    }
+  }
+
   /**
    * Gets the current working book from the cache
    * @return
@@ -168,9 +177,9 @@ object EzoomBooks extends Controller{
     Cache.getAs[Book]("ebook")
   }
 
-   def readbook = Action {implicit request =>
-    Ok(views.html.readbook(List[Book]()))
-  }
+//   def readbook = Action {implicit request =>
+//    Ok(views.html.readbook(List[Book]()))
+//  }
    def bookedit = Action {implicit request =>
     Ok(views.html.bookedit(List[(String, Long)](),bookForm))
   }
