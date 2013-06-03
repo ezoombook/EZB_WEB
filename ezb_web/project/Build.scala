@@ -18,7 +18,12 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here    
-    templatesImport ++= Seq("users.dal._","books.dal._")
+    templatesImport ++= Seq("users.dal._","books.dal._") ,
+    lessEntryPoints <<= baseDirectory(customLessEntryPoints)
   )
 
+  // Only compile the bootstrap bootstrap.less file and any other *.less file in the stylesheets directory
+  def customLessEntryPoints(base: File): PathFinder =
+    ( (base / "app" / "assets" / "stylesheets" / "bootstrap" * "bootstrap.less") +++
+      (base / "app" / "assets" / "stylesheets" * "*.less") )
 }
