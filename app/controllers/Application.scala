@@ -141,5 +141,8 @@ def tutorial = Action {implicit request =>
   /**
   * Logout the user
   */
-  
+  def userLogout = Action { implicit request =>
+		
+		Redirect(routes.Application.login).withNewSession
+	}
 }

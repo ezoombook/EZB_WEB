@@ -14,6 +14,9 @@ POST	/users			    controllers.Application.newUser
 POST	/login			    controllers.Application.validate
 GET	    /login			    controllers.Application.login
 
+#logout
+POST		/logout						controllers.Application.userLogout
+
 # Community
 GET	    /groups			    controllers.Community.groups
 GET	    /group/:id		    controllers.Community.group(id:String)
@@ -23,11 +26,11 @@ POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
 # Books
 GET	/bookedit				controllers.EzoomBooks.bookedit
-GET	/readbook				controllers.EzoomBooks.readbook
+GET	/listbooks				controllers.EzoomBooks.listbooks
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 
-GET     /books              controllers.EzoomBooks.listBooks
+
 #GET     /books/:id          controllers.EzoomBooks.readBook
 
 # Tutorial

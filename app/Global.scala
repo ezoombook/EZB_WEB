@@ -29,4 +29,9 @@ object Global extends DalSettings with DBeable{
 	println("[INFO] Database Created!")
     }
   }
+  
+  override def onStop(app: Application) {
+  }
 }
+
+
