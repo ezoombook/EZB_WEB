@@ -1,24 +1,82 @@
-@(bookList:List[Book])
+@(bookList:List[Book])(implicit session:Session)
 
 @import helper._
 
-@main("List of Books"){
-        <h1>Here are the books:</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th><th>author</th><th>dates of publication</th><th>tags</th><th>rating</th>
-                </tr>
-            </thead>
-            <tbody>
-            @bookList.map{book =>
-            <tr>
-                <td><a href="">@book.bookTitle</a></td>
-                <td>@book.bookAuthors(0)</td>
-                <td>@book.bookPublishedDates.mkString(",")</td>
-                <td>@book.bookTags.mkString(",")</td>
-            </tr>
-            }
-            </tbody>
-        </table>
+<script>
+
+function toggle(divtag){
+		if(document.getElementById(divtag).style.display=="none"){
+			document.getElementById(divtag).style.display="block";
+		} else {
+			document.getElementById(divtag).style.display="none";
+		}
+	}
+</script>
+
+@main("read a book"){
+<style>
+
+.raccount{
+width:200px;
+float:right;
+}
+
+.parameter{
+  position: absolute;
+   top: 250px;
+  right: 75px;
+}
+
+.logout{
+  position: absolute;
+   top: 250px;
+  right: 15px;  
+}
+.CSSTableCool { 
+  height: 10px; 
+}
+</style>
+
+<h1>Books</h1>
+
+
+<div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+   <div>
+      <form href="#" method="GET">
+   <button type="submit" class="parameter">parameter</button>
+   	</form>
+   @form(routes.Application.userLogout){
+   	<input type="submit" class="logout" value="log out">
+   }
+   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </fieldset>
+   
+</div>
+<li class=e><a href="/bookedit" class="bulle">Add a book</a></li>
+</br></br></br></br></br></br></br></br></br>
+
+
+<div class="CSSTableCool" >
+			<table>
+				<tbody>
+					<tr>
+						<th>Title</th><th>author</th><th>dates of publication</th><th>tags</th><th></th>
+					</tr>
+					@for(abook<-bookList){
+					<tr>
+						<td><a href="/books/@abook.bookId">@abook.bookTitle</a></td><td>@abook.bookAuthors</td><td>@abook.bookPublishedDates</td><td>@abook.bookTags</td>
+						
+						<td>
+						
+						<input type="submit" value="edit"></td>
+					}	
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	
+
 }
