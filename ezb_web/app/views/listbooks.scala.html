@@ -1,4 +1,4 @@
-@(bookList:List[Book])(implicit session:Session)
+@(bookList:List[Book])(implicit session:Session, context:Context)
 
 @import helper._
 @import ezbhelper._
@@ -40,8 +40,6 @@ float:right;
 
 <h1>Books</h1>
 
-
-@myaccount()
 
 <li class=e><a href="/bookedit" class="bulle">Add a book</a></li>
 </br></br></br></br></br></br></br></br></br>
