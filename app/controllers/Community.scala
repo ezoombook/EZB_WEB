@@ -31,7 +31,7 @@ import java.util.UUID
  * Manage community related operations: groups, etc
  *
  */
-object Community extends Controller{
+object Community extends Controller with ContextProvider{
 
   val memberForm = Form(
     tuple(
