@@ -1,4 +1,6 @@
-@(title: String, scripts: Html = Html(""))(content: Html)
+@(title: String, scripts: Html = Html(""))(content: Html)(implicit context:Context)
+
+@import ezbhelper._
 
 <!DOCTYPE html>
 
@@ -25,7 +27,7 @@ border-width:medium;
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         @** <!-- Bootstrap --> **@
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.min.css")" />
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.css")" />
     </head>
     <body>
         <div class="container">
@@ -59,11 +61,7 @@ border-width:medium;
                                 </ul>
                             </li>
                         </ul>
-                        <form class="navbar-form pull-right">
-                            <input class="span2" type="text" placeholder="Email">
-                            <input class="span2" type="password" placeholder="Password">
-                            <button type="submit" class="btn">Sign in</button>
-                        </form>
+                        @myaccount(AppForms.loginForm)
                     </div><!--/.nav-collapse -->
                 </div>
             </div>

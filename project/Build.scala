@@ -18,7 +18,7 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here    
-    templatesImport ++= Seq("users.dal._","books.dal._") ,
+    templatesImport ++= Seq("users.dal._","books.dal._","forms._") ,
     lessEntryPoints <<= baseDirectory(customLessEntryPoints)
   )
 
