@@ -34,20 +34,24 @@ width:50%;
 </style>
     
 
-</br></br></br>
+</br>
+
+<body>
+  <div class="container">
+  
  <div class="leftpannel">
-    <fieldset> </br></br></br>
+    <fieldset> </br></br></br></br>
     	<fieldset>
     @form(routes.Application.validate){
         @inputText(loginForm("id"), '_label -> <p>Username or email</p>)
         @inputPassword(loginForm("password"), '_label -> <p>password</p>)
         <a href="#">forgot your password?</a>
-        <input type="submit" value="Log in" style='float:right'>
+        <input type="submit" value="Log in">
     }
    </fieldset>
    </br></br>
-  <hr style="color:black; background-color:black; height:1px;" /> 
-   </br></br> <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a></br>
+  
+    <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a></br>
   </br>
    </fieldset>
    </div>
@@ -63,24 +67,14 @@ width:50%;
 	@inputText(userForm("mail"), '_label -> <p>Mail</p>)
 	@inputText(userForm("password"), '_label -> <p>password</p>)
 	
-	<a href='#' onclick='overlay()'>Contract license</a>
-	<form action="">
-<a><input type="checkbox" onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >I agree with Contract License</a>
-<a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
-
-<input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
-</form>
-
-    }	
-   </fieldset>
-   
-   </br> </br>
-   </fieldset>
-   </div>
-   
-   <div id="overlay">
-     <div >
-     <div style="height:500px;width:600px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+	
+	<div class="modal hide" id="infos">
+  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+    <h3>Contract license</h3>
+  </div>
+  <div class="modal-body">
+    <p><div >
+     
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce porttitor, tortor vitae semper accumsan, lorem eros laoreet eros, tempus rutrum augue erat eu nunc. Aliquam purus tortor, aliquam eget pulvinar in, pulvinar elementum ligula. Mauris quis egestas massa. Mauris tortor turpis, ullamcorper lobortis ultrices eget, semper quis libero. Curabitur porta lobortis nisi rutrum sodales. Nam vitae accumsan arcu. Duis ac consequat dui.
 </p>
 <p>
@@ -110,9 +104,32 @@ Phasellus ullamcorper hendrerit elit, quis semper tortor tincidunt at. Morbi vit
 <p>
 Nulla tincidunt rutrum nulla eu ornare. Fusce sed odio quis erat consequat consectetur dictum quis eros. Aliquam erat volutpat. Cras at tristique leo. Morbi id dolor et urna blandit ullamcorper. Donec neque lectus, tincidunt nec vehicula quis, aliquam nec ligula. Sed est nisi, semper in iaculis id, malesuada a felis. Morbi posuere, erat vel vehicula rutrum, magna urna vulputate leo, vitae adipiscing lacus leo at mi.
 
-        </div> <a href='#' onclick='overlay()'>close</a>
+        
           
           </p>
-     </div>
+     </div></p>
+  </div>
 </div>
+<a class="btn btn-primary" data-toggle="modal" href="#infos" >Contract license</a>
+</br></br>
+	
+	<form action="">
+<a><input type="checkbox" onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >I agree with Contract License</a></br></br>
+<a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
+
+<input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
+</form>
+
+    }	
+   </fieldset>
+   
+   </br> </br>
+   </fieldset>
+   </div>
+   
+  
+     
+
+
+</div></body>
 }

@@ -1,5 +1,4 @@
-@(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session, context:Context)
-
+@* @(books:List[(String, Long)], bookForm:Form[Book])
 @import helper._
 
 @scripts = {
@@ -39,56 +38,78 @@ function toggle(divtag){
 }
 
 
-@main("Welcome to your Workingspace", scripts){
+@main("reedit a book", scripts){
 
 <style>
 
+.raccount{
+position: absolute;
+   top: 170px;
+  left: 75%;
+  right:0;
+}
+
+
+.parameter{
+  position: absolute;
+   top: 80px;
+  right: 75px;
+}
+
+.logout{
+  position: absolute;
+   top: 80px;
+  right: 15px;  
+}
 
 
 .rightpannel{
   position: absolute;
    top: 170px;
-  left: 60%;
- right:0%
+  left: 50%;
+ right:25%
 }
 
 .midlepannel{
   position: absolute;
    top: 170px;
-  right: 42%;
-  
+  right: 50%;
+  left: 25%;
   
 }
 
 .leftpannel{
   position: absolute;
    top: 170px;
-  right: 63%;
- 
+  right: 75%;
+  left: 0%;
 }
 </style>
- </br> </br> </br>
- 
- <body>
-  <div class="container">
+
     <h1>Add a book</h1>
 
-
+ <div class="raccount">
+    <fieldset>
+   <legend><P><strong>My account</strong></p></legend>
+   <p>Welcome @session.get("userName")</p>
+   <div>
+      <form href="#" method="GET">
+   <button type="submit" class="parameter">parameter</button>
+   	</form>
+   @form(routes.Application.userLogout){
+   	<input type="submit" class="logout" value="log out">
+   }
+   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
+   </fieldset>
+   
+</div>
 
   
     </br>
 <fieldset class="leftpannel">
     
 
-    @if(! bookForm.value.map(b => true).getOrElse(false)){
-        @form(routes.EzoomBooks.loadBook,
-             'enctype -> "multipart/form-data"){
-            <input type="file" name="book">
-        <p>
-             <input type="submit">
-        </p>
-        }
-    }
+   
 
     @form(routes.EzoomBooks.newBook){
 	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
@@ -129,10 +150,6 @@ function toggle(divtag){
         <h4>@textarea(bookForm("summary"))</h4>
         <input type="submit" value="Go!">
         </fieldset>
- 
-       }
-       
-       </body>
-       </div>
+    }
 }
-
+*@

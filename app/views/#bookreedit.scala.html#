@@ -1,5 +1,4 @@
-@(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session, context:Context)
-
+@* @(books:List[(String, Long)], bookForm:Form[Book])
 @import helper._
 
 @scripts = {
@@ -39,38 +38,36 @@ function toggle(divtag){
 }
 
 
-@main("Welcome to your Workingspace", scripts){
+@main("reedit a book", scripts){
 
 <style>
+
 
 
 
 .rightpannel{
   position: absolute;
    top: 170px;
-  left: 60%;
- right:0%
+  left: 50%;
+ right:25%
 }
 
 .midlepannel{
   position: absolute;
    top: 170px;
-  right: 42%;
-  
+  right: 50%;
+  left: 25%;
   
 }
 
 .leftpannel{
   position: absolute;
    top: 170px;
-  right: 63%;
- 
+  right: 75%;
+  left: 0%;
 }
 </style>
- </br> </br> </br>
- 
- <body>
-  <div class="container">
+
     <h1>Add a book</h1>
 
 
@@ -80,15 +77,7 @@ function toggle(divtag){
 <fieldset class="leftpannel">
     
 
-    @if(! bookForm.value.map(b => true).getOrElse(false)){
-        @form(routes.EzoomBooks.loadBook,
-             'enctype -> "multipart/form-data"){
-            <input type="file" name="book">
-        <p>
-             <input type="submit">
-        </p>
-        }
-    }
+   
 
     @form(routes.EzoomBooks.newBook){
 	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
@@ -129,10 +118,6 @@ function toggle(divtag){
         <h4>@textarea(bookForm("summary"))</h4>
         <input type="submit" value="Go!">
         </fieldset>
- 
-       }
-       
-       </body>
-       </div>
+    }
 }
-
+*@

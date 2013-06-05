@@ -46,44 +46,32 @@ function toggle(divtag){
 
 <style>
 
-.raccount{
-width:200px;
-float:right;
-}
 
-.parameter{
-  position: absolute;
-   top: 220px;
-  right: 75px;
-}
-
-.logout{
-  position: absolute;
-   top: 220px;
-  right: 15px;  
-}
 .rightpannel{
-
-float:right;
-width:50%;
+  position: absolute;
+   right:2%;
+  left: 51%;
 }
 
 .leftpannel{
-clear : both;	
-float:left;
-width:50%;
+  position: absolute;
+   left:2%;
+  right: 51%;
 }
 </style>
 
+<body>
+  <div class="container">
 <section id="article34" class="menu cool">
-
-    <h1>@session.get("userName")'s Working Space</h1>
+</br></br></br>
+    <center><h1>@session.get("userName")'s Working Space</h1></center>
 
       <div class="leftpannel">
+      </br>
     <fieldset>
-            <legend><h1>project</h1></legend>
-     <div class="CSSTableCool" >
-     <table>
+            <legend><h1>Project</h1></legend>
+     
+     <table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Project</th><th>group</th><th></th>
@@ -91,14 +79,14 @@ width:50%;
 					
 				</tbody>
 			</table>
-		</div>
+		
 		
    </fieldset> 
    
    <fieldset>
             <legend><h1>Readlist</h1></legend>
-     <div class="CSSTableCool" >
-     <table>
+     
+     <table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Books</th><th></th>
@@ -106,12 +94,12 @@ width:50%;
 					
 				</tbody>
 			</table>
-		</div>
+		
    </fieldset> 
    <fieldset>
             <legend><h1>Favorite books</h1></legend>
-     <div class="CSSTableCool" >
-     <table>
+    
+     <table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Book</th><th></th>
@@ -119,12 +107,12 @@ width:50%;
 					
 				</tbody>
 			</table>
-		</div>
+		
    </fieldset> 
    <fieldset>
             <legend><h1>My friends</h1></legend>
-     <div class="CSSTableCool" >
-     <table>
+    
+     <table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Name</th><th>Groups</th><th>Favorite books</th><th></th>
@@ -132,15 +120,15 @@ width:50%;
 					
 				</tbody>
 			</table>
-		</div>
+		
 		<h4>@inputText(groupForm(""))</h4>
 		<dl>
 		<li onClick="toggle('seeuser')"><h3>Add a friend
 			
 		</h3></li>
 		
-			<div id="seeuser" style="display:none" class="CSSTableCool">
-				<table>
+			<div id="seeuser" style="display:none" >
+				<table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Name</th><th>Groups</th><th>Favorite books</th><th></th>
@@ -155,23 +143,7 @@ width:50%;
    </fieldset>
     </div>
     
-  <div class="raccount">
-    <fieldset>
-   <legend><P><strong>My account</strong></p></legend>
-   <p>Welcome @session.get("userName")</p>
-   <div>
-      <form href="#" method="GET">
-   <button type="submit" class="parameter">parameter</button>
-   	</form>
-   @form(routes.Application.userLogout){
-   	<input type="submit" class="logout" value="log out">
-   }
-   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </fieldset>
-   
-</div>
-
-</br></br> </br></br></br> </br></br>
+ 
 
   <div class="rightpannel">
 <fieldset>
@@ -189,8 +161,8 @@ width:50%;
             <legend><h1>My groups</h1></legend>
   
     
-    <div class="CSSTableCool" >
-			<table>
+    
+			<table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Title</th><th>You own</th><th></th>
@@ -218,14 +190,14 @@ width:50%;
 					}
 				</tbody>
 			</table>
-		</div>
+		
 
     </fieldset>
     </fieldset>
   <fieldset>
             <legend><h1>New Message</h1></legend>
-     <div class="CSSTableCool" >
-     <table>
+    
+     <table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Message</th><th>author</th><th>date</th><th></th>
@@ -233,9 +205,10 @@ width:50%;
 					
 				</tbody>
 			</table>
-		</div>
+		
    </fieldset> 
     </div>
 </section>
-
+</div>
+</body>
     }  
