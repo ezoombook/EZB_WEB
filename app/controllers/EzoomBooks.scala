@@ -163,7 +163,7 @@ object EzoomBooks extends Controller{
       Ok(views.html.book(book))
     ).getOrElse{
       println("[ERROR] Could not load book " + id)
-      BadRequest(views.html.listbooks(BookDO.listBooks))
+      BadRequest(views.html.listbooks(BookDO.listBooks,bookForm))
     }
   }
 
@@ -176,11 +176,16 @@ object EzoomBooks extends Controller{
   }
 
    def listbooks = Action {implicit request =>
-    Ok(views.html.listbooks(BookDO.listBooks))
+    Ok(views.html.listbooks(BookDO.listBooks,bookForm))
   }
 
    def bookedit = Action {implicit request =>
     Ok(views.html.bookedit(List[(String, Long)](),bookForm))
   }
+  
+  /**   def reedit(id:String) = Action {implicit request =>
+    Ok(views.html.reedit(List[(String, Long)](),bookForm),id)
+  }
+  **/
   
 }
