@@ -4,7 +4,7 @@
 *@
 
 @(loginForm: Form[(String,String)])(implicit context:Context)
-
+@import utils.sha256._
 @import utils.navHelpers._
 
 @if(context.user == None){
@@ -17,37 +17,20 @@
 
 <div class="btn-toolbar pull-right">
     <div class="btn-group">
-        <a class="btn" href="/home">
-            <img height="20" width="20" src="https://secure.gravatar.com/avatar/753b6e14d6051d2b9a93fc3ebad1442d?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" >
+        <a class="btn" href="/home" rel="tooltip" data-original-title="Working space">
+            @defining("waxzce@gmail.com".sha_256){email => 
+            <img height="20" width="20" src="https://secure.gravatar.com/avatar/@email">}
         </a>
-        <a class="btn" href="/parameters" >
+        <a class="btn" href="/parameters" rel="tooltip" data-original-title="Configure your account">
             <i class="icon-wrench"></i>
         </a>
-        <a class="btn" href="/logout">  
-            <i class="icon-off"></i>
+        <a class="btn" href="/logout" rel="tooltip" data-original-title="log out">  
+          <i class="icon-off"></i>
         </a>
     </div>
 </div>
 
-@**
-<ul class="nav pull-right">
-    <li>
-        <a href="/home">
-            <img height="20" width="20" src="https://secure.gravatar.com/avatar/753b6e14d6051d2b9a93fc3ebad1442d?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" >
-        </a>
-    </li>
-    <li>
-        <a href="/parameters" >
-            <i class="icon-wrench"></i>
-        </a>
-    </li>
-    <li>
-        <a href="/logout">
-            <i class="icon-off"></i>
-        </a>
-    </li>
-</ul>
-**@
+
 }
 
 @**
