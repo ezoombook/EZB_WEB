@@ -183,9 +183,16 @@ object EzoomBooks extends Controller{
     Ok(views.html.bookedit(List[(String, Long)](),bookForm))
   }
   
-  /**   def reedit(id:String) = Action {implicit request =>
-    Ok(views.html.reedit(List[(String, Long)](),bookForm),id)
-  }
-  **/
+   def reedit(id:String) = Action {implicit request =>
+     BookDO.getBook(id).map{b => 
+     Cache.set("ebook",b,0)
+     Ok(views.html.bookreedit(List[(String, Long)](),bookForm.fill(b)))}.getOrElse{
+       println("[ERROR] " )
+      BadRequest(views.html.bookreedit(List[(String, Long)](),bookForm.withGlobalError("An error occured")))
+    
   
+     }
+ 
+  
+}
 }
