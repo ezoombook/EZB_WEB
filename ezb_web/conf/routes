@@ -15,7 +15,7 @@ POST	/login			    controllers.Application.validate
 GET	    /login			    controllers.Application.login
 
 #logout
-POST		/logout						controllers.Application.userLogout
+GET		/logout						controllers.Application.userLogout
 
 # Community
 GET	    /groups			    controllers.Community.groups

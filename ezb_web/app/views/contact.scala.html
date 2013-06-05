@@ -1,45 +1,18 @@
 @()(implicit session:Session, context:Context)
 @import helper._
 @main("Contact us"){
-<style>
-
-.raccount{
-width:200px;
-float:right;
-}
-
-.parameter{
-  position: absolute;
-   top: 250px;
-  right: 75px;
-}
-
-.logout{
-  position: absolute;
-   top: 250px;
-  right: 15px;  
-}
-</style>
+</br></br></br>
+<body>
+  <div class="container">
 <h1>Contact</h1>
 
 
-<div class="raccount">
-    <fieldset>
-   <legend><P><strong>My account</strong></p></legend>
-   <p>Welcome @session.get("userName")</p>
-   <div>
-      <form href="#" method="GET">
-   <button type="submit" class="parameter">parameter</button>
-   	</form>
-   @form(routes.Application.userLogout){
-   	<input type="submit" class="logout" value="log out">
-   }
-   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </fieldset>
-   
+
+<p> The eZoomBook research team  is an inter-disciplinary team which includes researchers in the following areas:</p>
+<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-audencia-save/" > Humanities</a> </br>
+<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-de-nantes-science/" > Science</a> </br>
+<a href="http://ezoombook.wordpress.com/people-involved/law-and-intellectual-property/" > Law</a>
+
+</body>
 </div>
-<p>The eZoomBook research team  is an inter-disciplinary team which includes researchers in the following areas:</p>
-<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-audencia-save/" >humanities</a>
-<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-de-nantes-science/" >Science</a>
-<a href="http://ezoombook.wordpress.com/people-involved/law-and-intellectual-property/" >Law</a>
 }

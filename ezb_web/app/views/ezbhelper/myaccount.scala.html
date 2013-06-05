@@ -5,6 +5,8 @@
 
 @(loginForm: Form[(String,String)])(implicit context:Context)
 
+@import utils.navHelpers._
+
 @if(context.user == None){
     @helper.form(routes.Application.validate, 'class -> "navbar-form pull-right"){
         @helper.inputText(loginForm("id"), '_label -> "", 'class -> "span2", 'placeholder -> "Email")
@@ -21,7 +23,7 @@
         <a class="btn" href="/parameters" >
             <i class="icon-wrench"></i>
         </a>
-        <a class="btn" href="/logout">
+        <a class="btn" href="/logout">  
             <i class="icon-off"></i>
         </a>
     </div>
