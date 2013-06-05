@@ -4,8 +4,9 @@
 *@
 
 @(loginForm: Form[(String,String)])(implicit context:Context)
-@import utils.sha256._
+
 @import utils.navHelpers._
+@import utils.MD5Util
 
 @if(context.user == None){
     @helper.form(routes.Application.validate, 'class -> "navbar-form pull-right"){
@@ -17,34 +18,19 @@
 
 <div class="btn-toolbar pull-right">
     <div class="btn-group">
-        <a class="btn" href="/home" rel="tooltip" data-original-title="Working space">
-            @defining("waxzce@gmail.com".sha_256){email => 
-            <img height="20" width="20" src="https://secure.gravatar.com/avatar/@email">}
+        <a class="btn" href="/home">
+            @defining(MD5Util.md5Hex(context.user.getOrElse("ezoomwiki.com"))){icon =>
+                <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
+            }
         </a>
-        <a class="btn" href="/parameter" rel="tooltip" data-original-title="Configure your account">
+        <a class="btn" href="/parameters" >
             <i class="icon-wrench"></i>
         </a>
-        <a class="btn" href="/logout" rel="tooltip" data-original-title="log out">  
-          <i class="icon-off"></i>
+        <a class="btn" href="/logout">  
+            <i class="icon-off"></i>
         </a>
     </div>
 </div>
-
 
 }
 
-@**
-<div id="raccount">
-    <div class="titlebox"><P><strong>My account</strong></p></div>
-    <p>Welcome @session.get("userName")</p>
-    <div>
-        <form href="#" method="GET">
-            <button type="submit" class="parameter">parameter</button>
-        </form>
-        <form href="/logout" method="POST">
-            <input type="submit" class="logout" value="log out">
-        </form>
-    </div>
-
-</div>
-**@
