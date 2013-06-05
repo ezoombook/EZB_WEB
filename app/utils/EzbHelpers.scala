@@ -13,3 +13,4 @@ import views.html._
 object EzbHelpers {
   implicit val myfields = FieldConstructor(ezlayerFieldTemplate.f)
 }
+

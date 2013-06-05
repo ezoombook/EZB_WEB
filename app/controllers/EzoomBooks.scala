@@ -33,6 +33,14 @@ object EzoomBooks extends Controller{
   val loadFile = parse.raw
 
   /**
+   * Redirects to book edition view for creating a new Book
+   * @return
+   */
+  def newBook = Action {implicit request =>
+    Ok(views.html.bookedit(List[(String, Long)](),bookForm))
+  }
+
+  /**
    * Loads and scans a book in epub format to display its meta data in the book form
    */
   def loadBook = Action(loadFile){implicit request =>
@@ -56,7 +64,7 @@ object EzoomBooks extends Controller{
   /**
    * Stores the book in the dabase
    */
-  def newBook = Action{ implicit request =>
+  def saveBook = Action{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
         BadRequest(views.html.bookedit(List[(String,Long)](), errors))
@@ -69,7 +77,9 @@ object EzoomBooks extends Controller{
               book.bookSummary, cb.bookParts)
             println("My new book: " + newbook)
             BookDO.saveBook(newbook)
+            BookDO.saveBookParts(newbook)
             UserDO.newUserBook(uid, newbook.bookId)
+
             Ok(views.html.bookedit(UserDO.listBooks(uid), bookForm))
           }.getOrElse(
             Ok(views.html.bookedit(UserDO.listBooks(uid),
@@ -78,6 +88,24 @@ object EzoomBooks extends Controller{
         }.getOrElse(
           Unauthorized("Oops, you are not connected")
         )
+      }
+    )
+  }
+
+  /**
+   * Save the modifications made to a book meta-data.
+   * Parts are not saved
+   */
+  def saveEditedBook = Action{ implicit request =>
+    bookForm.bindFromRequest.fold(
+      errors => {
+        BadRequest(views.html.bookedit(List[(String,Long)](), errors))
+      },
+      book => {
+println("Ze book: " + book)
+        BookDO.saveBook(book)
+println("Book saved!")
+        Ok(views.html.listbooks(BookDO.listBooks,bookForm))
       }
     )
   }
@@ -179,20 +207,14 @@ object EzoomBooks extends Controller{
     Ok(views.html.listbooks(BookDO.listBooks,bookForm))
   }
 
-   def bookedit = Action {implicit request =>
-    Ok(views.html.bookedit(List[(String, Long)](),bookForm))
-  }
-  
    def reedit(id:String) = Action {implicit request =>
      BookDO.getBook(id).map{b => 
-     Cache.set("ebook",b,0)
-     Ok(views.html.bookreedit(List[(String, Long)](),bookForm.fill(b)))}.getOrElse{
-       println("[ERROR] " )
+      Cache.set("ebook",b,0)
+      Ok(views.html.bookreedit(List[(String, Long)](),bookForm.fill(b)))
+     }.getOrElse{
+      println("[ERROR] " )
       BadRequest(views.html.bookreedit(List[(String, Long)](),bookForm.withGlobalError("An error occured")))
-    
-  
      }
- 
-  
-}
+  }
+
 }
