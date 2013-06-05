@@ -30,7 +30,7 @@ GET	/bookedit				controllers.EzoomBooks.bookedit
 GET	/listbooks				controllers.EzoomBooks.listbooks
 POST	/books			    controllers.EzoomBooks.newBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
-#GET	/listbooks/reedit/:abook	    controllers.EzoomBooks.reedit(abook:Book)
+GET	/bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
 
 GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 
