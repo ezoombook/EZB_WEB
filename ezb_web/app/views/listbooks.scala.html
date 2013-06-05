@@ -1,4 +1,4 @@
-@(bookList:List[Book], bookForm:Form[Book])(implicit session:Session)
+@(bookList:List[Book], bookForm:Form[Book])(implicit session:Session, context:Context)
 
 @import helper._
 
@@ -14,47 +14,10 @@ function toggle(divtag){
 </script>
 
 @main("read a book"){
-<style>
-
-.raccount{
-width:200px;
-float:right;
-}
-
-.parameter{
-  position: absolute;
-   top: 250px;
-  right: 75px;
-}
-
-.logout{
-  position: absolute;
-   top: 250px;
-  right: 15px;  
-}
-.CSSTableCool { 
-  height: 10px; 
-}
-</style>
 
 <h1>Books</h1>
 
 
-<div class="raccount">
-    <fieldset>
-   <legend><P><strong>My account</strong></p></legend>
-   <p>Welcome @session.get("userName")</p>
-   <div>
-      <form href="#" method="GET">
-   <button type="submit" class="parameter">parameter</button>
-   	</form>
-   @form(routes.Application.userLogout){
-   	<input type="submit" class="logout" value="log out">
-   }
-   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </fieldset>
-   
-</div>
 <li class=e><a href="/books/new" class="bulle">Add a book</a></li>
 </br></br></br></br></br></br></br></br></br>
 
