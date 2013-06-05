@@ -1,6 +1,7 @@
 package controllers
 
-import controllers.EzbForms._
+import forms.EzbForms
+import EzbForms._
 import models._
 import users.dal._
 import books.dal._
@@ -28,7 +29,7 @@ import play.api.libs.json.Json
 /**
  * Manage ezoombook related operations: book upload, ezoombook creation and edition, etc
  */
-object EzoomBooks extends Controller{
+object EzoomBooks extends Controller with ContextProvider{
 
   val loadFile = parse.raw
 
@@ -151,7 +152,7 @@ println("Book saved!")
    * Loads an ezoomlayer from a marked down file and displays it
    * in the ezoomlayer edition form
    */
-  def loadEzoomLayer = Action(parse.multipartFormData){request =>
+  def loadEzoomLayer = Action(parse.multipartFormData){implicit request =>
     val ezoombookid = UUID.randomUUID
     val layerid = UUID.randomUUID
     val userid = UUID.randomUUID

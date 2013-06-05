@@ -3,7 +3,9 @@ package controllers
 import models._
 import users.dal._
 import books.dal._
-import controllers.EzbForms._
+import forms.{AppForms, EzbForms}
+import AppForms._
+import EzbForms._
 
 import play.api._
 import play.api.mvc._
@@ -18,7 +20,7 @@ import play.api.libs.json.Json
 import users.dal.User
 import scala.Some
 
-object Application extends Controller {
+object Application extends Controller with ContextProvider{
 
   val userForm = Form(
     mapping(
@@ -31,12 +33,6 @@ object Application extends Controller {
 
 
   
-  val loginForm = Form(
-    tuple(
-      "id" -> text,
-      "password" -> text
-    ))
-    
       val groupForm = Form(
     tuple(
       "groupName" -> text,
@@ -77,7 +73,7 @@ def tutorial = Action {implicit request =>
    * Lists existing users
    * @return
    */
-  def users = Action {
+  def users = Action {implicit request =>
     Ok(views.html.index(UserDO.listUsers, userForm))
   }
 

@@ -1,5 +1,6 @@
 package controllers
 
+import forms.EzbForms
 import models._
 import users.dal._
 import books.dal._
