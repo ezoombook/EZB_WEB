@@ -1,0 +1,67 @@
+@**
+* Generates HTML for "My Account" Box
+*
+*@
+
+@(loginForm: Form[(String,String)])(implicit context:Context)
+
+@import utils.navHelpers._
+
+@if(context.user == None){
+    @helper.form(routes.Application.validate, 'class -> "navbar-form pull-right"){
+        @helper.inputText(loginForm("id"), '_label -> "", 'class -> "span2", 'placeholder -> "Email")
+        @helper.inputPassword(loginForm("password"), '_label -> "", 'class -> "span2", 'placeholder -> "password")
+        <button type="submit" class="btn">Sign in</button>
+    }
+}else{
+
+<div class="btn-toolbar pull-right">
+    <div class="btn-group">
+        <a class="btn" href="/home">
+            <img height="20" width="20" src="https://secure.gravatar.com/avatar/753b6e14d6051d2b9a93fc3ebad1442d?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" >
+        </a>
+        <a class="btn" href="/parameters" >
+            <i class="icon-wrench"></i>
+        </a>
+        <a class="btn" href="/logout">  
+            <i class="icon-off"></i>
+        </a>
+    </div>
+</div>
+
+@**
+<ul class="nav pull-right">
+    <li>
+        <a href="/home">
+            <img height="20" width="20" src="https://secure.gravatar.com/avatar/753b6e14d6051d2b9a93fc3ebad1442d?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" >
+        </a>
+    </li>
+    <li>
+        <a href="/parameters" >
+            <i class="icon-wrench"></i>
+        </a>
+    </li>
+    <li>
+        <a href="/logout">
+            <i class="icon-off"></i>
+        </a>
+    </li>
+</ul>
+**@
+}
+
+@**
+<div id="raccount">
+    <div class="titlebox"><P><strong>My account</strong></p></div>
+    <p>Welcome @session.get("userName")</p>
+    <div>
+        <form href="#" method="GET">
+            <button type="submit" class="parameter">parameter</button>
+        </form>
+        <form href="/logout" method="POST">
+            <input type="submit" class="logout" value="log out">
+        </form>
+    </div>
+
+</div>
+**@
