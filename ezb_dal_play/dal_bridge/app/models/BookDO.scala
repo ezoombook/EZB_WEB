@@ -14,7 +14,13 @@ object BookDO{
   def newBook(file: File):Book = EpubLoader.loadBook(Right(new ZipFile(file)))
 
   def saveBook(book:Book){
-    AppDB.cdal.addBook(book)
+    AppDB.cdal.saveBook(book)
+  }
+
+  def saveBookParts(book:Book){
+    for(bp <- book.bookParts){
+      AppDB.cdal.saveBookPart(bp)
+    }
   }
 
   def saveLayer(ezl:EzoomLayer){

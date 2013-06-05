@@ -25,12 +25,13 @@ GET	    /project            controllers.Community.project
 POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
 # Books
-GET	/bookedit				controllers.EzoomBooks.bookedit
-
-GET	/listbooks				controllers.EzoomBooks.listbooks
-POST	/books			    controllers.EzoomBooks.newBook
+GET	    /listbooks			controllers.EzoomBooks.listbooks
+POST	/books			    controllers.EzoomBooks.saveBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
-GET	/bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
+GET     /books/new          controllers.EzoomBooks.newBook
+
+GET	    /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
+POST    /bookreedit/save    controllers.EzoomBooks.saveEditedBook
 
 GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 

@@ -1,6 +1,7 @@
 @(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session)
 
 @import helper._
+@import ezbhelper._
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
@@ -112,8 +113,9 @@ position: absolute;
 
    
 
-    @form(routes.EzoomBooks.newBook){
+    @form(routes.EzoomBooks.saveEditedBook){
 	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
+        @hidden(bookForm("book_id"))
         @repeat(bookForm("authors")){f =>
             <div id="authors0" style="margin-bottom:4px;" class="authors">
             <h4>@inputText(f,'_label->"author")</h4>

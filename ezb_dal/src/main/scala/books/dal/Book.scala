@@ -47,12 +47,13 @@ object Book extends UUIDjsParser{
 trait BookComponent{
   def couchclient:CouchbaseClient
 
-  def addBook(book:Book){
+  def saveBook(book:Book){
     val key = "book:"+book.bookId
     couchclient.set(key, 0, Json.toJson(book).toString)
-    for(bp <- book.bookParts){
-      addPart(bp)
-    }
+  }
+
+  def saveBookPart(part:BookPart){
+    couchclient.set("part:"+part.partId, 0, part.content)
   }
 
   /**
@@ -99,10 +100,6 @@ trait BookComponent{
       )
       case _ => None
     }
-  }
-
-  def addPart(part:BookPart){
-    couchclient.set("part:"+part.partId, 0, part.content) 
   }
 
   def saveEzoomBook(ezb:Ezoombook){
