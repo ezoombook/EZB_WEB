@@ -1,4 +1,4 @@
-@(bookList:List[Book])(implicit session:Session)
+@(bookList:List[Book], bookForm:Form[Book])(implicit session:Session)
 
 @import helper._
 
@@ -70,8 +70,7 @@ float:right;
 						<td><a href="/books/@abook.bookId">@abook.bookTitle</a></td><td>@abook.bookAuthors</td><td>@abook.bookPublishedDates</td><td>@abook.bookTags</td>
 						
 						<td>
-						
-						<input type="submit" value="edit"></td>
+						<a href="/bookedit" class="bulle">edit</a>	
 					}	
 					</tr>
 				</tbody>
