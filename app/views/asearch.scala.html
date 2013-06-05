@@ -1,29 +1,8 @@
-@(listbook:List[Book])(implicit session:Session)
+@(listbook:List[Book])(implicit session:Session, context:Context)
 @import helper._
 @main("advanced search"){
 <style>
 	
-.photo{
-  position: absolute;
-   top: 300px;
-  right: 30%;
-}
-.raccount{
-width:200px;
-float:right;
-}
-
-.parameter{
-  position: absolute;
-   top: 180px;
-  right: 75px;
-}
-
-.logout{
-  position: absolute;
-   top: 180px;
-  right: 15px;  
-}
 
 .text{
   position: absolute;
@@ -52,38 +31,28 @@ float:right;
 }
 .abutton{
   position: absolute;
-   top: 490px;
-  right: 10%;
+   top: 480px;
+  right: 12%;
 }
 </style>
-  <img border="0" src=@routes.Assets.at("/images/paysage.jpg") width="40%" height="300" alt="WTF" class="photo"  >
+ 
 </br>
 
-<div class="raccount">
-    <fieldset>
-   <legend><P><strong>My account</strong></p></legend>
-   <p>Welcome @session.get("userName")</p>
-   <div>
-      <form href="#" method="GET">
-   <button type="submit" class="parameter">parameter</button>
-   	</form>
-   @form(routes.Application.userLogout){
-   	<input type="submit" class="logout" value="log out">
-   }
-   </form></div><img src="smiley.gif" alt="Smiley face" width="42" height="42">
-   </fieldset>
-   
-</div>
 
+
+
+ <body>
+  <div class="container">
+ </br> </br>
+    </fieldset>
+<h1>Advance search</h1>
+ </br> </br>
 <fieldset>
-    <form id="searchbox" action="" style="width:50%">
+    <center><form id="searchbox" action="" style="width:50%">
     <input id="search" type="text" placeholder="Search"style="width:75%">
     <input id="submit" type="submit" value="Search" style="width:15%">
    
-</form>
- <body>
-    </fieldset>
-<h1>Advance search</h1>
+</form></center>
 <fieldset>
 <form id="searchbox" action="" class="author">
  <form id="searchbox" action="" class="author">
@@ -115,9 +84,9 @@ float:right;
 <button type="submit" class="abutton"  style="width:100px ; height: 35px">Search</button>
 </form>
 
-</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
-<div class="CSSTableCool" >
-			<table>
+</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
+
+			<table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Title</th><th>Author</th><th>Year</th><th>Tag</th><th>Rating</th><th></th>
@@ -134,8 +103,9 @@ float:right;
 				</tbody>
 			</table>
 	
-			</div>
-			</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
+			
+			</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 </fieldset>
 </body>
+</div>
 }

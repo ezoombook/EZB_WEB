@@ -10,7 +10,7 @@ import Forms._
 
 import java.util.UUID
 
-object AdminApp extends Controller{
+object AdminApp extends Controller with ContextProvider{
   var iscreateGroups = true
   var iscreateBooks = true
 
@@ -25,11 +25,11 @@ object AdminApp extends Controller{
     ("group C", users(2).id)
   )
 
-  def index = Action {
+  def index = Action {implicit request =>
     Ok(views.html.admin(UserDO.listUsers, iscreateGroups, iscreateBooks))
   }
 
-  def createUsers = Action {
+  def createUsers = Action {implicit request =>
     for (u <- users){
       UserDO.create(u)
     }
@@ -37,7 +37,7 @@ object AdminApp extends Controller{
     Ok(views.html.admin(UserDO.listUsers, iscreateGroups, iscreateBooks))
   }
 
-  def createGroups = Action {
+  def createGroups = Action {implicit request =>
     for(g <- groups){
       UserDO.newGroup(g._1, g._2)
     }
@@ -47,7 +47,7 @@ object AdminApp extends Controller{
     Ok(views.html.admin(UserDO.listUsers, iscreateGroups, iscreateBooks))
   }
 
-  def createBooks = Action {
+  def createBooks = Action {implicit request =>
     UserDO.newUserBook(users(0).id, UUID.randomUUID)
     UserDO.newUserBook(users(1).id, UUID.randomUUID)
     UserDO.newUserBook(users(1).id, UUID.randomUUID)
