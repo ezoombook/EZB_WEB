@@ -35,6 +35,17 @@ object EzbForms {
         book.bookTags, book.bookSummary))
   )
 
+  val ezoomBookForm = Form[EzoomBook](
+    mapping(
+      "ezb_id" -> of[UUID],
+      "book_id" -> of[UUID],
+      "ezb_owner" -> text,
+      "ezb_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+      "ezb_title" -> text,
+      "ezb_public" -> default(boolean, false)
+    )
+  )
+
   def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form[EzoomLayer](
     mapping(
       "ezoomlayer_id" -> default(of[UUID], layerid),
@@ -62,7 +73,7 @@ object EzbForms {
       (EzoomLayer.unapply)
   )
 
-  def contribMapping(partId:String,ezlId:UUID,ezbId:UUID,uid:UUID):Mapping[Contrib] = mapping(
+  private def contribMapping(partId:String,ezlId:UUID,ezbId:UUID,uid:UUID):Mapping[Contrib] = mapping(
     "contrib_id" -> default(text, UUID.randomUUID().toString),
     "contrib_type" -> nonEmptyText,
     "ezoomlayer_id" -> default(of[UUID], ezlId),
@@ -77,7 +88,7 @@ object EzbForms {
     "part_contribs" -> optional(list(atomicContribMapping(ezlId,ezbId,uid,partId)))
   )(contribApply)(contribUnapply)
 
-  def contribMapping:Mapping[Contrib] = mapping(
+  private def contribMapping:Mapping[Contrib] = mapping(
     "contrib_id" -> text,
     "contrib_type" -> text,
     "ezoomlayer_id" -> of[UUID],
@@ -92,7 +103,7 @@ object EzbForms {
     "part_contribs" -> optional(list(atomicContribMapping))
   )(contribApply)(contribUnapply)
 
-  def atomicContribMapping:Mapping[AtomicContrib] = mapping(
+  private def atomicContribMapping:Mapping[AtomicContrib] = mapping(
     "contrib_id" -> text,
     "contrib_type" -> text,
     "ezoomlayer_id" -> of[UUID],
@@ -104,7 +115,7 @@ object EzbForms {
     "contrib_content" -> text
   )(AtomicContrib.apply)(AtomicContrib.unapply)
 
-  def atomicContribMapping(ezlid:UUID,ezbid:UUID,uid:UUID,partid:String):Mapping[AtomicContrib] = mapping(
+  private def atomicContribMapping(ezlid:UUID,ezbid:UUID,uid:UUID,partid:String):Mapping[AtomicContrib] = mapping(
     "contrib_id" -> ignored(UUID.randomUUID().toString),
     "contrib_type" -> text,
     "ezoomlayer_id" -> ignored(ezlid),
@@ -116,7 +127,7 @@ object EzbForms {
     "contrib_content" -> text
   )(AtomicContrib.apply)(AtomicContrib.unapply)
 
-  def contribApply(
+  private def contribApply(
     contrib_id: String,
     contrib_type: String,
     ezoomlayer_id: UUID,
@@ -137,7 +148,7 @@ object EzbForms {
           user_id,part_id,contrib_status,contrib_locked,contrib_content)
   }
 
-  def contribUnapply(contrib:Contrib) = Some(
+  private def contribUnapply(contrib:Contrib) = Some(
     contrib.contrib_id,
     contrib.contrib_type,
     contrib.ezoomlayer_id,
