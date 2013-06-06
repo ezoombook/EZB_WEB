@@ -23,8 +23,21 @@ object BookDO{
     }
   }
 
+  def saveEzoomBook(ezb:Ezoombook){
+    AppDB.cdal.saveEzoomBook(ezb)
+  }
+
   def saveLayer(ezl:EzoomLayer){
     AppDB.cdal.saveLayer(ezl)
+  }
+
+  /**
+   * Returns the list of eZoomBooks of a Book
+   * @param bookId the id of the Book
+   * @return
+   */
+  def getEzoomBooks(bookId:UUID):List[Ezoombook] = {
+    AppDB.cdal.getEzoomBooks(bookId)
   }
 
   def listBooks():List[Book] = {

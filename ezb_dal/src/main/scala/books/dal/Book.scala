@@ -57,16 +57,15 @@ trait BookComponent{
   }
 
   /**
-   * Return a list of books sorted by popularity
+   * Returns a list of books sorted by popularity
    */
   def listBooks():List[Book] = {
-    var bookList = List[Book]()
 
     //Prepare the view and query
     val bookView = couchclient.getView("book","by_title")
     val query = new Query()
 
-    // We the full documents and only the top 20
+    // We don't want the full documents and only the top 20
     query.setIncludeDocs(true).setLimit(20)
 
     // Send the query
@@ -103,11 +102,41 @@ trait BookComponent{
   }
 
   def saveEzoomBook(ezb:Ezoombook){
+    val key = "ezb:"+ezb.ezoombook_id
+    couchclient.set(key, 0, Json.toJson(ezb).toString())
+  }
 
+  /**
+   * Returns the ezoobooks for a book
+   */
+  def getEzoomBooks(bookId:UUID):List[Ezoombook] = {
+    //Prepare the view and query
+    val view = couchclient.getView("ezb","by_bookid")
+    val query = new Query()
+
+    // We want the full documents for documents with key "bookId"
+    query.setIncludeDocs(true).setKey(bookId.toString)
+
+    // Send the query
+    val result = couchclient.query(view,query)
+
+    //Retrieve the array containing the ezoombooks
+    result.foldLeft(List[Ezoombook]()){(lst,row) =>
+      val js = row.getDocument().asInstanceOf[String]
+      Json.parse(js).validate[Ezoombook].fold(
+        err => {
+          println(s"[ERROR] Invalid Json document with book_id  = ${bookId.toString}. Expected: EzoomBook")
+          println("[ERROR] " + err)
+          lst
+        },
+        ezb => ezb +: lst
+      )
+    }.toList
   }
 
   def saveLayer(ezl:EzoomLayer){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
+    //TODO If it is a new layer, update the corresponding eZoomBook
   }
 }
