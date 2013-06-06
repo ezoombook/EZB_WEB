@@ -103,10 +103,32 @@ object EzoomBooks extends Controller with ContextProvider{
         BadRequest(views.html.bookedit(List[(String,Long)](), errors))
       },
       book => {
-println("Ze book: " + book)
         BookDO.saveBook(book)
-println("Book saved!")
         Ok(views.html.listbooks(BookDO.listBooks,bookForm))
+      }
+    )
+  }
+
+  /**
+   * Displays the ezoombook edition form for creating a new eZoomBook
+   * for an existing book.
+   * @param The id of the book
+   */
+  def newEzoomBook(bookId:String) = Action{implicit request =>
+    Ok(views.html.ezoombookedit(bookId, ezoomBookForm))
+  }
+
+  /**
+   * Receives from the request an eZoomBook form and saves the new eZoomBook into the database
+   */
+  def saveEzoomBook = Action{implicit request =>
+    ezoomBookForm.bindFromRequest.fold(
+      errors => {
+        BadRequest(views.html.ezoombookedit(errors))
+      },
+      ezb => {
+        BookDO.saveEzoomBook(ezb)
+        Ok(views.html.ezoombookedit(ezoomBookForm.fill(ezb)))
       }
     )
   }
@@ -118,7 +140,7 @@ println("Book saved!")
     val ezoombookid = UUID.randomUUID
     val layerid = UUID.randomUUID
     val userid = UUID.randomUUID
-    Ok(views.html.ezoombookedit(None, ezoomlayerForm))
+    Ok(views.html.ezoomlayeredit(None, ezoomlayerForm))
   }
 
   /**
@@ -131,7 +153,7 @@ println("Book saved!")
     ezoomlayerForm(ezoombookid, layerid, userid).bindFromRequest.fold(
       errors => {
         println("oops: " + errors.errors)
-        BadRequest(views.html.ezoombookedit(None, errors))
+        BadRequest(views.html.ezoomlayeredit(None, errors))
       },
       ezl => {
         try{
@@ -184,8 +206,6 @@ println("Book saved!")
         withGlobalError("An error occurred while trying to load the file.")))
     }
   }
-
-
 
   def readBook(id:String) = Action{implicit request =>
     BookDO.getBook(id).map(book =>
