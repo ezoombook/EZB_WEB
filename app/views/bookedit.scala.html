@@ -66,7 +66,9 @@ function toggle(divtag){
   left: 0%;
 }
 </style>
+ </br> </br> </br>
 
+  <div class="container">
     <h1>Add a book</h1>
 
   
@@ -85,7 +87,7 @@ function toggle(divtag){
     }
 
     @form(routes.EzoomBooks.newBook){
-	    <h4>@inputText(bookForm("title"),'_label->"title", '_id -> "Your name")</h4>
+	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
         @hidden(bookForm("book_id"))
         @repeat(bookForm("authors")){f =>
             <div id="authors0" style="margin-bottom:4px;" class="authors">
@@ -125,5 +127,7 @@ function toggle(divtag){
         <input type="submit" value="Go!">
         </fieldset>
     }
+
+       </div>
 }
 

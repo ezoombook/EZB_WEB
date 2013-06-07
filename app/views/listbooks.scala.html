@@ -1,6 +1,7 @@
 @(bookList:List[Book], bookForm:Form[Book])(implicit session:Session, context:Context)
 
 @import helper._
+@import ezbhelper._
 
 <script>
 
@@ -14,7 +15,7 @@ function toggle(divtag){
 </script>
 
 @main("read a book"){
-
+<div class="container"></div>
 <h1>Books</h1>
 
 
@@ -22,8 +23,8 @@ function toggle(divtag){
 </br></br></br></br></br></br></br></br></br>
 
 
-<div class="CSSTableCool" >
-			<table>
+
+			<table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Title</th><th>author</th><th>dates of publication</th><th>tags</th><th></th>
