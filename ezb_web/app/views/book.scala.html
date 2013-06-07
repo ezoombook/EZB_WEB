@@ -3,7 +3,10 @@
 @import helper._
 
 @main("Book Page"){
-    <h1>@book.bookTitle</h1>
+    <h1>@book.bookTitle</h1></br>
+    <h2>Author : @book.bookAuthors</h2></br>
+    <h2>Publisher : @book.bookPublisher</h2></br>
+    <h2>Published Date : @book.bookPublishedDate</h2></br>
     <h2>Summary: </h2>
     <p>
         @book.bookSummary
@@ -14,7 +17,7 @@
 			<table>
 				<tbody>
 					<tr>
-						<th>Name</th><th>Creator</th><th>Public</th><th></th>
+						<th>Title</th><th>Author</th><th>Nbr of level</th><th>Date of creation</th><th>Popularity</th>
 					</tr>
 					
 				</tbody>
