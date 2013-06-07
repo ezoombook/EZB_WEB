@@ -19,7 +19,7 @@
 <div class="btn-toolbar pull-right">
     <div class="btn-group">
         <a class="btn" href="/home">
-            @defining(MD5Util.md5Hex(context.user.getOrElse("ezoomwiki.com"))){icon =>
+            @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
                 <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
             }
         </a>
