@@ -1,0 +1,12 @@
+{
+    "views" : {
+        "by_bookid" : {
+            "map" :
+                "function (doc, meta) {
+                   if(doc.book_id && doc.ezoombook_id){
+                     emit(book_id, null)
+                   }
+                 }"
+        }
+    }
+}
