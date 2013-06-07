@@ -3,21 +3,27 @@
 @import helper._
 
 @main("Book Page"){
+  <div class="container">
+</br></br></br>
     <h1>@book.bookTitle</h1>
     <h2>Summary: </h2>
     <p>
         @book.bookSummary
     </p>
-    
-     <h2>EzoomBook</h2>
-    <div class="CSSTableCool" >
-			<table>
+    </br>
+    </br>
+    <table class="table table-striped">
 				<tbody>
 					<tr>
-						<th>Name</th><th>Creator</th><th>Public</th><th></th>
+						<th>ezoombook</th><th>author</th><th>dates of creation</th><th>tags</th><th></th>
 					</tr>
 					
+
+						<td></td><td></td><td></td><td></td><td><input type="submit" value="edit"></td>
+
+					</tr>
 				</tbody>
 			</table>
-		</div>
-}
+
+    </div>
+    }

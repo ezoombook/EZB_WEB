@@ -6,6 +6,7 @@
 @(loginForm: Form[(String,String)])(implicit context:Context)
 
 @import utils.navHelpers._
+@import utils.MD5Util
 
 @if(context.user == None){
     @helper.form(routes.Application.validate, 'class -> "navbar-form pull-right"){
@@ -18,7 +19,9 @@
 <div class="btn-toolbar pull-right">
     <div class="btn-group">
         <a class="btn" href="/home">
-            <img height="20" width="20" src="https://secure.gravatar.com/avatar/753b6e14d6051d2b9a93fc3ebad1442d?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" >
+            @defining(MD5Util.md5Hex(context.user.getOrElse("ezoomwiki.com"))){icon =>
+                <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
+            }
         </a>
         <a class="btn" href="/parameters" >
             <i class="icon-wrench"></i>
@@ -29,39 +32,5 @@
     </div>
 </div>
 
-@**
-<ul class="nav pull-right">
-    <li>
-        <a href="/home">
-            <img height="20" width="20" src="https://secure.gravatar.com/avatar/753b6e14d6051d2b9a93fc3ebad1442d?s=140&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" >
-        </a>
-    </li>
-    <li>
-        <a href="/parameters" >
-            <i class="icon-wrench"></i>
-        </a>
-    </li>
-    <li>
-        <a href="/logout">
-            <i class="icon-off"></i>
-        </a>
-    </li>
-</ul>
-**@
 }
 
-@**
-<div id="raccount">
-    <div class="titlebox"><P><strong>My account</strong></p></div>
-    <p>Welcome @session.get("userName")</p>
-    <div>
-        <form href="#" method="GET">
-            <button type="submit" class="parameter">parameter</button>
-        </form>
-        <form href="/logout" method="POST">
-            <input type="submit" class="logout" value="log out">
-        </form>
-    </div>
-
-</div>
-**@
