@@ -35,7 +35,7 @@ object EzbForms {
         book.bookTags, book.bookSummary))
   )
 
-  val ezoomBookForm = Form[EzoomBook](
+  val ezoomBookForm = Form[Ezoombook](
     mapping(
       "ezb_id" -> of[UUID],
       "book_id" -> of[UUID],
@@ -43,7 +43,7 @@ object EzbForms {
       "ezb_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezb_title" -> text,
       "ezb_public" -> default(boolean, false)
-    )
+    )(Ezoombook.apply)(Ezoombook.unapply)
   )
 
   def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form[EzoomLayer](
