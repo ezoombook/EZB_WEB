@@ -4,7 +4,7 @@
 @import helper._
 
 @main("eZoomBook Edition Page"){
-    @form(controllers.EzoomBooks.saveEzoomBook){
+    @form(routes.EzoomBooks.saveEzoomBook(bookId)){
         @hidden(ezbForm("book_id"))
         <!-- TODO: complete form //-->
     }
