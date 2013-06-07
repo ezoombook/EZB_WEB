@@ -121,14 +121,14 @@ object EzoomBooks extends Controller with ContextProvider{
   /**
    * Receives from the request an eZoomBook form and saves the new eZoomBook into the database
    */
-  def saveEzoomBook = Action{implicit request =>
+  def saveEzoomBook(bookId:String) = Action{implicit request =>
     ezoomBookForm.bindFromRequest.fold(
       errors => {
-        BadRequest(views.html.ezoombookedit(errors))
+        BadRequest(views.html.ezoombookedit(bookId, errors))
       },
       ezb => {
         BookDO.saveEzoomBook(ezb)
-        Ok(views.html.ezoombookedit(ezoomBookForm.fill(ezb)))
+        Ok(views.html.ezoombookedit(ezb.book_id.toString, ezoomBookForm.fill(ezb)))
       }
     )
   }
@@ -165,7 +165,7 @@ object EzoomBooks extends Controller with ContextProvider{
         }
 
 //        BookDO.saveLayer(ezl)
-        Ok(views.html.ezoombookedit(None, ezoomlayerForm.fill(ezl)))
+        Ok(views.html.ezoomlayeredit(None, ezoomlayerForm.fill(ezl)))
       }
     )
   }
@@ -188,21 +188,21 @@ object EzoomBooks extends Controller with ContextProvider{
           filledForm.fold(
             errors =>{
               //              println("[INFO] Error form: " + errors.errors.mkString("\n"))
-              Ok(views.html.ezoombookedit(None, errors))
+              Ok(views.html.ezoomlayeredit(None, errors))
             },
             ezl => {
               //              println("[INFO] ezl: " + ezl);
-              Ok(views.html.ezoombookedit(None, ezoomlayerForm.fill(ezl)))
+              Ok(views.html.ezoomlayeredit(None, ezoomlayerForm.fill(ezl)))
             }
           )
         case Left(error) =>
           println("[ERROR] " + error)
-          Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid).
+          Ok(views.html.ezoomlayeredit(None, ezoomlayerForm(ezoombookid, layerid, userid).
             withGlobalError("An error occurred while trying to load the file. " + error)))
       }
     }.getOrElse{
       println("[ERROR] oops!")
-      Ok(views.html.ezoombookedit(None, ezoomlayerForm(ezoombookid, layerid, userid).
+      Ok(views.html.ezoomlayeredit(None, ezoomlayerForm(ezoombookid, layerid, userid).
         withGlobalError("An error occurred while trying to load the file.")))
     }
   }
