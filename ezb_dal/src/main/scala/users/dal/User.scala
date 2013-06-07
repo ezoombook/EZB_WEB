@@ -84,6 +84,12 @@ trait UserComponent {
       Query(Users).filter(u => u.name === username || u.email === username).map(_.id).firstOption
     }
 
+    /**
+     * Returns the complete User object, searching by user-name or mail
+     */
+    def getUser(username:String)(implicit session:Session) = {
+      Query(Users).filter(u => u.name === username || u.email === username).firstOption
+    }
   }
 
   /**

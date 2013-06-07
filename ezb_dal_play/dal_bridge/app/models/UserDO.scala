@@ -28,10 +28,16 @@ object UserDO{
     }
   }
 
-  def getUser(username:String):Option[UUID] = {
+  def getUserId(username:String):Option[UUID] = {
     AppDB.database.withSession{
       implicit session:Session =>
-	AppDB.dal.Users.getUserId(username)
+        AppDB.dal.Users.getUserId(username)
+    }
+  }
+
+  def getUser(username:String):Option[User] = {
+    AppDB.database.withSession{implicit session:Session =>
+	    AppDB.dal.Users.getUser(username)
     }
   }
 
