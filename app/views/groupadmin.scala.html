@@ -1,0 +1,83 @@
+@(groupId:String, groupName:String, members:List[User], memberForm:Form[(String,String)] )(implicit session:Session, context:Context)
+@main("Group administration"){
+<style>
+
+
+.rightpannel{
+  position: absolute;
+  top:170px;
+   right:2%;
+  left: 51%;
+}
+
+.leftpannel{
+  position: absolute;
+  top:170px;
+   left:5%;
+  right: 51%;
+}
+</style>
+<body>
+  <div class="container">
+  </br></br></br>
+  <h1> Administration of @groupName Group</h1>
+  </br></br>
+  <div class="leftpannel">
+<fieldset>
+  <h4>vote to delete the group</h4>
+
+  <a><input type="radio" name="vote1" value="yes" >Yes</a></br></br>
+  <a><input type="radio" name="vote1" value="no" >No</a></br></br>
+  <button>Validate</button>
+  </br></br></br>
+  <h4>vote to kick <input type="text" placeholder="Group member"> out of the group</h4>
+
+  <a><input type="radio" name="vote2" value="yes" >Yes</a></br></br>
+  <a><input type="radio" name="vote2" value="no" >No</a></br></br>
+  <button>Validate</button>
+  
+  </br></br></br>
+   <h4>Abdicate of this group to <input type="text" placeholder="Group member"></h4>
+    <button>Validate</button>
+  </fieldset>
+  </div>
+  
+  
+    <div class="rightpannel">
+<fieldset>
+<table class="table table-striped">
+				<tbody>
+					<tr>
+						<th>Number</th><th>
+					</tr>
+					<tr>
+					<td></td><td>Yes</td>
+					</tr>
+					<tr>
+					<td></td><td>No</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		 </br></br></br>
+		<table class="table table-striped">
+				<tbody>
+					<tr>
+						<th>Number</th><th>
+					</tr>
+					<tr>
+					<td></td><td>Yes</td>
+					</tr>
+					<tr>
+					<td></td><td>No</td>
+					</tr>
+				</tbody>
+			</table> 
+		 
+</fieldset>
+  </div>
+  
+    </body>
+    </div>
+    
+    }

@@ -141,4 +141,9 @@ def tutorial = Action {implicit request =>
 		
 		Redirect(routes.Application.login).withNewSession
 	}
+	
+	 def parameter = Action{ implicit request =>
+    Ok(views.html.parameter())
+  }
+	
 }
