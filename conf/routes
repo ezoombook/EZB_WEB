@@ -46,6 +46,9 @@ GET	/faq			controllers.Application.faq
 GET	/contact		controllers.Application.contact
 
 #EZOOMBOOK
+GET     /ezb/edit/:id       controllers.EzoomBooks.newEzoomBook(id:String)
+POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
+
 GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer
 POST    /ezlayer/load       controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
