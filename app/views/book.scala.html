@@ -3,18 +3,22 @@
 @import helper._
 
 @main("Book Page"){
+
+<body>
+  <div class="container">
+  </br></br></br>
     <h1>@book.bookTitle</h1></br>
     <h2>Author : @book.bookAuthors</h2></br>
-    <h2>Publisher : @book.bookPublisher</h2></br>
-    <h2>Published Date : @book.bookPublishedDate</h2></br>
+    <h2>Publisher : @book.bookPublishers</h2></br>
+    <h2>Published Date : @book.bookPublishedDates</h2></br>
     <h2>Summary: </h2>
     <p>
         @book.bookSummary
     </p>
     
      <h2>EzoomBook</h2>
-    <div class="CSSTableCool" >
-			<table>
+
+			<table class="table table-striped">
 				<tbody>
 					<tr>
 						<th>Title</th><th>Author</th><th>Nbr of level</th><th>Date of creation</th><th>Popularity</th>
@@ -23,4 +27,5 @@
 				</tbody>
 			</table>
 		</div>
+		</body>
 }

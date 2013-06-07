@@ -237,5 +237,7 @@ object EzoomBooks extends Controller with ContextProvider{
       BadRequest(views.html.bookreedit(List[(String, Long)](),bookForm.withGlobalError("An error occured")))
      }
   }
-
+def read = Action {implicit request =>
+    Ok(views.html.read())
+  }
 }
