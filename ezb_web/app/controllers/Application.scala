@@ -58,7 +58,7 @@ object Application extends Controller with ContextProvider{
     Ok(views.html.truehome(List[Book]()))
        }
 
-def tutorial = Action {implicit request =>
+  def tutorial = Action {implicit request =>
     Ok(views.html.tutorial())
   }
         
@@ -148,4 +148,9 @@ println("[INFO] Login validation...")
 		
 		Redirect(routes.Application.login).withNewSession
 	}
+
+	 def parameter = Action{ implicit request =>
+    Ok(views.html.parameter())
+  }
+
 }

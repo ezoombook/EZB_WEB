@@ -5,7 +5,7 @@
 # Home page
 GET     /                   controllers.Application.index
 
-GET	    /home 	    controllers.Application.home
+GET	    /home			    controllers.Application.home
 GET	/truehome				controllers.Application.truehome
 
 GET	    /users			    controllers.Application.users
@@ -16,6 +16,9 @@ GET	    /login			    controllers.Application.login
 
 #logout
 GET		/logout						controllers.Application.userLogout
+
+#Parameter
+GET		/parameter				controllers.Application.parameter
 
 # Community
 GET	    /groups			    controllers.Community.groups
@@ -55,7 +58,7 @@ POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
 
 #Groups
 POST	/groups		       controllers.Community.newGroup	
-
+GET     /groupadmin/:id		controllers.Community.groupadmin(id:String)
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
