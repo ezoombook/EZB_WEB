@@ -52,6 +52,7 @@ POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
 GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer
 POST    /ezlayer/load       controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
+GET     /read       controllers.EzoomBooks.read
 
 #Groups
 POST	/groups		       controllers.Community.newGroup	
