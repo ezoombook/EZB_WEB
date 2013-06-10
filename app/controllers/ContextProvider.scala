@@ -1,8 +1,11 @@
 package controllers
 
+import users.dal.User
 import models.Context
 
 import play.api.mvc.Request
+
+import java.util.UUID
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +16,18 @@ import play.api.mvc.Request
  */
 trait ContextProvider {
   implicit def context[A](implicit request:Request[A]) : Context = {
-    Context(request.session.get("userId"))
+    val userId = request.session.get("userId")
+    val userName = request.session.get("userName")
+    val userMail = request.session.get("userMail")
+
+    val user = userId.flatMap(uid =>
+      userName.flatMap(name =>
+        userMail.map(mail =>
+          User(UUID.fromString(uid),name,mail,"****")
+        )
+      )
+    )
+
+    Context(user)
   }
 }
