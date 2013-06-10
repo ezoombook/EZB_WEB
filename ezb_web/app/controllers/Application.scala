@@ -124,6 +124,45 @@ println("[INFO] Login validation...")
   }
 
   /**
+   * Displays the form for sending the reset-password link
+   */
+  def changePassword = Action { implicit request =>
+    Ok(views.html.forgottenPwd(Form("email" -> email)))
+  }
+
+  /**
+   * Creates a temporal link to reset the user password and sends it to the user by email
+   * @return
+   */
+  def sendPasswordResetLink = Action {implicit request =>
+    Form("email" -> email).bindFromRequest.fold(
+      errors => BadRequest(views.html.forgottenPwd(errors)),
+      userEmail => {
+        UserDO.getUserId(userEmail).map{uid =>
+          val id = utils.MD5Util.md5Hex(userEmail + (new java.util.Date()).getTime)
+          AppDB.storeTemporalLinkId(id, uid.toString)
+          //TODO Actually send the email
+          Unauthorized("We have sent you a link to reset your password.")
+        }.getOrElse{
+        Unauthorized("Ooops! The mail you provided does not appear in our dabase.")
+        }
+      })
+  }
+
+  /**
+   * Validates that the link is still valid. i.e, hasn't been used or it's not expired
+   * and redirects the user to the change password view
+   * @return
+   */
+  def passwordReset(linkId:String) = Action {implicit request =>
+    AppDB.getTemporalLinkId(linkId).map{uid =>
+      Ok(views.html.passwordReset(uid))
+    }.getOrElse(
+      Unauthorized("Ooops! that is not a valid page!")
+    )
+  }
+
+  /**
    * Displays the user home page
    */
   def home = Action { implicit request =>

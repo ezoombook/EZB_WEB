@@ -7,4 +7,5 @@ class ContentDAL(val couchclient:CouchbaseClient) extends BookComponent{
   def disconnect(){
     couchclient.shutdown(5, TimeUnit.SECONDS)
   }
+
 }
