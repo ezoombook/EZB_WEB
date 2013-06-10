@@ -57,7 +57,29 @@
 }
 
 @main("Ezoombook Edition", scripts){
-
+<style>
+.leftpannel{
+  position: absolute;
+  top: 130px;
+  right: 75%;
+}
+.ezoomlayer{
+  position: absolute;
+ top: 170px;
+  left: 30%;
+  
+  
+}
+.field
+{
+    border:2px solid blue;
+    -moz-border-radius:8px;
+    -webkit-border-radius:8px;
+    border-radius:8px;
+}
+</style>
+<div class="container">
+</br></br></br>
     <h1>eZoomBook Edition</h1>
 
     <div class="left_panel">
@@ -69,7 +91,7 @@
 
         <p>Load a layer from a file: </p>
         @form(routes.EzoomBooks.loadEzoomLayer, 'enctype -> "multipart/form-data"){
-            <input type="file" name="ezlfile">
+            <input type="file" name="ezlfile"></br>
             <input type="submit">
         }
         </div>
@@ -80,7 +102,7 @@
 
     <div class="ezoomlayer">
     @form(routes.EzoomBooks.saveEzoomlayer, 'id -> "ezl_form"){
-        <fieldset>
+        <fieldset class="field">
             <legend>eZoomLayer</legend>
             @hidden(ezlForm("ezoomlayer_id"))
             @hidden(ezlForm("ezoombook_id"))
@@ -98,20 +120,20 @@
             <div>
                 @checkbox(ezlForm("ezoomlayer_status"), '_label -> "Mark as published", 'value -> "Published")
             </div>
-
-            <ul>
+</br>
+            <ul class="none">
                 <li class="ezl_action"><input type="button" id="btnAddezbSummary" value="+ Book Summary"></li>
                 <li class="ezl_action"><input type="button" id="btnAddSummary" value="+ Summary"></li>
                 <li class="ezl_action"><input type="button" id="btnAddPart" value="+ Part"></li>
             </ul>
         </fieldset>
-        <fieldset id="summaries_set">
+        <fieldset id="summaries_set" class="field">
             <legend>Book Summaries</legend>
             @repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
                 @textarea(f, '_label -> "", 'class -> "ezb_summary")
             }
         </fieldset>
-        <fieldset id="contribs_set">
+        <fieldset id="contribs_set" class="field">
             <legend>Contributions</legend>
             @repeat(ezlForm("ezoomlayer_contribs")){f =>
                 @hidden(ezlForm("contrib_id"))
@@ -135,6 +157,6 @@
 
     }
     </div>
-
+</div>
 }
 

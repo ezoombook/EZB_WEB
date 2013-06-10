@@ -42,7 +42,8 @@ object EzbForms {
       "ezb_owner" -> text,
       "ezb_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezb_title" -> text,
-      "ezb_public" -> default(boolean, false)
+      "ezb_public" -> default(boolean, false),
+      "ezb_layers" -> list(text)
     )(Ezoombook.apply)(Ezoombook.unapply)
   )
 

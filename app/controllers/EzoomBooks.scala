@@ -124,13 +124,15 @@ object EzoomBooks extends Controller with ContextProvider{
   def saveEzoomBook(bookId:String) = Action{implicit request =>
     ezoomBookForm.bindFromRequest.fold(
       errors => {
-        BadRequest(views.html.ezoombookedit(bookId, errors))
+        println("problem "+ errors)
+        Redirect(routes.EzoomBooks.readBook(bookId))
       },
       ezb => {
         BookDO.saveEzoomBook(ezb)
-        Ok(views.html.ezoombookedit(ezb.book_id.toString, ezoomBookForm.fill(ezb)))
+        Ok(views.html.ezoomlayeredit(Some(ezb), ezoomlayerForm))
       }
     )
+  
   }
 
   /**
@@ -207,10 +209,14 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
+  
+   
+  
   def readBook(id:String) = Action{implicit request =>
-    BookDO.getBook(id).map(book =>
-      Ok(views.html.book(book))
-    ).getOrElse{
+    BookDO.getBook(id).map{book =>
+      val  ezb = Ezoombook (UUID.randomUUID, UUID.fromString(id) ,context.user.get.id.toString, books.dal.Status.workInProgress,"",false) 
+      Ok(views.html.book(book, ezoomBookForm.fill(ezb), BookDO.getEzoomBooks(UUID.fromString(id))))
+    }.getOrElse{
       println("[ERROR] Could not load book " + id)
       BadRequest(views.html.listbooks(BookDO.listBooks,bookForm))
     }
