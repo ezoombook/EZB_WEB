@@ -99,7 +99,7 @@ object UserDO{
     }
   }
 
-  def getGroupMembers(groupId:UUID):List[User] = {
+  def getGroupMembers(groupId:UUID):List[(User, AppDB.dal.Roles.Value)] = {
     AppDB.database.withSession{
       implicit session:Session =>
       AppDB.dal.GroupMembers.getGroupMembers(groupId)
