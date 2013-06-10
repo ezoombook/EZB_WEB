@@ -1,19 +1,24 @@
 @(groupId:String, groupName:String, members:List[User], memberForm:Form[(String,String)] )(implicit session:Session, context:Context)
 
 @import helper._
+@import helper.twitterBootstrap._
 
-<script>
+@scripts = {
+<script type="text/javascript"> //<![CDATA[
+    var users = ["Bob","Ann","Joe","Gabriel","Daniel","Sofia","Camila"];
+    $('.typeahead').typeahead({source: users});
+
 function overlay() {
 	el = document.getElementById("overlay");
 	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 }
+//]]>
 </script>
+}
 
-@main("Group "){
+@main("Group "+groupName, scripts){
 
 <style>
-
-
 
 .rightpannel{
   position: absolute;
@@ -49,14 +54,13 @@ function overlay() {
     <p> <h2>Add Member:</h2>
      
      @form(routes.Community.newGroupMember(groupId)){
-         @inputText(memberForm("member id"))
-         @select(memberForm("role"), UserDO.getGroupMemberRole)
-         <input type="submit" value="Add">
+        @inputText(memberForm("member_id"), Symbol("data-provide") -> "typehead", Symbol("data-items") -> 5, Symbol("data-source") -> "?")
+        @select(memberForm("role"), UserDO.getGroupMemberRole)
+        <input type="submit" value="Add">
      }
-     
-    
+
   </div>
-  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Fermer</a> </div>
+  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Close</a> </div>
 </div>
 <a class="btn btn-primary" data-toggle="modal" href="#infos" >Add a member</a>
 
