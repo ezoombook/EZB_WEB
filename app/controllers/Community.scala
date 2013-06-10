@@ -165,8 +165,8 @@ object Community extends Controller with ContextProvider{
   /**
    * Gets the users of a group from the cache.
    */
-  private def cachedGroupMembers(groupId:String):List[User] = {
-    Cache.getAs[List[User]]("groupMembers:"+groupId) match{
+  private def cachedGroupMembers(groupId:String):List[(User,AppDB.dal.Roles.Value)] = {
+    Cache.getAs[List[(User,AppDB.dal.Roles.Value)]]("groupMembers:"+groupId) match{
       case Some(mlst) if mlst != null => mlst
       case _ => val ulst = UserDO.getGroupMembers(UUID.fromString(groupId))
         Cache.set("groupMembers:"+groupId, ulst, 0)
