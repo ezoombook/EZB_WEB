@@ -5,3 +5,5 @@
 curl -u Administrator:"password " -X PUT -H 'Content-Type: application/json' 'http://127.0.0.1:8092/ezoom-books/_design/dev_votes' -d @dev_votes.ddoc
 
 curl -u Administrator:"password " -X PUT -H 'Content-Type: application/json' 'http://127.0.0.1:8092/ezoom-books/_design/dev_book' -d @dev_book.ddoc
+
+curl -u Administrator:"azerty" -X PUT -H 'Content-Type: application/json' 'http://127.0.0.1:8092/ezoom-books/_design/dev_ezb' -d @dev_ezb.ddoc
