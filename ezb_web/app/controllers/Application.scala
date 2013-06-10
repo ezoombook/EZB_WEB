@@ -58,7 +58,7 @@ object Application extends Controller with ContextProvider{
     Ok(views.html.truehome(List[Book]()))
        }
 
-def tutorial = Action {implicit request =>
+  def tutorial = Action {implicit request =>
     Ok(views.html.tutorial())
   }
         
@@ -96,22 +96,29 @@ def tutorial = Action {implicit request =>
    * Validates the user login form and creates a session
    */
   def validate = Action { implicit request =>
+println("[INFO] Login validation...")
     loginForm.bindFromRequest.fold(
       errors => {
+        println("[ERROR] Form error while validating user: " + errors)
 	      BadRequest(views.html.login(errors, UserDO.listUsers, userForm ))
       },
       up => {
-      	if (UserDO.validateUser(up._1, up._2))
-	          UserDO.getUser(up._1).map{uid =>
+      	if (UserDO.validateUser(up._1, up._2)){
+	          UserDO.getUser(up._1).map{user =>
+              println("[INFO] Loged-in as user " + user.name)
               Redirect(routes.Application.home).withSession(
-                "userId" -> uid.toString,
-                "userName" -> up._1
+                "userId" -> user.id.toString,
+                "userName" -> user.name,
+                "userMail" -> user.email
               )
-            }.getOrElse(
+            }.getOrElse{
+              println("[ERROR] Could not find user " + up._1)
 	            BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
-	          )
-	      else
+            }
+        }else{
+          println("[ERROR] Invalid user credentials for user : " + up._1)
 	        BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
+        }
       }
     )
   }
@@ -120,8 +127,8 @@ def tutorial = Action {implicit request =>
    * Displays the user home page
    */
   def home = Action { implicit request =>
-    session.get("userId").map(UUID.fromString(_)).map{uid => 
-      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+    context.user.map{u =>
+      Ok(views.html.workspace(UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
     }.getOrElse(
 	    Unauthorized("Oops, you are not connected")
     )
@@ -141,4 +148,9 @@ def tutorial = Action {implicit request =>
 		
 		Redirect(routes.Application.login).withNewSession
 	}
+
+	 def parameter = Action{ implicit request =>
+    Ok(views.html.parameter())
+  }
+
 }

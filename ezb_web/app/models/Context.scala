@@ -9,4 +9,4 @@ import users.dal.User
  * Time: 15:22
  * To change this template use File | Settings | File Templates.
  */
-case class Context (user: Option[String])
+case class Context (user: Option[User])
