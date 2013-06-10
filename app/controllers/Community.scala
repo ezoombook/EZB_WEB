@@ -166,4 +166,13 @@ object Community extends Controller with ContextProvider{
     }
   }
 
+
+  def groupadmin(groupId:String) = Action{ implicit request =>
+    cachedGroup(groupId).map{group =>
+      val members = cachedGroupMembers(groupId)
+      Ok(views.html.groupadmin(group.id.toString, group.name, members, memberForm))
+    }.getOrElse(
+      NotFound("Oops, the group you're looking for does not exists :(")
+    )
+  }
 }

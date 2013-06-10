@@ -4,17 +4,21 @@
 
 @main("Book Page"){
 
-<body>
+
+
   <div class="container">
   </br></br></br>
     <h1>@book.bookTitle</h1></br>
     <h2>Author : @book.bookAuthors</h2></br>
     <h2>Publisher : @book.bookPublishers</h2></br>
     <h2>Published Date : @book.bookPublishedDates</h2></br>
+
+
     <h2>Summary: </h2>
     <p>
         @book.bookSummary
     </p>
+
     
      <h2>EzoomBook</h2>
 
@@ -22,10 +26,17 @@
 				<tbody>
 					<tr>
 						<th>Title</th><th>Author</th><th>Nbr of level</th><th>Date of creation</th><th>Popularity</th>
-					</tr>
+			</tr>
 					
+
+						<td></td><td></td><td></td><td></td><td><input type="submit" value="edit"></td>
+
+					</tr>
 				</tbody>
 			</table>
-		</div>
-		</body>
-}
+
+		
+
+    </div>
+    }
+
