@@ -35,7 +35,7 @@ object Community extends Controller with ContextProvider{
 
   val memberForm = Form(
     tuple(
-      "member id" -> text,
+      "member email" -> text,
       "role" -> text
     )
   )
@@ -103,9 +103,17 @@ object Community extends Controller with ContextProvider{
         BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
       }.get,
       member => {
-        UserDO.newGroupMember(UUID.fromString(groupId), UUID.fromString(member._1), member._2)
-        Cache.set("groupMembers:"+groupId, null)
-        Redirect(routes.Community.group(groupId))
+        UserDO.getUserId(member._1).map{userId =>
+          UserDO.newGroupMember(UUID.fromString(groupId), userId, member._2)
+          Cache.set("groupMembers:"+groupId, null)
+          Redirect(routes.Community.group(groupId))
+        }.getOrElse{
+          cachedGroup(groupId).map{group =>
+            val members = cachedGroupMembers(groupId)
+            BadRequest(views.html.group(group.id.toString, group.name, members,
+              memberForm.withGlobalError("Cannot find the user with mail " + member._1)))
+          }.get
+        }
       }
     )
   }
