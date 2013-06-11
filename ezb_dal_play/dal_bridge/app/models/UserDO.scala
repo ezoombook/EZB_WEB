@@ -24,7 +24,13 @@ object UserDO{
   def validateUser(user:String, password:String):Boolean = {
     AppDB.database.withSession{
       implicit session:Session =>
-	AppDB.dal.Users.validateUserPassword(user, password)
+	    AppDB.dal.Users.validateUserPassword(user, password)
+    }
+  }
+
+  def changePassword(uid:UUID, newPwd:String){
+    AppDB.database.withSession{implicit session:Session =>
+      AppDB.dal.Users.changePassword(uid, newPwd)
     }
   }
 
@@ -99,7 +105,7 @@ object UserDO{
     }
   }
 
-  def getGroupMembers(groupId:UUID):List[User] = {
+  def getGroupMembers(groupId:UUID):List[(User, AppDB.dal.Roles.Value)] = {
     AppDB.database.withSession{
       implicit session:Session =>
       AppDB.dal.GroupMembers.getGroupMembers(groupId)
