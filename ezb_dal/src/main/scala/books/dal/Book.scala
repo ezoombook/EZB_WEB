@@ -45,21 +45,21 @@ object Book extends UUIDjsParser{
 }
 
 trait BookComponent{
-  def couchclient:CouchbaseClient
+//  def couchclient:CouchbaseClient
 
-  def saveBook(book:Book){
+  def saveBook(book:Book)(implicit couchclient:CouchbaseClient){
     val key = "book:"+book.bookId
     couchclient.set(key, 0, Json.toJson(book).toString)
   }
 
-  def saveBookPart(part:BookPart){
+  def saveBookPart(part:BookPart)(implicit couchclient:CouchbaseClient){
     couchclient.set("part:"+part.partId, 0, part.content)
   }
 
   /**
    * Returns a list of books sorted by popularity
    */
-  def listBooks():List[Book] = {
+  def listBooks()(implicit couchclient:CouchbaseClient):List[Book] = {
 
     //Prepare the view and query
     val bookView = couchclient.getView("book","by_title")
@@ -87,7 +87,7 @@ trait BookComponent{
     }.toList
   }
 
-  def getBook(bookId:UUID):Option[Book] = {
+  def getBook(bookId:UUID)(implicit couchclient:CouchbaseClient):Option[Book] = {
     couchclient.get("book:"+bookId) match{
       case str:String => Json.parse(str).validate[Book].fold(
         err => {
@@ -101,7 +101,7 @@ trait BookComponent{
     }
   }
 
-  def saveEzoomBook(ezb:Ezoombook){
+  def saveEzoomBook(ezb:Ezoombook)(implicit couchclient:CouchbaseClient){
     val key = "ezb:"+ezb.ezoombook_id
     couchclient.set(key, 0, Json.toJson(ezb).toString())
   }
@@ -109,7 +109,7 @@ trait BookComponent{
   /**
    * Returns the ezoobooks for a book
    */
-  def getEzoomBooks(bookId:UUID):List[Ezoombook] = {
+  def getEzoomBooks(bookId:UUID)(implicit couchclient:CouchbaseClient):List[Ezoombook] = {
     //Prepare the view and query
     val view = couchclient.getView("ezb","by_bookid")
     val query = new Query()
@@ -134,7 +134,7 @@ trait BookComponent{
     }.toList
   }
 
-  def saveLayer(ezl:EzoomLayer){
+  def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
     //TODO If it is a new layer, update the corresponding eZoomBook

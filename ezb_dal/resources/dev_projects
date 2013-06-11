@@ -1,0 +1,22 @@
+{
+    "views" : {
+        "by_owner" : {
+            "map" :
+                "function (doc, meta) {
+                   if(doc.projectId && doc.projectOwnerId){
+                     emit(doc.projectOwnerId, null)
+                   }
+                 }"
+        },
+        "by_member" : {
+            "map" :
+                "function (doc, meta) {
+                   if(doc.projectId && doc.projectTeam){
+                     for(i=0; i<doc.projectTeam.length; i++){
+                        emit(doc.projectTeam[i], null)
+                     }
+                   }
+                 }"
+        }
+    }
+}
