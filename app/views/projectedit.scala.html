@@ -1,0 +1,14 @@
+@(projectForm:Form[EzbProject])(implicit context:Context)
+
+@import helper._
+
+@main("Project Edition"){
+    <div class="span9">
+        <h1>Project Edition</h1>
+
+        @form(routs.Collaboration.saveProject){
+
+        }
+    </div>
+
+}
