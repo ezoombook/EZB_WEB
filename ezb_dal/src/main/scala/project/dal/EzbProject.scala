@@ -36,6 +36,22 @@ trait EzbProjectComponent{
     couchclient.set(key, 0, Json.toJson(ezbProject).toString)
   }
 
+  def getProjectById(projId:UUID)(implicit couchclient:CouchbaseClient):Option[EzbProject] = {
+    couchclient.get("project:"+projId) match{
+      case str:String =>
+        Json.parse(str).validate[EzbProject].fold(
+          err => {
+            println("[ERROR] Could not parse Json to EzbProject: " + err)
+            None
+          },
+          ezbProj => Some(ezbProj)
+        )
+      case _ =>
+        println("[ERROR] Could not find EzbProject with id " + projId.toString)
+        None
+    }
+  }
+
   def getProjectsByOwner(userId:UUID)(implicit couchclient:CouchbaseClient):List[EzbProject] = {
     val view = couchclient.getView("projects","by_owner")
     val query = new Query()

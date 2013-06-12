@@ -2,12 +2,15 @@ package models
 
 import books.dal._
 import books.util._
+import project.dal.EzbProject
 
 import java.util.UUID
 import java.io.{InputStream, FileInputStream, ByteArrayInputStream, File}
 import java.util.zip.ZipFile
 
 object BookDO{
+
+  import AppDB._
 
   def newBook(byteArray: Array[Byte]):Book = EpubLoader.loadBook(Left(new ByteArrayInputStream(byteArray)))
 
@@ -46,5 +49,26 @@ object BookDO{
 
   def getBook(bookId:String):Option[Book] = {
     AppDB.cdal.getBook(UUID.fromString(bookId))
+  }
+
+  /**
+   * Creates a new project
+   */
+  def saveProject(proj:EzbProject){
+    AppDB.cdal.saveProject(proj)
+  }
+
+  /**
+   * Returns the projects owned by a user
+   */
+  def getOwnedProjects(uid:UUID):List[EzbProject] = {
+    AppDB.cdal.getProjectsByOwner(uid)
+  }
+
+  /**
+   * Returns the project with id projId
+   */
+  def getProject(projId:UUID):Option[EzbProject] = {
+    AppDB.cdal.getProjectById(projId)
   }
 }
