@@ -48,15 +48,6 @@ object Community extends Controller with ContextProvider{
   
     )
    
-      val projectForm = Form(
-    tuple(
-      "projectName" -> text,
-      "ownerId" -> text
-    )
-  
-    )
-    
-
   /**
    * Displays the groups owned by a user
    */
