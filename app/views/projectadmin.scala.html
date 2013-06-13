@@ -1,7 +1,31 @@
-@()(implicit context:Context)
+@(project:EzbProject, members:List[User], ezbook:Option[Ezoombook])(implicit context:Context)
 
 @import helper._
+@import utils.DateFormatter._
+
+@displayEzb = {
+    @ezbook.map{ezb =>
+        @ezb.ezoombook_title
+    }.getOrElse{
+        <i>No eZoomBook defined for this project. Please define an eZoomBook</i>
+    }
+}
+
 
 @main("Project Administration"){
+    <h1>Project: @project.projectName</h1>
 
+    <dl>
+        <dt>Created: </dt> <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
+        <dt>Working on: </dt> <dd>@displayEzb</dd>
+    </dl>
+
+    <h2>Project Team:</h2>
+    <ul>
+        @members.map{ member =>
+            <li>@member.name</li>
+        }
+
+        <a href="">Add a member</a>
+    </ul>
 }
