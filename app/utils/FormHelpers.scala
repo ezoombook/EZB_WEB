@@ -2,7 +2,10 @@ package utils
 
 import books.dal.Status
 import play.api.data.format.Formatter
-import play.api.data.FormError
+import play.api.data.{FormError,Mapping}
+import play.api.data.Forms._
+import play.api.data.format.Formats._
+
 import java.util.UUID
 
 /**
@@ -28,4 +31,26 @@ trait FormHelpers {
 
     def unbind(key:String, value: UUID):Map[String, String] = Map(key -> value.toString)
   }
+
+  import java.util.{Date, TimeZone}
+  import java.text.SimpleDateFormat
+
+  def dateAsLong(pattern:String, timeZone: TimeZone = TimeZone.getDefault):Mapping[Long] =
+    of[Long] as dateLongFormat(pattern, timeZone)
+
+  def dateLongFormat(pattern:String, timeZone: TimeZone = TimeZone.getDefault):Formatter[Long] = new Formatter[Long]{
+
+    val sdf = new SimpleDateFormat(pattern)
+    sdf.setTimeZone(timeZone)
+    sdf.setLenient(false)
+
+    def bind(key:String, data:Map[String,String]) =
+      dateFormat(pattern).bind(key, data).fold(
+        err => Left(err),
+        date => Right(date.getTime)
+      )
+
+    def unbind(key:String, value: Long):Map[String, String] = Map(key -> sdf.format(new Date(value)))
+  }
+
 }

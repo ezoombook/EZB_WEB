@@ -31,7 +31,7 @@ POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 GET     /project/new        controllers.Collaboration.newPoject
 GET     /project/edit/:id   controllers.Collaboration.editProject(id:String)
 POST    /project/save       controllers.Collaboration.saveProject
-GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:string)
+GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks

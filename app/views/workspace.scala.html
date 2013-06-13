@@ -9,32 +9,29 @@
 <script type="text/javascript">//<![CDATA[
 $(document).ready(function(){
     $('#btnAddAuth').click(function () {
-        cloner('authors');
+      cloner('authors');
     });
     $('#btnAddLang').click(function () {
-        cloner('languages');
+      cloner('languages');
     });
     $('#btnAddPublshr').click(function () {
-        cloner('publishers');
+      cloner('publishers');
     });
     $('#btnAddPubDate').click(function () {
-        cloner('published_dates');
+      cloner('published_dates');
     });
     $('#btnAddTag').click(function () {
-        cloner('tags');
+      cloner('tags');
     });
 });
 
-
-
 function toggle(divtag){
-		if(document.getElementById(divtag).style.display=="none"){
-			document.getElementById(divtag).style.display="block";
-		} else {
-			document.getElementById(divtag).style.display="none";
-		}
-	}
-
+    if(document.getElementById(divtag).style.display=="none"){
+        document.getElementById(divtag).style.display="block";
+    } else {
+        document.getElementById(divtag).style.display="none";
+    }
+}
 
 //]]>
 
@@ -45,170 +42,181 @@ function toggle(divtag){
 @main("Welcome to your Workingspace", scripts){
 
 <style>
+    .rightpannel{
+    position: absolute;
+    right:2%;
+    left: 51%;
+    }
 
-
-.rightpannel{
-  position: absolute;
-   right:2%;
-  left: 51%;
-}
-
-.leftpannel{
-  position: absolute;
-   left:2%;
-  right: 51%;
-}
+    .leftpannel{
+    position: absolute;
+    left:2%;
+    right: 51%;
+    }
 </style>
 
 <body>
-  <div class="container">
-<section id="article34" class="menu cool">
-</br></br></br>
-    <center><h1>@session.get("userName")'s Working Space</h1></center>
+<div class="container">
+    <section id="article34" class="menu cool">
+        </br></br></br>
+        <center><h1>@session.get("userName")'s Working Space</h1></center>
 
-      <div class="leftpannel">
-      </br>
-    <fieldset>
-            <legend><h1>Project</h1></legend>
-     
-     <table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Project</th><th>group</th><th></th>
-					</tr>
-					
-				</tbody>
-			</table>
-		
-		
-   </fieldset> 
-   
-   <fieldset>
-            <legend><h1>Readlist</h1></legend>
-     
-     <table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Books</th><th></th>
-					</tr>
-					
-				</tbody>
-			</table>
-		
-   </fieldset> 
-   <fieldset>
-            <legend><h1>Favorite books</h1></legend>
-    
-     <table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Book</th><th></th>
-					</tr>
-					
-				</tbody>
-			</table>
-		
-   </fieldset> 
-   <fieldset>
-            <legend><h1>My friends</h1></legend>
-    
-     <table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Name</th><th>Groups</th><th>Favorite books</th><th></th>
-					</tr>
-					
-				</tbody>
-			</table>
-		
-		<h4>@inputText(groupForm(""))</h4>
-		<dl>
-		<li onClick="toggle('seeuser')"><h3>Add a friend
-			
-		</h3></li>
-		
-			<div id="seeuser" style="display:none" >
-				<table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Name</th><th>Groups</th><th>Favorite books</th><th></th>
-					</tr>
-					
-				</tbody>
-			</table>
-		</div>
-		
-		</dl>
-		
-   </fieldset>
-    </div>
-    
- 
+        <div class="leftpannel">
+            </br>
+            <fieldset>
+                <legend><h1>Project</h1></legend>
 
-  <div class="rightpannel">
-<fieldset>
-<h1 style="float:left">Create a group</h1>
-</br></br></br></br>
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Project</th>
+                        <th>group</th>
+                        <th></th>
+                    </tr>
 
- @form(routes.Community.newGroup){
-	    <h4>@inputText(groupForm("groupName"),'_label->"Name of the group")</h4>
-	   
-	   @hidden(groupForm("ownerId"), 'value -> session.get("userId"))
-	    <input type="submit" value="Create a group">
-	     }
-</br>
-<fieldset>
-            <legend><h1>My groups</h1></legend>
-  
-    
-    
-			<table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Title</th><th>You own</th><th></th>
-					</tr>
-					@for(g<-userGroups){
-					<tr>
-						<td>@g.name</td>
-						<td>X</td>
-						<td>
-						@form(routes.Community.group(g.id.toString())){
-						<input type="submit" value="choose this group"></td>
-					}	
-					</tr>
-					}
-					
-					@for(g<-colabGroups){
-					<tr>
-						<td>@g.name</td>
-						<td></td>
-						<td>
-						@form(routes.Community.group(g.id.toString())){
-						<input type="submit" value="choose this group"></td>
-						}
-					</tr>
-					}
-				</tbody>
-			</table>
-		
+                    </tbody>
+                </table>
 
-    </fieldset>
-    </fieldset>
-  <fieldset>
-            <legend><h1>New Message</h1></legend>
-    
-     <table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Message</th><th>author</th><th>date</th><th></th>
-					</tr>
-					
-				</tbody>
-			</table>
-		
-   </fieldset> 
-    </div>
-</section>
+
+            </fieldset>
+
+            <fieldset>
+                <legend><h1>Readlist</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Books</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+            <fieldset>
+                <legend><h1>Favorite books</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Book</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+            <fieldset>
+                <legend><h1>My friends</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Groups</th>
+                        <th>Favorite books</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <h4>@inputText(groupForm(""))</h4>
+                <dl>
+                    <li onClick="toggle('seeuser')"><h3>Add a friend
+
+                    </h3></li>
+
+                    <div id="seeuser" style="display:none">
+                        <table class="table table-striped">
+                            <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <th>Groups</th>
+                                <th>Favorite books</th>
+                                <th></th>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </dl>
+
+            </fieldset>
+        </div>
+
+
+        <div class="rightpannel">
+            <fieldset>
+                <h1 style="float:left">Create a group</h1>
+                </br></br></br></br>
+
+                @form(routes.Community.newGroup){
+                <h4>@inputText(groupForm("groupName"),'_label->"Name of the group")</h4>
+
+                @hidden(groupForm("ownerId"), 'value -> session.get("userId"))
+                <input type="submit" value="Create a group">
+                }
+                </br>
+                <fieldset>
+                    <legend><h1>My groups</h1></legend>
+
+
+                    <table class="table table-striped">
+                        <tbody>
+                        <tr>
+                            <th>Title</th>
+                            <th>You own</th>
+                            <th></th>
+                        </tr>
+                        @for(g<-userGroups){
+                        <tr>
+                            <td>@g.name</td>
+                            <td>X</td>
+                            <td>
+                                @form(routes.Community.group(g.id.toString())){
+                                <input type="submit" value="choose this group"></td>
+                            }
+                        </tr>
+                        }
+
+                        @for(g<-colabGroups){
+                        <tr>
+                            <td>@g.name</td>
+                            <td></td>
+                            <td>
+                                @form(routes.Community.group(g.id.toString())){
+                                <input type="submit" value="choose this group"></td>
+                            }
+                        </tr>
+                        }
+                        </tbody>
+                    </table>
+
+
+                </fieldset>
+            </fieldset>
+            <fieldset>
+                <legend><h1>New Message</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Message</th>
+                        <th>author</th>
+                        <th>date</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+        </div>
+    </section>
 </div>
 </body>
-    }  
+}
