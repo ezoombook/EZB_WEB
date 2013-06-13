@@ -79,7 +79,7 @@ object Community extends Controller with ContextProvider{
     //cachedProject(projectId).map{project =>
       //val members = cachedProjectMembers(projectId)
       //project.id.toString, project.name, members, memberForm
-      Ok(views.html.project())
+      Ok(views.html.ezbproject())
     //}.getOrElse(
       //NotFound("Oops, the project you're looking for does not exists :(")
     //)

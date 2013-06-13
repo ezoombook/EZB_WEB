@@ -134,6 +134,28 @@ trait BookComponent{
     }.toList
   }
 
+  /**
+   * Returns an eZoomBook
+   * @param ezbId
+   * @param couchclient
+   * @return
+   */
+  def getEzoomBook(ezbId:UUID)(implicit couchclient:CouchbaseClient):Option[Ezoombook] = {
+    couchclient.get("ezb:"+ezbId.toString) match {
+      case str:String =>
+        Json.parse(str).validate[Ezoombook].fold(
+          err => {
+            println(s"[ERROR] Could not parse document $ezbId as Ezoombook: $err")
+            None
+          },
+          ezb => Some(ezb)
+        )
+      case _ =>
+        println(s"[ERROR] Ezoombook $ezbId not found.")
+        None
+    }
+  }
+
   def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())

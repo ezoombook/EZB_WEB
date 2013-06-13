@@ -90,6 +90,13 @@ trait UserComponent {
     def getUser(username:String)(implicit session:Session) = {
       Query(Users).filter(u => u.name === username || u.email === username).firstOption
     }
+
+    /**
+     * Returns a User, searching by user-id
+     */
+    def getUser(uid:UUID)(implicit session:Session) = {
+      Query(Users).filter(u => u.id == uid.bind).firstOption
+    }
   }
 
   /**

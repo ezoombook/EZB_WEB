@@ -3,6 +3,8 @@ package controllers
 import project.dal.EzbProject
 import models._
 import utils.FormHelpers
+import users.dal.Group
+import project.dal._
 
 import play.api._
 import play.api.mvc._
@@ -10,7 +12,6 @@ import play.api.data._
 import Forms._
 import Play.current
 import java.util.UUID
-import users.dal.Group
 import play.api.cache.Cache
 
 /**
@@ -22,23 +23,23 @@ import play.api.cache.Cache
  */
 object Collaboration extends Controller with ContextProvider with FormHelpers{
 
-  val projectForm = Form(
-    mapping(
-      "project_id" -> of[UUID],
-      "project_name" -> nonEmptyText,
-      "project_owner" -> of[UUID],
-      "project_creation" -> of[Long],
-      "group_id" -> of[UUID],
-      "ezoombook_id" -> of[UUID],
-      "project_team" -> list(memberMapping)
-    )(EzbProject.apply)(EzbProject.unapply)
-  )
-
   val memberMapping = mapping(
     "user_id" -> of[UUID],
     "assigned_part" -> text,
     "assigned_layer" -> of[UUID]
   )(TeamMember.apply)(TeamMember.unapply)
+
+  val projectForm = Form(
+    mapping(
+      "project_id" -> of[UUID],
+      "project_name" -> nonEmptyText,
+      "project_owner" -> of[UUID],
+      "project_creation" -> dateAsLong("dd-MM-yyyy"),
+      "group_id" -> of[UUID],
+      "ezoombook_id" -> of[UUID],
+      "project_team" -> list(memberMapping)
+    )(EzbProject.apply)(EzbProject.unapply)
+  )
 
   /**
    * Displays the project edition form for a new project
@@ -46,8 +47,8 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
    */
   def newPoject = Action{implicit request =>
     context.user.map{user =>
-      val emptyProject = Project(UUID.randomUUID, "", user.id, new java.util.Date(), UUID.randomUUID, UUID.randomUUID, List[TeamMember]())
-      Ok(views.html.projectedit(projectForm.fill(emptyProject)))
+      val emptyProject = EzbProject(UUID.randomUUID, "", user.id, (new java.util.Date()).getTime, UUID.randomUUID, UUID.randomUUID, List[TeamMember]())
+      Ok(views.html.projectedit(projectForm.fill(emptyProject), UserDO.userOwnedGroups(user.id)))
     }.getOrElse{
       Unauthorized("Oops! you need to be connected to access this page")
     }
@@ -59,9 +60,9 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
   def editProject(projectId:String) = Action{implicit request =>
     context.user.map{user =>
       cachedProject(projectId).map{project =>
-        Ok(views.html.projectedit(projectForm.fill(project)))
+        Ok(views.html.projectedit(projectForm.fill(project), UserDO.userOwnedGroups(user.id)))
       }.getOrElse{
-        Ok(views.html.projectedit(projectForm))
+        Ok(views.html.projectedit(projectForm, UserDO.userOwnedGroups(user.id)))
       }
     }.getOrElse{
       Unauthorized("Oops! you need to be connected to access this page")
@@ -73,16 +74,22 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
    * @return
    */
   def saveProject = Action{implicit request =>
-    projectForm.bindFromRequest.fold(
-      errors => {
-        BadRequest(views.html.projectedit(errors))
-      },
-      ezbProject =>{
-        BookDO.saveProject(ezbProject)
-        cache.set("project:"+ezbProject.projectId, projectId)
-        Ok(views.html.projectadmin(ezbProject))
-      }
-    )
+    context.user.map{ user =>
+      projectForm.bindFromRequest.fold(
+        errors => {
+          BadRequest(views.html.projectedit(errors, UserDO.userOwnedGroups(user.id)))
+        },
+        ezbProject =>{
+          BookDO.saveProject(ezbProject)
+          Cache.set("project:"+ezbProject.projectId, ezbProject)
+          Ok(views.html.projectadmin(ezbProject,
+            ezbProject.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
+            BookDO.getEzoomBook(ezbProject.ezoombookId)))
+        }
+      )
+    }.getOrElse{
+      Unauthorized("Oops! you need to be connected to access this page")
+    }
   }
 
   /**
@@ -91,11 +98,14 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
    * @return
    */
   def projectAdmin(projId:String) = Action{implicit request =>
-    context.user.map{
+    context.user.map{user =>
       cachedProject(projId).map{project =>
-        Ok(views.html.projectadmin(project))
+        Ok(views.html.projectadmin(project,
+          project.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
+          BookDO.getEzoomBook(project.ezoombookId)))
       }.getOrElse{
-        Redirect(routs.Collaboration.newProject)
+        BadRequest(views.html.workspace(UserDO.userOwnedGroups(user.id),
+          UserDO.userIsMemberGroups(user.id),Community.groupForm))
       }
     }.getOrElse{
       Unauthorized("Oops! you need to be connected to access this page")

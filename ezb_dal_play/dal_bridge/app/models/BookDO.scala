@@ -7,6 +7,9 @@ import project.dal.EzbProject
 import java.util.UUID
 import java.io.{InputStream, FileInputStream, ByteArrayInputStream, File}
 import java.util.zip.ZipFile
+import play.api.cache.Cache
+
+import play.api.Play.current
 
 object BookDO{
 
@@ -41,6 +44,17 @@ object BookDO{
    */
   def getEzoomBooks(bookId:UUID):List[Ezoombook] = {
     AppDB.cdal.getEzoomBooks(bookId)
+  }
+
+  /**
+   * Returns the eZoomBook with the given ID
+   * @param ezbId
+   * @return
+   */
+  def getEzoomBook(ezbId:UUID):Option[Ezoombook] = {
+    Cache.getOrElse("ezb:"+ezbId, 0){
+      AppDB.cdal.getEzoomBook(ezbId)
+    }
   }
 
   def listBooks():List[Book] = {
