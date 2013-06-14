@@ -39,7 +39,8 @@ case class Ezoombook (ezoombook_id:UUID,
                        ezoombook_owner:String,
                        ezoombook_status:Status.Value,
                        ezoombook_title:String,
-                       ezoombook_public:Boolean
+                       ezoombook_public:Boolean,
+                       ezoombook_layers:List[String] = List[String]()
                        )
 
 object Ezoombook extends UUIDjsParser{

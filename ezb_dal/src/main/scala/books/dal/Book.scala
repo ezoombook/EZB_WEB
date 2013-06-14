@@ -3,7 +3,10 @@ package books.dal
 import books.util.UUIDjsParser
 import play.api.libs.json._
 import play.api.libs.functional._
+
 import java.util.UUID
+import net.spy.memcached.CASValue
+
 import scala.collection.JavaConversions._
 
 import com.couchbase.client.CouchbaseClient
@@ -107,6 +110,28 @@ trait BookComponent{
   }
 
   /**
+   * Returns an eZoomBook
+   * @param ezbId
+   * @param couchclient
+   * @return
+   */
+  def getEzoomBook(ezbId:UUID)(implicit couchclient:CouchbaseClient):Option[Ezoombook] = {
+    couchclient.get("ezb:"+ezbId.toString) match {
+      case str:String =>
+        Json.parse(str).validate[Ezoombook].fold(
+          err => {
+            println(s"[ERROR] Could not parse document $ezbId as Ezoombook: $err")
+            None
+          },
+          ezb => Some(ezb)
+        )
+      case _ =>
+        println(s"[ERROR] Ezoombook $ezbId not found.")
+        None
+    }
+  }
+
+  /**
    * Returns the ezoobooks for a book
    */
   def getEzoomBooks(bookId:UUID)(implicit couchclient:CouchbaseClient):List[Ezoombook] = {
@@ -134,31 +159,29 @@ trait BookComponent{
     }.toList
   }
 
-  /**
-   * Returns an eZoomBook
-   * @param ezbId
-   * @param couchclient
-   * @return
-   */
-  def getEzoomBook(ezbId:UUID)(implicit couchclient:CouchbaseClient):Option[Ezoombook] = {
-    couchclient.get("ezb:"+ezbId.toString) match {
-      case str:String =>
-        Json.parse(str).validate[Ezoombook].fold(
-          err => {
-            println(s"[ERROR] Could not parse document $ezbId as Ezoombook: $err")
-            None
-          },
-          ezb => Some(ezb)
-        )
-      case _ =>
-        println(s"[ERROR] Ezoombook $ezbId not found.")
-        None
-    }
-  }
-
   def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
     //TODO If it is a new layer, update the corresponding eZoomBook
+
+    //Get and update ezoombook
+    val ezbKey = "ezb:"+ ezl.ezoombook_id
+    couchclient.getAndLock(ezbKey, 15) match{
+      case cas:CASValue[_] => Json.parse(cas.getValue().asInstanceOf[String]).validate[Ezoombook].fold(
+          err => {
+          println("[WARNING] Could not update ezoombok associated to ezoomlayer: " + err)
+          },
+        ezb => {
+          if(!ezb.ezoombook_layers.contains(ezl.ezoomlayer_id.toString)){
+            val newEzb = Ezoombook(ezb.ezoombook_id,
+              ezb.book_id,ezb.ezoombook_owner,ezb.ezoombook_status,
+              ezb.ezoombook_title,ezb.ezoombook_public,ezb.ezoombook_layers :+ ezl.ezoomlayer_id.toString)
+            couchclient.cas(ezbKey, cas.getCas, Json.toJson(newEzb).toString())
+          }
+        }
+        )
+      case _ => println("[WARNING] Oops there is no ezoombook associated to this ezoomlayer")
+  }
+
   }
 }

@@ -1,5 +1,6 @@
 package models
 import play.api.Play.current
+import com.couchbase.client.CouchbaseClient
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,14 +19,14 @@ object AppDB extends DBeable with SSDBeable{
    * Links have a validity time of 42 hours
    * @param id
    */
-  def storeTemporalLinkId(linkId:String, userId:String){
-    cdal.couchclient.set("link:"+linkId, 60*60*42, userId)
+  def storeTemporalLinkId(linkId:String, userId:String)(implicit couchclient:CouchbaseClient){
+    couchclient.set("link:"+linkId, 60*60*42, userId)
   }
 
-  def getTemporalLinkId(id:String):Option[String] = {
-    cdal.couchclient.get("link:"+id) match{
+  def getTemporalLinkId(id:String)(implicit couchclient:CouchbaseClient):Option[String] = {
+    couchclient.get("link:"+id) match{
       case str:String =>
-        cdal.couchclient.delete("link:"+id)
+        couchclient.delete("link:"+id)
         Some(str)
       case _ => None
     }
