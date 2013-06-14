@@ -53,7 +53,7 @@ function overlay() {
     <p> <h2>Add Member:</h2>
      
      @form(routes.Community.newGroupMember(groupId)){
-        @inputText(memberForm("member_id"), Symbol("data-provide") -> "typehead", Symbol("data-items") -> 5, Symbol("data-source") -> "?")
+        @inputText(memberForm("member_email"), Symbol("data-provide") -> "typehead", Symbol("data-items") -> 5, Symbol("data-source") -> "?")
         @select(memberForm("role"), UserDO.getGroupMemberRole)
         <input type="submit" value="Add">
      }
