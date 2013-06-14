@@ -86,10 +86,9 @@ trait GroupComponent{
     }
 
     def getGroupMembers(group_id:UUID)(implicit session:Session) = 
-      (for {
-	(g, u) <- GroupMembers innerJoin Users on (_.userId === _.id)
-	if g.groupId === group_id.bind
-      } yield (u)).list
+      (for {(g, u) <- GroupMembers innerJoin Users on (_.userId === _.id)
+	      if g.groupId === group_id.bind
+      } yield (u, g.userRole)).list
     
 
     /**
