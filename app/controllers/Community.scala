@@ -35,7 +35,7 @@ object Community extends Controller with ContextProvider{
 
   val memberForm = Form(
     tuple(
-      "member id" -> text,
+      "member_email" -> text,
       "role" -> text
     )
   )
@@ -100,12 +100,21 @@ object Community extends Controller with ContextProvider{
   def newGroupMember(groupId:String) = Action{ implicit request =>
     memberForm.bindFromRequest.fold(
       errors => cachedGroup(groupId).map{group =>
+        println("[ERROR] Errors found while trying to create group member : " + errors)
         BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
       }.get,
       member => {
-        UserDO.newGroupMember(UUID.fromString(groupId), UUID.fromString(member._1), member._2)
-        Cache.set("groupMembers:"+groupId, null)
-        Redirect(routes.Community.group(groupId))
+        UserDO.getUserId(member._1).map{userId =>
+          UserDO.newGroupMember(UUID.fromString(groupId), userId, member._2)
+          Cache.set("groupMembers:"+groupId, null)
+          Redirect(routes.Community.group(groupId))
+        }.getOrElse{
+          cachedGroup(groupId).map{group =>
+            val members = cachedGroupMembers(groupId)
+            BadRequest(views.html.group(group.id.toString, group.name, members,
+              memberForm.withGlobalError("Cannot find the user with mail " + member._1)))
+          }.get
+        }
       }
     )
   }
@@ -157,8 +166,8 @@ object Community extends Controller with ContextProvider{
   /**
    * Gets the users of a group from the cache.
    */
-  private def cachedGroupMembers(groupId:String):List[User] = {
-    Cache.getAs[List[User]]("groupMembers:"+groupId) match{
+  private def cachedGroupMembers(groupId:String):List[(User,AppDB.dal.Roles.Value)] = {
+    Cache.getAs[List[(User,AppDB.dal.Roles.Value)]]("groupMembers:"+groupId) match{
       case Some(mlst) if mlst != null => mlst
       case _ => val ulst = UserDO.getGroupMembers(UUID.fromString(groupId))
         Cache.set("groupMembers:"+groupId, ulst, 0)

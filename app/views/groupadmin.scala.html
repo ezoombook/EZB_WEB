@@ -1,4 +1,4 @@
-@(groupId:String, groupName:String, members:List[User], memberForm:Form[(String,String)] )(implicit session:Session, context:Context)
+@(groupId:String, groupName:String, members:List[(User,AppDB.dal.Roles.Value)], memberForm:Form[(String,String)] )(implicit session:Session, context:Context)
 @main("Group administration"){
 <style>
 
