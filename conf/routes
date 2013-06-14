@@ -17,6 +17,11 @@ GET	    /login			    controllers.Application.login
 #logout
 GET		/logout				controllers.Application.userLogout
 
+#Password Reset
+GET     /changepassword     controllers.Application.changePassword
+POST    /changepassword     controllers.Application.sendPasswordResetLink
+GET     /passwdreset/:t     controllers.Application.passwordReset(t:String)
+
 #Parameter
 GET		/parameters			controllers.Application.parameter
 

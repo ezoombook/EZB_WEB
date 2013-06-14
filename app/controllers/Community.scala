@@ -35,7 +35,7 @@ object Community extends Controller with ContextProvider{
 
   val memberForm = Form(
     tuple(
-      "member email" -> text,
+      "member_email" -> text,
       "role" -> text
     )
   )
@@ -91,6 +91,7 @@ object Community extends Controller with ContextProvider{
   def newGroupMember(groupId:String) = Action{ implicit request =>
     memberForm.bindFromRequest.fold(
       errors => cachedGroup(groupId).map{group =>
+        println("[ERROR] Errors found while trying to create group member : " + errors)
         BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
       }.get,
       member => {
