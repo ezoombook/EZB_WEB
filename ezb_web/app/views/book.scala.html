@@ -1,29 +1,53 @@
-@(book:Book)(implicit context:Context)
+@(book:Book, ezoomBookForm:Form[Ezoombook], listezbooks:List[Ezoombook])(implicit context:Context)
 
+@import utils.EzbHelpers._
 @import helper._
-
+@import ezbhelper._
 @main("Book Page"){
+
+
+
   <div class="container">
-</br></br></br>
-    <h1>@book.bookTitle</h1>
+  </br></br></br>
+    <h1>@book.bookTitle</h1></br>
+    <h2>Author : @book.bookAuthors</h2></br>
+    <h2>Publisher : @book.bookPublishers</h2></br>
+    <h2>Published Date : @book.bookPublishedDates</h2></br>
+
+
     <h2>Summary: </h2>
     <p>
         @book.bookSummary
     </p>
-    </br>
-    </br>
-    <table class="table table-striped">
+
+    
+     <h2>EzoomBook</h2>
+     </br>
+      @form(routes.EzoomBooks.saveEzoomBook(book.bookId.toString)){
+	    <h4>@inputText(ezoomBookForm("ezb_title"),'_label->"Name of the ezoombook")</h4>
+	   
+	   @hidden(ezoomBookForm("ezb_owner"))
+	     @hidden(ezoomBookForm("book_id"))
+	     @hidden(ezoomBookForm("ezb_id"))
+	    <input type="submit" value="Create an ezoombook">
+	     }
+
+			<table class="table table-striped">
 				<tbody>
 					<tr>
-						<th>ezoombook</th><th>author</th><th>dates of creation</th><th>tags</th><th></th>
-					</tr>
-					
-
-						<td></td><td></td><td></td><td></td><td><input type="submit" value="edit"></td>
-
-					</tr>
+						<th>Title</th><th>Author</th><th>Nbr of level</th><th>Popularity</th>
+			</tr>
+			<tr>
+				@for(g<-listezbooks){	
+<tr>
+						<td>@g.ezoombook_title</td><td>@g.ezoombook_owner</td><td>@g.ezoombook_layers.size</td><td></td><td><input type="submit" value="edit"></td>
+}
+			</tr>		
 				</tbody>
 			</table>
 
+		
+
     </div>
     }
+
