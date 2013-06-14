@@ -135,6 +135,7 @@ println("[INFO] Login validation...")
    * @return
    */
   def sendPasswordResetLink = Action {implicit request =>
+    import AppDB._
     Form("email" -> email).bindFromRequest.fold(
       errors => BadRequest(views.html.forgottenPwd(errors)),
       userEmail => {
@@ -155,6 +156,7 @@ println("[INFO] Login validation...")
    * @return
    */
   def passwordReset(linkId:String) = Action {implicit request =>
+    import AppDB._
     AppDB.getTemporalLinkId(linkId).map{uid =>
       Ok(views.html.passwordReset(uid))
     }.getOrElse(
