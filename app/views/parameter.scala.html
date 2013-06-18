@@ -1,9 +1,7 @@
 @()(implicit session:Session, context:Context)
 
 @import helper._
-
 @import utils.MD5Util
-
 
 @main("Parameter"){
 <style>
@@ -49,13 +47,10 @@
 </br>
 <a><h5>I don't want to receive newsletter anymore.</h5></a>
 		</br></br></br>
-
          @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
             <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
          }&nbsp;&nbsp;&nbsp;<a href="http://en.gravatar.com/emails/">Change your avatar<a>
-
-         
-   </fieldset> 
+   </fieldset>
     </div>
   
   <div class="rightpannel">

@@ -82,9 +82,10 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
         ezbProject =>{
           BookDO.saveProject(ezbProject)
           Cache.set("project:"+ezbProject.projectId, ezbProject)
-          Ok(views.html.projectadmin(ezbProject,
+          Ok(views.html.ezbproject(ezbProject,
             ezbProject.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
-            BookDO.getEzoomBook(ezbProject.ezoombookId)))
+            BookDO.getEzoomBook(ezbProject.ezoombookId),
+            Form(memberMapping)))
         }
       )
     }.getOrElse{
@@ -98,17 +99,44 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
    * @return
    */
   def projectAdmin(projId:String) = Action{implicit request =>
-    context.user.map{user =>
+    withUser{user =>
       cachedProject(projId).map{project =>
-        Ok(views.html.projectadmin(project,
+        println("[INFO] project: " + project.projectTeam.flatMap(m => UserDO.getUser(m.userId)))
+        Ok(views.html.ezbproject(project,
           project.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
-          BookDO.getEzoomBook(project.ezoombookId)))
+          BookDO.getEzoomBook(project.ezoombookId),
+          Form(memberMapping)))
       }.getOrElse{
         BadRequest(views.html.workspace(UserDO.userOwnedGroups(user.id),
           UserDO.userIsMemberGroups(user.id),Community.groupForm))
       }
-    }.getOrElse{
-      Unauthorized("Oops! you need to be connected to access this page")
+    }
+  }
+
+  def newProjectMember(projId:String) = Action{implicit request =>
+    val pId = UUID.fromString(projId)
+    withUser{user =>
+      cachedProject(projId).map{ ezbProject =>
+        Form(memberMapping).bindFromRequest.fold(
+          err =>{
+            println("[ERROR] Found errors on form Form(memberMapping): " + err)
+            BadRequest(views.html.ezbproject(ezbProject,
+              ezbProject.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
+              BookDO.getEzoomBook(ezbProject.ezoombookId),
+              err))
+          },
+          member => {
+            BookDO.addProjectMember(pId, member).map{newProj =>
+              Redirect(routes.Collaboration.projectAdmin(projId))
+            }.getOrElse{
+              BadRequest(views.html.ezbproject(ezbProject,
+                ezbProject.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
+                BookDO.getEzoomBook(ezbProject.ezoombookId),
+                Form(memberMapping).withGlobalError("Could not add member")))
+            }
+          }
+        )
+      }.get
     }
   }
 

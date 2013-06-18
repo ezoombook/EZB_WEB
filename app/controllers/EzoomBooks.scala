@@ -122,54 +122,70 @@ object EzoomBooks extends Controller with ContextProvider{
    * Receives from the request an eZoomBook form and saves the new eZoomBook into the database
    */
   def saveEzoomBook(bookId:String) = Action{implicit request =>
-    ezoomBookForm.bindFromRequest.fold(
-      errors => {
-        println("problem "+ errors)
-        Redirect(routes.EzoomBooks.readBook(bookId))
-      },
-      ezb => {
-        BookDO.saveEzoomBook(ezb)
-        Ok(views.html.ezoomlayeredit(Some(ezb), ezoomlayerForm))
-      }
-    )
-  
+    withUser{user =>
+      ezoomBookForm.bindFromRequest.fold(
+        errors => {
+          println("[ERROR] Errors in ezoombookForm: " + errors)
+          BookDO.getBook(bookId).map{book =>
+            BadRequest(views.html.book(book,errors, BookDO.getEzoomBooks(UUID.fromString(bookId))))
+          }.get
+        },
+        ezb => {
+          BookDO.saveEzoomBook(ezb)
+          Redirect(routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString, UUID.randomUUID.toString))
+        }
+      )
+    }
   }
 
   /**
    * Displays the ezoomlayer edition form
    */
-  def newEzoomlayer = Action{implicit request =>
-    val ezoombookid = UUID.randomUUID
-    val layerid = UUID.randomUUID
-    val userid = UUID.randomUUID
-    Ok(views.html.ezoomlayeredit(None, ezoomlayerForm))
+  def newEzoomlayer(ezbId:String) = Action{implicit request =>
+    withUser{user =>
+      val ezoombookid = UUID.fromString(ezbId)
+      val layerid = UUID.randomUUID
+      val userid = user.id
+      Ok(views.html.ezoomlayeredit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
+    }
   }
 
   /**
    * Stores an ezoomlayer in the databasse
    */
   def saveEzoomlayer = Action{implicit request =>
-    val ezoombookid = UUID.randomUUID //TODO from session
-    val layerid = UUID.randomUUID //TODO from session
-    val userid = UUID.randomUUID //TODO from session
-    ezoomlayerForm(ezoombookid, layerid, userid).bindFromRequest.fold(
+    ezoomlayerForm.bindFromRequest.fold(
       errors => {
         println("oops: " + errors.errors)
         BadRequest(views.html.ezoomlayeredit(None, errors))
       },
       ezl => {
-        try{
-          //println("EZB ok!!" + Json.toJson(ezl))
-          BookDO.saveLayer(ezl)
-        }catch{
-          case e => println("[ERROR] Oops caught an exception while parsing object:")
-                    e.printStackTrace()
-        }
-
-//        BookDO.saveLayer(ezl)
+        BookDO.saveLayer(ezl)
         Ok(views.html.ezoomlayeredit(None, ezoomlayerForm.fill(ezl)))
       }
     )
+  }
+
+  def ezoomLayerEdit(ezbId:String,ezlId:String) = Action{implicit request =>
+    withUser{user =>
+      val ezb = BookDO.getEzoomBook(UUID.fromString(ezbId))
+      val ezl = if(!ezlId.isEmpty){
+        BookDO.getEzoomLayer(UUID.fromString(ezlId))
+      }else{
+        None
+      }
+      val layerid = UUID.randomUUID
+      val userid = user.id
+
+      (ezb,ezl) match {
+        case (Some(ezbook),Some(ezlayer)) =>
+          Ok(views.html.ezoomlayeredit(Some(ezbook), ezoomlayerForm.fill(ezlayer)))
+        case (Some(ezbook),None) =>
+          Ok(views.html.ezoomlayeredit(Some(ezbook), ezoomlayerForm(ezbook.ezoombook_id, layerid, userid)))
+        case _ =>
+          NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
+      }
+    }
   }
 
   /**
@@ -209,9 +225,6 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  
-   
-  
   def readBook(id:String) = Action{implicit request =>
     BookDO.getBook(id).map{book =>
       val  ezb = Ezoombook (UUID.randomUUID, UUID.fromString(id) ,context.user.get.id.toString, books.dal.Status.workInProgress,"",false) 
@@ -243,7 +256,9 @@ object EzoomBooks extends Controller with ContextProvider{
       BadRequest(views.html.bookreedit(List[(String, Long)](),bookForm.withGlobalError("An error occured")))
      }
   }
-def read = Action {implicit request =>
+
+  def readEzb(ezbId:String) = Action {implicit request =>
+    val ezbuuid = UUID.fromString(ezbId)
     Ok(views.html.read())
   }
 }
