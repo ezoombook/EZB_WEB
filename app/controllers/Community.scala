@@ -17,6 +17,7 @@ import play.api.mvc._
 import play.api.data._
 import Forms._
 import java.util.UUID
+import project.dal.{TeamMember, EzbProject}
 
 
 /**
@@ -47,7 +48,15 @@ object Community extends Controller with ContextProvider{
     )
   
     )
-   
+
+  /**
+   * Creates an empty project for pre-filling the project form
+   * @return
+   */
+  private def emptyProject(ownerId:UUID,groupId:UUID) =
+    EzbProject(UUID.randomUUID, "", ownerId, (new java.util.Date()).getTime,
+      groupId, UUID.randomUUID, List[TeamMember]())
+
   /**
    * Displays the groups owned by a user
    */
@@ -62,52 +71,51 @@ object Community extends Controller with ContextProvider{
   /**
    * Displays the deails of a group
    */
-  def group(groupId:String) = Action{ implicit request =>
-    cachedGroup(groupId).map{group =>
-      val members = cachedGroupMembers(groupId)
-      Ok(views.html.group(group.id.toString, group.name, members, memberForm))
-    }.getOrElse(
-      NotFound("Oops, the group you're looking for does not exists :(")
-    )
+  def group(gid:String) = Action{ implicit request =>
+    val groupId = UUID.fromString(gid)
+    context.user.map{user =>
+      cachedGroup(gid).map{group =>
+        val members = cachedGroupMembers(gid)
+        Ok(views.html.group(group.id.toString, group.name, members,
+          BookDO.getGroupProjects(groupId),
+          memberForm, Collaboration.projectForm.fill(emptyProject(user.id,groupId))))
+      }.getOrElse(
+        NotFound("Oops, the group you're looking for does not exists :(")
+      )
+    }.getOrElse{
+      Unauthorized("Oops, you are not connected")
+    }
   }
 
-    /**
-   * Displays the deails of a project
-   */
- def project/*(projectId:String)*/ = Action{ implicit request =>
-   
-    //cachedProject(projectId).map{project =>
-      //val members = cachedProjectMembers(projectId)
-      //project.id.toString, project.name, members, memberForm
-      Ok(views.html.ezbproject())
-    //}.getOrElse(
-      //NotFound("Oops, the project you're looking for does not exists :(")
-    //)
-  }
-  
   /**
    * Adds a new member to a group
    */
-  def newGroupMember(groupId:String) = Action{ implicit request =>
-    memberForm.bindFromRequest.fold(
-      errors => cachedGroup(groupId).map{group =>
-        println("[ERROR] Errors found while trying to create group member : " + errors)
-        BadRequest(views.html.group(groupId, group.name, cachedGroupMembers(groupId), errors))
-      }.get,
-      member => {
-        UserDO.getUserId(member._1).map{userId =>
-          UserDO.newGroupMember(UUID.fromString(groupId), userId, member._2)
-          Cache.set("groupMembers:"+groupId, null)
-          Redirect(routes.Community.group(groupId))
-        }.getOrElse{
-          cachedGroup(groupId).map{group =>
-            val members = cachedGroupMembers(groupId)
-            BadRequest(views.html.group(group.id.toString, group.name, members,
-              memberForm.withGlobalError("Cannot find the user with mail " + member._1)))
-          }.get
+  def newGroupMember(gid:String) = Action{ implicit request =>
+    val groupId = UUID.fromString(gid)
+    withUser{ user =>
+      memberForm.bindFromRequest.fold(
+        errors => cachedGroup(gid).map{group =>
+          println("[ERROR] Errors found while trying to create group member : " + errors)
+          BadRequest(views.html.group(gid, group.name, cachedGroupMembers(gid),
+            BookDO.getGroupProjects(groupId),
+            errors, Collaboration.projectForm.fill(emptyProject(user.id,groupId))))
+        }.get,
+        member => {
+          UserDO.getUserId(member._1).map{userId =>
+            UserDO.newGroupMember(groupId, userId, member._2)
+            Cache.set("groupMembers:"+groupId, null)
+            Redirect(routes.Community.group(gid))
+          }.getOrElse{
+            cachedGroup(gid).map{group =>
+              val members = cachedGroupMembers(gid)
+              BadRequest(views.html.group(gid, group.name, members,
+                BookDO.getGroupProjects(groupId),
+                memberForm.withGlobalError("Cannot find the user with mail " + member._1), Collaboration.projectForm))
+            }.get
+          }
         }
-      }
-    )
+      )
+    }
   }
   
  
@@ -127,23 +135,7 @@ object Community extends Controller with ContextProvider{
       Unauthorized("Oops, you are not connected")
     )
   }
-  
-  
-  //def newProject = Action{ implicit request =>
-    //session.get("userId").map(UUID.fromString(_)).map{uid =>
-      //projectForm.bindFromRequest.fold(
-      //errors => 
-        //BadRequest(views.html.group(group.id.toString, group.name, members, memberForm, projectForm))
-      //,
-      //(project)=>{UserDO.newProject(project._1, uid)
-      //Ok(views.html.workspace(group.id.toString, group.name, members, memberForm, projectForm))
-      //}
-    //)}
-    //.getOrElse(
-      //Unauthorized("Oops, you are not connected")
-    //)
-  //}
-    
+
   /**
    * Gets a group from the cache if it is there.
    * Otherwise it gets it from the database and store it in the cache
@@ -168,11 +160,13 @@ object Community extends Controller with ContextProvider{
 
 
   def groupadmin(groupId:String) = Action{ implicit request =>
-    cachedGroup(groupId).map{group =>
-      val members = cachedGroupMembers(groupId)
-      Ok(views.html.groupadmin(group.id.toString, group.name, members, memberForm))
-    }.getOrElse(
-      NotFound("Oops, the group you're looking for does not exists :(")
-    )
+    withUser{user =>
+      cachedGroup(groupId).map{group =>
+        val members = cachedGroupMembers(groupId)
+        Ok(views.html.groupadmin(group.id.toString, group.name, members, memberForm))
+      }.getOrElse(
+        NotFound("Oops, the group you're looking for does not exists :(")
+      )
+    }
   }
 }

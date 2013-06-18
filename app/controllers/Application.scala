@@ -193,5 +193,4 @@ println("[INFO] Login validation...")
 	 def parameter = Action{ implicit request =>
     Ok(views.html.parameter())
   }
-
 }
