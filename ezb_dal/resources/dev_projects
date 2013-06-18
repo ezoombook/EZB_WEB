@@ -17,6 +17,14 @@
                      }
                    }
                  }"
+        },
+        "by_group" : {
+            "map" :
+                "function (doc, meta) {
+                   if(doc.projectId && doc.groupId){
+                     emit(doc.groupId,null)
+                   }
+                 }"
         }
     }
 }

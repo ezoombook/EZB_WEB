@@ -27,8 +27,9 @@ GET		/parameters			controllers.Application.parameter
 
 # Community
 GET	    /groups			    controllers.Community.groups
+POST	/groups		        controllers.Community.newGroup
 GET	    /group/:id		    controllers.Community.group(id:String)
-GET	    /project            controllers.Community.project
+GET     /groupadmin/:id		controllers.Community.groupadmin(id:String)
 
 POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
 
@@ -37,6 +38,7 @@ GET     /project/new        controllers.Collaboration.newPoject
 GET     /project/edit/:id   controllers.Collaboration.editProject(id:String)
 POST    /project/save       controllers.Collaboration.saveProject
 GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
+POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
@@ -51,32 +53,29 @@ GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 
 
 # Tutorial
-GET	/tutorial		   controllers.Application.tutorial
+GET	    /tutorial           controllers.Application.tutorial
 
 # FAQ
-GET	/faq			controllers.Application.faq
+GET	    /faq                controllers.Application.faq
 
 # Contact
-GET	/contact		controllers.Application.contact
+GET     /contact            controllers.Application.contact
 
 #EZOOMBOOK
 GET     /ezb/edit/:id       controllers.EzoomBooks.newEzoomBook(id:String)
 POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
 
-GET     /ezlayer/form       controllers.EzoomBooks.newEzoomlayer
-POST    /ezlayer/load       controllers.EzoomBooks.loadEzoomLayer
-POST    /ezlayer/save       controllers.EzoomBooks.saveEzoomlayer
-GET     /read       controllers.EzoomBooks.read
-
-#Groups
-POST	/groups		       controllers.Community.newGroup	
-GET     /groupadmin/:id		controllers.Community.groupadmin(id:String)
+GET     /ezlayer/form/:id           controllers.EzoomBooks.newEzoomlayer(id:String)
+POST    /ezlayer/load               controllers.EzoomBooks.loadEzoomLayer
+POST    /ezlayer/save               controllers.EzoomBooks.saveEzoomlayer
+GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid:String,lid:String)
+GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
 
 #Advanced search
-GET	/asearch		controllers.Application.asearch
+GET	    /asearch            controllers.Application.asearch
 
 # To create some data
 GET  	/admin			    controllers.AdminApp.index

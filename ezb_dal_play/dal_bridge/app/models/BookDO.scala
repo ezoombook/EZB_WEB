@@ -2,7 +2,7 @@ package models
 
 import books.dal._
 import books.util._
-import project.dal.EzbProject
+import project.dal.{EzbProject,TeamMember}
 
 import java.util.UUID
 import java.io.{InputStream, FileInputStream, ByteArrayInputStream, File}
@@ -31,6 +31,7 @@ object BookDO{
 
   def saveEzoomBook(ezb:Ezoombook){
     AppDB.cdal.saveEzoomBook(ezb)
+    Cache.set("ezb:"+ezb.ezoombook_id,ezb)
   }
 
   def saveLayer(ezl:EzoomLayer){
@@ -57,6 +58,12 @@ object BookDO{
     }
   }
 
+  def getEzoomLayer(ezlId:UUID):Option[EzoomLayer] = {
+    Cache.getOrElse("ezl:"+ezlId, 0){
+      AppDB.cdal.getLayer(ezlId)
+    }
+  }
+
   def listBooks():List[Book] = {
     AppDB.cdal.listBooks()
   }
@@ -80,9 +87,23 @@ object BookDO{
   }
 
   /**
+   * Returns the projects of a group
+   */
+  def getGroupProjects(pid:UUID):List[EzbProject] = {
+    AppDB.cdal.getProjectsByGroup(pid)
+  }
+
+  /**
    * Returns the project with id projId
    */
   def getProject(projId:UUID):Option[EzbProject] = {
     AppDB.cdal.getProjectById(projId)
+  }
+
+  def addProjectMember(projId:UUID,member:TeamMember):Option[EzbProject] = {
+    AppDB.cdal.addProjectMember(projId,member).map{proj =>
+      Cache.set("project:"+projId,proj)
+      proj
+    }
   }
 }
