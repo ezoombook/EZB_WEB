@@ -45,9 +45,9 @@ width:50%;
     @form(routes.Application.validate){
         @inputText(loginForm("id"), '_label -> <p>Username or email</p>)
         @inputPassword(loginForm("password"), '_label -> <p>password</p>)
-        <a href="#">forgot your password?</a>
         <input type="submit" value="Log in">
     }
+    
    </fieldset>
    </br></br>
   
@@ -127,7 +127,25 @@ Nulla tincidunt rutrum nulla eu ornare. Fusce sed odio quis erat consequat conse
    </fieldset>
    </div>
    
+   
   
+<div id="example" class="modal hide fade in" style="display: none; ">  
+<div class="modal-header">  
+<a class="close" data-dismiss="modal">X</a>  
+<h3>Forget you password?</h3>  
+</div>  
+<div class="modal-body">  
+<input type="text" placeholder="email adress">
+<p>You will be send an email to change you password</p>                
+</div>  
+<div class="modal-footer">  
+
+<a href="#" class="btn" data-dismiss="modal">Close</a>  
+</div>  
+</div>  
+<p><a data-toggle="modal" href="#example" class="btn btn-primary btn-large" style="height:20px">Forget your password ?</a></p>  
+</div>  
+
      
 
 
