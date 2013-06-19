@@ -139,6 +139,7 @@ println("[INFO] Login validation...")
    * @return
    */
   def sendPasswordResetLink = Action {implicit request =>
+    import AppDB._
     Form("email" -> email).bindFromRequest.fold(
       errors => BadRequest(views.html.forgottenPwd(errors)),
       userEmail => {
@@ -146,7 +147,7 @@ println("[INFO] Login validation...")
           val id = utils.MD5Util.md5Hex(userEmail + (new java.util.Date()).getTime)
           AppDB.storeTemporalLinkId(id, uid.toString)
           //TODO Actually send the email
-   
+
           // Set up the mail object
 val properties = System.getProperties
 properties.put("mail.smtp.host", "localhost")
@@ -161,7 +162,7 @@ message.setText(id)
 
 // And send it
 Transport.send(message)
-          
+
           Unauthorized("We have sent you a link to reset your password.")
         }.getOrElse{
         Unauthorized("Ooops! The mail you provided does not appear in our dabase.")
@@ -175,6 +176,7 @@ Transport.send(message)
    * @return
    */
   def passwordReset(linkId:String) = Action {implicit request =>
+    import AppDB._
     AppDB.getTemporalLinkId(linkId).map{uid =>
       Ok(views.html.passwordReset(uid))
     }.getOrElse(
@@ -211,5 +213,4 @@ Transport.send(message)
 	 def parameter = Action{ implicit request =>
     Ok(views.html.parameter())
   }
-
 }

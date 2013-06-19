@@ -1,9 +1,7 @@
 @()(implicit session:Session, context:Context)
 
 @import helper._
-
 @import utils.MD5Util
-
 
 @main("Parameter"){
 <style>
@@ -49,43 +47,40 @@
 </br>
 <a><h5>I don't want to receive newsletter anymore.</h5></a>
 		</br></br></br>
-
          @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
             <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
          }&nbsp;&nbsp;&nbsp;<a href="http://en.gravatar.com/emails/">Change your avatar<a>
-
-         
-   </fieldset> 
+   </fieldset>
     </div>
   
   <div class="rightpannel">
 <fieldset>
 <h4>Change Personnal information</h4>
 </br>
- 
 
 
-<div id="example" class="modal hide fade in" style="display: none; ">  
-<div class="modal-header">  
-<a class="close" data-dismiss="modal">X</a>  
-<h3>Change your password</h3>  
-</div>  
-<div class="modal-body">  
+
+<div id="example" class="modal hide fade in" style="display: none; ">
+<div class="modal-header">
+<a class="close" data-dismiss="modal">X</a>
+<h3>Change your password</h3>
+</div>
+<div class="modal-body">
 <input type="text" placeholder="email adress">
-<p>You will be send an email to change you password</p>                
-</div>  
-<div class="modal-footer">  
+<p>You will be send an email to change you password</p>
+</div>
+<div class="modal-footer">
 
-<a href="#" class="btn" data-dismiss="modal">Close</a>  
-</div>  
-</div>  
-<p><a data-toggle="modal" href="#example" class="btn btn-primary btn-large" style="height:20px">Change your password</a></p>  
+<a href="#" class="btn" data-dismiss="modal">Close</a>
+</div>
+</div>
+<p><a data-toggle="modal" href="#example" class="btn btn-primary btn-large" style="height:20px">Change your password</a></p>
 
 
 
-		
-		</br>
-		  
+
+</br>
+
 <div class="modal hide" id="infos">
   <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
     <h3>Strange choice</h3>
@@ -95,7 +90,7 @@
      
       
 
-    <p> <h2>Sir, are you sure that arghh nooo.....&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp fatal error</h2>
+    <p> <h2>Sir, are you sure that arghh nooo.....&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbspfatal error</h2>
      
    
      
