@@ -8,7 +8,7 @@ GET     /                   controllers.Application.index
 GET	    /home			    controllers.Application.home
 GET	/truehome				controllers.Application.truehome
 
-GET	    /users			    controllers.Application.users
+#GET	    /users			    controllers.Application.users
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
@@ -78,7 +78,7 @@ GET     /assets/*file       controllers.Assets.at(path="/public", file)
 GET	    /asearch            controllers.Application.asearch
 
 # To create some data
-GET  	/admin			    controllers.AdminApp.index
+#GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
 POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks
