@@ -46,6 +46,47 @@ width:50%;
 }
 </style>
 
+<h1 hidden="true">eZoomBook</h1>
+<div class="row-fluid">
+    <p>
+        <img border="0" src=@routes.Assets.at("/images/ezoombook2.png") width="50%" alt="eZoomBook">
+    </p>
+    <p>
+        This is an innovative platform where you will be able to participate in the world's greatest social reading experiment ever.
+        More than just a reading tool, eZoomBook is going to revolutionize the way that you obtain information.
+    </p>
+    <p><a href="/tutorial" class="btn btn-primary btn-large">Learn more »</a></p>
+</div>
+<hr class="soften">
+<div class="row-fluid">
+    <div class="span6">
+        <h2>Top books:</h2>
+        <table class="table table-striped">
+            <thead>
+                <th>Title</th><th></th>
+            </thead>
+            <tbody>
+            @for(abook<-listbook){
+                <tr>
+                    <td><a href="/books/@abook.bookId">@abook.bookTitle</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="span6">
+        <h2>Find a Book</h2>
+        <form id="searchbox" action="">
+            <input id="search" type="text" placeholder="Search">
+            <input id="submit" type="submit" value="Search" style="width:15%">
+        </form>
+        <div>
+            <a href="/asearch" class="btn">Advanced search</a>
+        </div>
+    </div>
+</div>
+
+@**
 <body>
   <div class="container">
   
@@ -165,5 +206,5 @@ width:50%;
 </section>
 </div>
 </body>
-
+**@
 }

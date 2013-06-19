@@ -58,27 +58,16 @@ object Application extends Controller with ContextProvider{
     Ok(views.html.asearch(List[Book]()))
        }
     
-       def truehome = Action {implicit request =>
-    Ok(views.html.truehome(List[Book]()))
-       }
+  def truehome = Action {implicit request =>
+    Ok(views.html.index(BookDO.listBooks))
+  }
 
   def tutorial = Action {implicit request =>
     Ok(views.html.tutorial())
   }
-        
-    
-  def index = Action {
-    Redirect(routes.Application.login)
-  }
-  
 
-
-  /**
-   * Lists existing users
-   * @return
-   */
-  def users = Action {implicit request =>
-    Ok(views.html.index(UserDO.listUsers, userForm))
+  def index = Action {implicit request =>
+    Ok(views.html.index(BookDO.listBooks))
   }
 
   /**
@@ -87,11 +76,20 @@ object Application extends Controller with ContextProvider{
   def newUser = Action { implicit request =>
     userForm.bindFromRequest.fold(
       errors => {
-      	BadRequest(views.html.index(UserDO.listUsers, errors))
+      	BadRequest(views.html.login(loginForm, errors))
       },
       user => {
         UserDO.create(user)
-        Redirect(routes.Application.login)
+        UserDO.getUser(user.name).map{newusr =>
+          Redirect(routes.Application.home).withSession(
+            "userId" -> newusr.id.toString,
+            "userName" -> newusr.name,
+            "userMail" -> newusr.email
+          )
+        }.getOrElse{
+          println("[ERROR] Could not find user " + user.name)
+          BadRequest(views.html.login(loginForm, userForm ))
+        }
       }
     )
   }
@@ -104,7 +102,7 @@ println("[INFO] Login validation...")
     loginForm.bindFromRequest.fold(
       errors => {
         println("[ERROR] Form error while validating user: " + errors)
-	      BadRequest(views.html.login(errors, UserDO.listUsers, userForm ))
+	      BadRequest(views.html.login(errors, userForm ))
       },
       up => {
       	if (UserDO.validateUser(up._1, up._2)){
@@ -117,11 +115,11 @@ println("[INFO] Login validation...")
               )
             }.getOrElse{
               println("[ERROR] Could not find user " + up._1)
-	            BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
+	            BadRequest(views.html.login(loginForm, userForm ))
             }
         }else{
           println("[ERROR] Invalid user credentials for user : " + up._1)
-	        BadRequest(views.html.login(loginForm, UserDO.listUsers, userForm ))
+	        BadRequest(views.html.login(loginForm, userForm ))
         }
       }
     )
@@ -149,19 +147,19 @@ println("[INFO] Login validation...")
           //TODO Actually send the email
 
           // Set up the mail object
-val properties = System.getProperties
-properties.put("mail.smtp.host", "localhost")
-val session = javax.mail.Session.getDefaultInstance(properties)
-val message = new MimeMessage(session)
+          val properties = System.getProperties
+          properties.put("mail.smtp.host", "localhost")
+          val session = javax.mail.Session.getDefaultInstance(properties)
+          val message = new MimeMessage(session)
 
-// Set the from, to, subject, body text
-message.setFrom(new InternetAddress("ezoombook@laposte.net"))
-message.setRecipients(Message.RecipientType.TO, userEmail)
-message.setSubject("Greetings from langref.org")
-message.setText(id)
+          // Set the from, to, subject, body text
+          message.setFrom(new InternetAddress("ezoombook@laposte.net"))
+          message.setRecipients(Message.RecipientType.TO, userEmail)
+          message.setSubject("Greetings from langref.org")
+          message.setText(id)
 
-// And send it
-Transport.send(message)
+          // And send it
+          Transport.send(message)
 
           Unauthorized("We have sent you a link to reset your password.")
         }.getOrElse{
@@ -199,7 +197,7 @@ Transport.send(message)
    * Displays the login form
    */
   def login = Action{ implicit request =>
-    Ok(views.html.login(loginForm, UserDO.listUsers, userForm ))
+    Ok(views.html.login(loginForm, userForm ))
   }
 
   /**
