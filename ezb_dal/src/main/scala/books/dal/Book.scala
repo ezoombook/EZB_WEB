@@ -69,7 +69,7 @@ trait BookComponent{
     val query = new Query()
 
     // We don't want the full documents and only the top 20
-    query.setIncludeDocs(true).setLimit(20)
+    query.setIncludeDocs(true)//.setLimit(20)
 
     // Send the query
     val result = couchclient.query(bookView,query)

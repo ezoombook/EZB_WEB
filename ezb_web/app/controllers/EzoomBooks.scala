@@ -68,10 +68,11 @@ object EzoomBooks extends Controller with ContextProvider{
   def saveBook = Action{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
+        println("[ERROR] Found errors in bookForm: " + errors)
         BadRequest(views.html.bookedit(List[(String,Long)](), errors))
       },
       book => {
-        session.get("userId").map(UUID.fromString(_)).map{uid =>
+        withUser{user =>
           getCachedBook.map{cb =>
             val newbook = new Book(cb.bookId, book.bookTitle, book.bookAuthors, book.bookAuthors,
               book.bookPublishers, book.bookPublishedDates, book.bookTags,
@@ -79,16 +80,13 @@ object EzoomBooks extends Controller with ContextProvider{
             println("My new book: " + newbook)
             BookDO.saveBook(newbook)
             BookDO.saveBookParts(newbook)
-            UserDO.newUserBook(uid, newbook.bookId)
-
-            Ok(views.html.bookedit(UserDO.listBooks(uid), bookForm))
+            UserDO.newUserBook(user.id, newbook.bookId)
+            Redirect(routes.EzoomBooks.readBook(newbook.bookId.toString))
           }.getOrElse(
-            Ok(views.html.bookedit(UserDO.listBooks(uid),
+            Ok(views.html.bookedit(UserDO.listBooks(user.id),
               bookForm.withGlobalError("An error occurred while trying to save the file.")))
           )
-        }.getOrElse(
-          Unauthorized("Oops, you are not connected")
-        )
+        }
       }
     )
   }
