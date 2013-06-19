@@ -23,8 +23,6 @@ $(document).ready(function(){
     });
 });
 
-
-
 function toggle(divtag){
 		if(document.getElementById(divtag).style.display=="none"){
 			document.getElementById(divtag).style.display="block";
@@ -38,7 +36,6 @@ function toggle(divtag){
 
 </script>
 }
-
 
 @main("Welcome to your Workingspace", scripts){
 
@@ -86,7 +83,13 @@ function toggle(divtag){
         }
     }
 
-    @form(routes.EzoomBooks.newBook){
+    @if(bookForm.hasErrors){
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert">x</a>
+            It seems there are some errors in your request... please verify that all fields are completed.
+        </div>
+    }
+    @form(routes.EzoomBooks.saveBook){
 	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
         @hidden(bookForm("book_id"))
         @repeat(bookForm("authors")){f =>
