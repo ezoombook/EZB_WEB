@@ -25,22 +25,23 @@ function toggle(divtag){
 
 
 
-			<table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Title</th><th>author</th><th>dates of publication</th><th>tags</th><th></th>
-					</tr>
-					@for(abook<-bookList){
-					<tr>
-						<td><a href="/books/@abook.bookId">@abook.bookTitle</a></td><td>@abook.bookAuthors</td><td>@abook.bookPublishedDates</td><td>@abook.bookTags</td>
+			
+			
+					
+					@bookList.grouped(4).map{blist=>
+					<div class="row">
+					@blist.map{book=>
+					<div class="span3">
+						<table class="table"><tbody><tr><td><a href="/books/@book.bookId">@book.bookTitle</a></td></tr><tr><td>@book.bookAuthors</td></tr><tr><td>@book.bookPublishedDates</td></tr><tr><td>@book.bookTags</td></tr></tbody></table>
 						
-						<td>
-						<a href="/bookreedit/@abook.bookId" id="MyButton" class="bulle">edit</a>
 						
+					</div>
+					}
+					</div>
 					}	
-					</tr>
-				</tbody>
-			</table>
+					
+			
+			
 		</div>
 	
 
