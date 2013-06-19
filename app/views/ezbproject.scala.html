@@ -1,0 +1,106 @@
+ @(project:EzbProject, members:List[User], ezbook:Option[Ezoombook], memberForm:Form[TeamMember])(implicit context:Context)
+
+@import helper._
+@import utils.EzbHelpers._
+@import ezbhelper._
+@import utils.DateFormatter._
+
+@displayEzb = {
+    @ezbook.map{ezb =>
+        @ezb.ezoombook_title
+    }.getOrElse{
+        <i>No eZoomBook defined for this project. Please define an eZoomBook</i>
+    }
+}
+
+@scripts = {
+<script type="text/javascript">//<![CDATA[
+    $(document).ready(function(){
+      
+         $('#btnAddezbsection').click(function () {
+         createField("projectsection", "textarea", "project_section", "", "section_set")
+        });
+        $('#btnAddezbsummary').click(function () {
+         createField("projectsummary", "textarea", "project_summary", "", "section_set")
+        });
+    });
+
+    function overlay() {
+        el = document.getElementById("overlay");
+        el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    }
+//]]>
+</script>
+}
+@main("Project", scripts){
+
+<!-- Add Group Member Modal Window -->
+<div class="modal hide" id="infos">
+     <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+         <h3>Add Member</h3>
+     </div>
+     <div class="modal-body">
+         <p>
+
+             @form(routes.Collaboration.newProjectMember(project.projectId.toString)){
+                @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
+                            '_label -> "Select a team member")
+                @select(memberForm("assigned_part"), List("1" ->"level 1", "2" ->"level 2", "3" ->"level 3"), '_label -> "Assigned Layer")
+                @select(memberForm("assigned_layer"),
+                    List("cea1d30a-96f1-49de-9410-77d245f785b7" -> "Section 1",
+                        "2f1934f7-c36a-45b6-829c-10fcae98efe0" -> "Section 2",
+                        "edc9d06f-50d6-4bf7-80fe-968606acc341" -> "Section 3"), '_label -> "Assigned Part")
+                <input type="submit" value="Add">
+             }
+
+     </div>
+     <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Fermer</a> </div>
+</div><!--/ .modal -->
+
+
+<div class="row-fluid">
+    <div class="span12">
+        <h1>Project @project.projectName</h1>
+        <dl>
+            <dt>Created: </dt> <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
+            <dt>Working on: </dt> <dd>@displayEzb</dd>
+        </dl>
+    </div>
+</div>
+<div class="row-fluid">
+    <div class="span3">
+        <h3>Team</h3>
+
+        <a class="btn btn-primary" data-toggle="modal" href="#infos" >Add a member</a>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th><th>Working on</th>
+                </tr>
+            </thead>
+            <tbody>
+                @members.map{member =>
+                <tr>
+                    <td>@member.name</td>
+                    <td>Chapter XX @** @member.assignedPart **@ </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="span6">
+        @displayEzb
+    </div>
+    <div class="span3">
+        <!-- Shoutbox Widget -->
+        @defining(project.projectId.toString.substring(0,8)){shortId =>
+            <iframe WIDTH="100%" HEIGHT="690" title="Shoutbox" src="http://shoutbox.widget.me/window.html?uid=@shortId"
+                    frameborder="0" scrolling="auto">
+            </iframe>
+        }
+        <script src="http://shoutbox.widget.me/v1.js" type="text/javascript">
+        </script><!-- End -->
+    </div>
+</div>
+}

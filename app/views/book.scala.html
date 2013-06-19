@@ -3,51 +3,63 @@
 @import utils.EzbHelpers._
 @import helper._
 @import ezbhelper._
+
 @main("Book Page"){
 
-
-
-  <div class="container">
-  </br></br></br>
-    <h1>@book.bookTitle</h1></br>
-    <h2>Author : @book.bookAuthors</h2></br>
-    <h2>Publisher : @book.bookPublishers</h2></br>
-    <h2>Published Date : @book.bookPublishedDates</h2></br>
-
-
-    <h2>Summary: </h2>
-    <p>
-        @book.bookSummary
-    </p>
-
-    
-     <h2>EzoomBook</h2>
-     </br>
-      @form(routes.EzoomBooks.saveEzoomBook(book.bookId.toString)){
-	    <h4>@inputText(ezoomBookForm("ezb_title"),'_label->"Name of the ezoombook")</h4>
-	   
-	   @hidden(ezoomBookForm("ezb_owner"))
-	     @hidden(ezoomBookForm("book_id"))
-	     @hidden(ezoomBookForm("ezb_id"))
-	    <input type="submit" value="Create an ezoombook">
-	     }
-
-			<table class="table table-striped">
-				<tbody>
-					<tr>
-						<th>Title</th><th>Author</th><th>Nbr of level</th><th>Popularity</th>
-			</tr>
-			<tr>
-				@for(g<-listezbooks){	
-<tr>
-						<td>@g.ezoombook_title</td><td>@g.ezoombook_owner</td><td>@g.ezoombook_layers.size</td><td></td><td><input type="submit" value="edit"></td>
-}
-			</tr>		
-				</tbody>
-			</table>
-
-		
-
+<div class="row">
+    <div class="span3">
+        <img src='@routes.Assets.at("/images/bookcover.png")' class='img-polaroid' width="100%"  >
     </div>
-    }
+    <div class="span9">
+        <h1>@book.bookTitle</h1>
+        <dl>
+            <dt>Author</dt><dd>@book.bookAuthors</dd>
+            <dt>Publisher</dt><dd>@book.bookPublishers</dd>
+            <dt>Published Date</dt><dd>@book.bookPublishedDates</dd>
+        </dl>
+    </div>
+</div>
+
+<h2>Summary: </h2>
+<p>
+    @book.bookSummary
+</p>
+
+<h2>Available EzoomBooks</h2>
+
+@form(routes.EzoomBooks.saveEzoomBook(book.bookId.toString)){
+    @hidden(ezoomBookForm("ezb_owner"))
+    @hidden(ezoomBookForm("book_id"))
+    @hidden(ezoomBookForm("ezb_id"))
+    <input type="hidden" id="ezb_title" name="ezb_title" value="@book.bookTitle">
+    <input type="submit" value="Create an ezoombook">
+}
+
+<table class="table table-striped">
+    <tbody>
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Available Levels</th>
+        <th>Popularity</th>
+        @if(!context.user.isEmpty){
+            <th></th>
+        }
+    </tr>
+    <tr>
+        @for(g<-listezbooks){
+        <tr>
+            <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td>
+            <td>@g.ezoombook_owner</td>
+            <td>@g.ezoombook_layers.size</td>
+            <td><i class=" icon-star"></i><i class=" icon-star"></i><i class=" icon-star"></i><i class=" icon-star"></i><i class=" icon-star-empty"></i>
+            </td>
+            @if(!context.user.isEmpty){
+                <td><a href="/ezlayer/edit/@g.ezoombook_id/" class="btn">Edit</a></td>
+            }
+         </tr>
+        }
+    </tbody>
+</table>
+}
 
