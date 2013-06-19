@@ -48,21 +48,21 @@ object Book extends UUIDjsParser{
 }
 
 trait BookComponent{
-  def couchclient:CouchbaseClient
+//  def couchclient:CouchbaseClient
 
-  def saveBook(book:Book){
+  def saveBook(book:Book)(implicit couchclient:CouchbaseClient){
     val key = "book:"+book.bookId
     couchclient.set(key, 0, Json.toJson(book).toString)
   }
 
-  def saveBookPart(part:BookPart){
+  def saveBookPart(part:BookPart)(implicit couchclient:CouchbaseClient){
     couchclient.set("part:"+part.partId, 0, part.content)
   }
 
   /**
    * Returns a list of books sorted by popularity
    */
-  def listBooks():List[Book] = {
+  def listBooks()(implicit couchclient:CouchbaseClient):List[Book] = {
 
     //Prepare the view and query
     val bookView = couchclient.getView("book","by_title")
@@ -90,7 +90,7 @@ trait BookComponent{
     }.toList
   }
 
-  def getBook(bookId:UUID):Option[Book] = {
+  def getBook(bookId:UUID)(implicit couchclient:CouchbaseClient):Option[Book] = {
     couchclient.get("book:"+bookId) match{
       case str:String => Json.parse(str).validate[Book].fold(
         err => {
@@ -104,15 +104,37 @@ trait BookComponent{
     }
   }
 
-  def saveEzoomBook(ezb:Ezoombook){
+  def saveEzoomBook(ezb:Ezoombook)(implicit couchclient:CouchbaseClient){
     val key = "ezb:"+ezb.ezoombook_id
     couchclient.set(key, 0, Json.toJson(ezb).toString())
   }
 
   /**
+   * Returns an eZoomBook
+   * @param ezbId
+   * @param couchclient
+   * @return
+   */
+  def getEzoomBook(ezbId:UUID)(implicit couchclient:CouchbaseClient):Option[Ezoombook] = {
+    couchclient.get("ezb:"+ezbId.toString) match {
+      case str:String =>
+        Json.parse(str).validate[Ezoombook].fold(
+          err => {
+            println(s"[ERROR] Could not parse document $ezbId as Ezoombook: $err")
+            None
+          },
+          ezb => Some(ezb)
+        )
+      case _ =>
+        println(s"[ERROR] Ezoombook $ezbId not found.")
+        None
+    }
+  }
+
+  /**
    * Returns the ezoobooks for a book
    */
-  def getEzoomBooks(bookId:UUID):List[Ezoombook] = {
+  def getEzoomBooks(bookId:UUID)(implicit couchclient:CouchbaseClient):List[Ezoombook] = {
     //Prepare the view and query
     val view = couchclient.getView("ezb","by_bookid")
     val query = new Query()
@@ -137,10 +159,9 @@ trait BookComponent{
     }.toList
   }
 
-  def saveLayer(ezl:EzoomLayer){
+  def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
-    //TODO If it is a new layer, update the corresponding eZoomBook
 
     //Get and update ezoombook
     val ezbKey = "ezb:"+ ezl.ezoombook_id
@@ -160,6 +181,22 @@ trait BookComponent{
       )
       case _ => println("[WARNING] Oops there is no ezoombook associated to this ezoomlayer")
     }
+  }
 
+  def getLayer(ezlId:UUID)(implicit couchclient:CouchbaseClient):Option[EzoomLayer] = {
+    val key = "ezoomlayer:"+ezlId //TODO Export this string
+    couchclient.get(key) match{
+      case str:String =>
+        Json.parse(str).validate[EzoomLayer].fold(
+          err => {
+            println(s"[ERROR] Could not parse document $ezlId as EzoomLayer: $err")
+            None
+          },
+          ezl => Some(ezl)
+        )
+      case _ =>
+        println(s"[ERROR] Ezoomlayer $ezlId not found.")
+        None
+    }
   }
 }

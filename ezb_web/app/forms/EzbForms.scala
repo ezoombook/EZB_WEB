@@ -3,6 +3,7 @@ package forms
 import models._
 import users.dal._
 import books.dal._
+import utils.FormHelpers
 
 import play.api.data._
 import format.Formats._
@@ -17,7 +18,7 @@ import play.api.data.FormError
 import scala.Some
 import play.api.libs.json.JsValue
 
-object EzbForms {
+object EzbForms extends FormHelpers{
 
   val bookForm = Form[Book](
     mapping(
@@ -173,19 +174,4 @@ object EzbForms {
     }
   )
 
-  implicit def str2Status(strVal:String):Status.Value = Status.withName(strVal)
-
-  implicit def statusFormat: Formatter[Status.Value] = new Formatter[Status.Value]{
-    def bind(key: String, data: Map[String, String]) =
-      data.get(key).map(Status.withName(_)).toRight(Seq(FormError(key, "error.required", Nil)))
-
-    def unbind(key: String, value: Status.Value): Map[String, String] = Map(key -> value.toString)
-  }
-
-  implicit def uuidForam:Formatter[UUID] = new Formatter[UUID]{
-    def bind(key:String, data:Map[String,String]) =
-      data.get(key).map(UUID.fromString(_)).toRight(Seq(FormError(key, "error.required", Nil)))
-
-    def unbind(key:String, value: UUID):Map[String, String] = Map(key -> value.toString)
-  }
 }

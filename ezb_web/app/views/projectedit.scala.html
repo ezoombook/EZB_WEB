@@ -1,0 +1,32 @@
+@(projectForm:Form[EzbProject], groups:List[Group])(implicit context:Context)
+
+@import helper._
+@import utils.EzbHelpers._
+@import ezbhelper._
+
+@main("Project Edition"){
+        <h1>Project Edition</h1>
+
+        @form(routes.Collaboration.saveProject){
+            @hidden(projectForm("project_id"))
+            @hidden(projectForm("project_owner"))
+            @hidden(projectForm("project_creation"))
+
+            @inputText(projectForm("project_name"))
+            @select(projectForm("group_id"), options = for(g <- groups)yield(g.id.toString -> g.name), '_label -> "Group")
+            @inputText(projectForm("ezoombook_id"))
+
+@**
+            <h2>Project Team: </h2>
+            <fieldset id="project_team_fs">
+            @repeat(projectForm("project_team"), min=0){member =>
+                @hidden(member("user_id"))
+                @inputText(member("assigned_part"), '_label->"Assigned Part")
+                @inputText(member("assigned_layer"), '_label->"Assigned Layer")
+            }
+            </fieldset>
+**@
+            <input type="submit" value="Save Project">
+        }
+
+}

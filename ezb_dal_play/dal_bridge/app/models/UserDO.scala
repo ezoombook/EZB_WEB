@@ -47,6 +47,12 @@ object UserDO{
     }
   }
 
+  def getUser(uid:UUID):Option[User] = {
+    AppDB.database.withSession{implicit session:Session =>
+      AppDB.dal.Users.getUser(uid)
+    }
+  }
+
   def setUserMaxHistory(userId:UUID, maxItems:Int){
     AppDB.database.withSession{
       implicit session:Session =>

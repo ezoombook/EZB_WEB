@@ -1,6 +1,6 @@
 package models
 
-import books.dal.ContentDAL
+import ezb.ContentDAL
 
 import collection.{JavaConversions,mutable}
 import JavaConversions._
@@ -21,14 +21,20 @@ trait SSDBeable {
   val COUCHBASE_BUCKET="cb.books.bucket"
   val COUCHBASE_PASSWORD="cb.books.password"
 
-  def getContentDal(implicit app : Application):ContentDAL = {
+  import play.api.Play.current
+
+  implicit val couchbaseClient = getCouchabaseClient
+
+  def getCouchabaseClient(implicit app: Application):CouchbaseClient = {
     val uris = ArrayBuffer(URI.create(app.configuration.getString(COUCHBASE_URL).getOrElse("http://localhost:8091/pools")))
     val bucket = app.configuration.getString(COUCHBASE_BUCKET).getOrElse("default")
     val password = app.configuration.getString(COUCHBASE_PASSWORD).getOrElse("")
 
-    val client = new CouchbaseClient(uris, bucket, password)
+    new CouchbaseClient(uris, bucket, password)
+  }
 
-    new ContentDAL(client)
+  def getContentDal:ContentDAL = {
+    new ContentDAL(getCouchabaseClient)
   }
 
 }
