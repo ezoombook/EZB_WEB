@@ -113,10 +113,10 @@ object EzoomBooks extends Controller with ContextProvider{
    * Displays the ezoombook edition form for creating a new eZoomBook
    * for an existing book.
    * @param The id of the book
-   */
+   
   def newEzoomBook(bookId:String) = Action{implicit request =>
     Ok(views.html.ezoombookedit(bookId, ezoomBookForm))
-  }
+  }**/
 
   /**
    * Receives from the request an eZoomBook form and saves the new eZoomBook into the database

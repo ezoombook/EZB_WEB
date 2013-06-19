@@ -3,9 +3,12 @@
 @import helper._
 
 @main("I forgot my password"){
+</br></br></br></br>
+  <div class="container">
 
         @form(routes.Application.sendPasswordResetLink){
             @inputText(mailform("email"), '_label -> "Where do we send you the link?")
             <input type="submit" value="Send it!">
         }
+        </div>
 }
