@@ -20,6 +20,10 @@ import play.api.libs.json.Json
 import users.dal.User
 import scala.Some
 
+import javax.mail._
+import javax.mail.internet._
+import java.util.Properties._
+
 object Application extends Controller with ContextProvider{
 
   val userForm = Form(
@@ -143,6 +147,22 @@ println("[INFO] Login validation...")
           val id = utils.MD5Util.md5Hex(userEmail + (new java.util.Date()).getTime)
           AppDB.storeTemporalLinkId(id, uid.toString)
           //TODO Actually send the email
+
+          // Set up the mail object
+val properties = System.getProperties
+properties.put("mail.smtp.host", "localhost")
+val session = javax.mail.Session.getDefaultInstance(properties)
+val message = new MimeMessage(session)
+
+// Set the from, to, subject, body text
+message.setFrom(new InternetAddress("ezoombook@laposte.net"))
+message.setRecipients(Message.RecipientType.TO, userEmail)
+message.setSubject("Greetings from langref.org")
+message.setText(id)
+
+// And send it
+Transport.send(message)
+
           Unauthorized("We have sent you a link to reset your password.")
         }.getOrElse{
         Unauthorized("Ooops! The mail you provided does not appear in our dabase.")

@@ -95,7 +95,8 @@ trait UserComponent {
      * Returns a User, searching by user-id
      */
     def getUser(uid:UUID)(implicit session:Session) = {
-      Query(Users).filter(u => u.id == uid.bind).firstOption
+      println(s"[INFO] looking for user with id $uid")
+      Query(Users).filter(u => u.id === uid.bind).firstOption
     }
   }
 
