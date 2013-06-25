@@ -132,7 +132,7 @@ object EzoomBooks extends Controller with ContextProvider{
         },
         ezb => {
           BookDO.saveEzoomBook(ezb)
-          Redirect(routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString, UUID.randomUUID.toString))
+          Redirect(routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString))
         }
       )
     }
@@ -166,27 +166,15 @@ object EzoomBooks extends Controller with ContextProvider{
     )
   }
 
-  def ezoomLayerEdit(ezbId:String,ezlId:String) = Action{implicit request =>
+  def ezoomLayerEdit(ezbId:String) = Action{implicit request =>
     withUser{user =>
-      val ezb = BookDO.getEzoomBook(UUID.fromString(ezbId))
-      val ezl = if(!ezlId.isEmpty){
-        BookDO.getEzoomLayer(UUID.fromString(ezlId))
-      }else{
-        None
-      }
-      val layerid = UUID.randomUUID
-      val userid = user.id
-
-      (ezb,ezl) match {
-        case (Some(ezbook),Some(ezlayer)) =>
-          Ok(views.html.ezoomlayeredit(Some(ezbook), ezoomlayerForm.fill(ezlayer)))
-        case (Some(ezbook),None) =>
-          Ok(views.html.ezoomlayeredit(Some(ezbook), ezoomlayerForm(ezbook.ezoombook_id, layerid, userid)))
-        case _ =>
+      BookDO.getEzoomBook(UUID.fromString(ezbId)).map{ezb =>
+          Ok(views.html.ezoomlayeredit(Some(ezb), ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id)))
+    }.getOrElse{
           NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
-      }
+      }}
     }
-  }
+  
 
   /**
    * Loads an ezoomlayer from a marked down file and displays it
