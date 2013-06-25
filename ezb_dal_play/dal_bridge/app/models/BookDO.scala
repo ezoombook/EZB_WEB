@@ -106,4 +106,8 @@ object BookDO{
       proj
     }
   }
+
+  def getBookCover(bookId:UUID):Array[Byte] = {
+    AppDB.cdal.getBookCover(bookId)
+  }
 }

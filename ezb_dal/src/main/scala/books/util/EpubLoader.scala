@@ -28,6 +28,7 @@ object EpubLoader{
 	      /* Date   */ meta.getDates().map(_.toString).toList,
 	      /* Tags   */ meta.getSubjects().toList,
 	      /* Summry */ meta.getDescriptions.getOrElse(0, ""),
+	      /* Cover  */ epub.getCoverImage().getData(),
 	      /* Parts  */ parts)    
   }      
 
