@@ -1,4 +1,4 @@
-@(ezoombook:Option[Ezoombook], ezlForm:Form[EzoomLayer])(implicit context:Context)
+@(ezoombook:Ezoombook, ezlForm:Form[EzoomLayer])(implicit context:Context)
 
 @import helper._
 @import utils.EzbHelpers._
@@ -106,11 +106,10 @@
         <div class="span3">
             <div>
                 <h3 id="ezoombook_title">eZoomBook Info</h3>
-                @ezoombook.map{ezb => @displayEzbInfo(ezb)}.getOrElse{
-                    <a href="create-ezoombook.html">Create a new eZoomBook</a>
-                }
+                @displayEzbInfo(ezoombook)
+
                 <p>Load a layer from a file: </p>
-                @form(routes.EzoomBooks.loadEzoomLayer, 'enctype -> "multipart/form-data"){
+                @form(routes.EzoomBooks.loadEzoomLayer(ezoombook.ezoombook_id.toString), 'enctype -> "multipart/form-data"){
                     <input type="file" name="ezlfile"></br>
                     <input type="submit">
                 }
@@ -131,7 +130,7 @@
                 </ul>
             </div>
             }
-            @form(routes.EzoomBooks.saveEzoomlayer, 'id -> "ezl_form"){
+            @form(routes.EzoomBooks.saveEzoomlayer(ezoombook.ezoombook_id.toString), 'id -> "ezl_form"){
             <fieldset class="field">
                 <legend>eZoomLayer</legend>
                 @hidden(ezlForm("ezoomlayer_id"))
@@ -148,7 +147,7 @@
                     @checkbox(ezlForm("ezoomlayer_locked"), '_label -> "Locked")
                 </div>
                 <div>
-                    @checkbox(ezlForm("ezoomlayer_status"), '_label -> "Mark as published", 'value -> "Published")
+                    @checkbox(ezlForm("ezoomlayer_status"), '_label -> "Mark as published")
                 </div>
                 <div class="btn-group">
                     <input type="button" class="btn" id="btnAddezbSummary" value="+ Book Summary">

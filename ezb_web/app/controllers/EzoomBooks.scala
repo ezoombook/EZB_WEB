@@ -119,7 +119,8 @@ object EzoomBooks extends Controller with ContextProvider{
   }**/
 
   /**
-   * Receives from the request an eZoomBook form and saves the new eZoomBook into the database
+   * Receives from the request an eZoomBook form and saves the new eZoomBook into the database.
+   * Then, it displays the ezoomlayer edition form
    */
   def saveEzoomBook(bookId:String) = Action{implicit request =>
     withUser{user =>
@@ -132,7 +133,7 @@ object EzoomBooks extends Controller with ContextProvider{
         },
         ezb => {
           BookDO.saveEzoomBook(ezb)
-          Redirect(routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString))
+          Redirect(routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString))
         }
       )
     }
@@ -141,75 +142,105 @@ object EzoomBooks extends Controller with ContextProvider{
   /**
    * Displays the ezoomlayer edition form
    */
-  def newEzoomlayer(ezbId:String) = Action{implicit request =>
-    withUser{user =>
-      val ezoombookid = UUID.fromString(ezbId)
-      val layerid = UUID.randomUUID
-      val userid = user.id
-      Ok(views.html.ezoomlayeredit(None, ezoomlayerForm(ezoombookid, layerid, userid)))
-    }
-  }
+//  def newEzoomlayer(ezbId:String) = Action{implicit request =>
+//    Redirect(routs.EzoomBooks.ezoomBookEdit(ezbId))
+//  }
 
   /**
    * Stores an ezoomlayer in the databasse
    */
-  def saveEzoomlayer = Action{implicit request =>
-    ezoomlayerForm.bindFromRequest.fold(
-      errors => {
-        println("oops: " + errors.errors)
-        BadRequest(views.html.ezoomlayeredit(None, errors))
-      },
-      ezl => {
-        BookDO.saveLayer(ezl)
-        Ok(views.html.ezoomlayeredit(None, ezoomlayerForm.fill(ezl)))
+  def saveEzoomlayer(ezbId:String) = Action{implicit request =>
+    withUser{user =>
+      withEzoomBook(ezbId){ezb =>
+        ezoomlayerForm.bindFromRequest.fold(
+          errors => {
+            BadRequest(views.html.ezoomlayeredit(ezb, errors))
+          },
+          ezl => {
+            BookDO.saveLayer(ezl)
+            Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString))
+          }
+        )
       }
-    )
+    }
   }
 
-  def ezoomLayerEdit(ezbId:String) = Action{implicit request =>
+  /**
+   * Displays the ezoomlayer edit form without specifying a ezoomlayer
+   */
+  def ezoomBookEdit(ezbId:String) = Action{implicit request =>
     withUser{user =>
-      BookDO.getEzoomBook(UUID.fromString(ezbId)).map{ezb =>
-          Ok(views.html.ezoomlayeredit(Some(ezb), ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id)))
-    }.getOrElse{
-          NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
-      }}
+      withEzoomBook(ezbId){ezb =>
+        val ezlform = ezoomlayerForm.bind(
+          Map("ezoombook_id" -> ezb.ezoombook_id.toString,
+            "ezoomlayer_id" -> UUID.randomUUID.toString,
+            "ezoomlayer_owner" -> user.id.toString)
+        )
+
+        Ok(views.html.ezoomlayeredit(ezb, ezlform))
+      }
     }
+  }
+
+  /**
+   * Displays the ezoomlayer edit form for an existing ezoomlayer
+   */
+  def ezoomLayerEdit(ezbId:String, ezlId:String) = Action{implicit request =>
+    withUser{user =>
+      withEzoomBook(ezbId){ezb =>
+        BookDO.getEzoomLayer(UUID.fromString(ezlId)).map{ezl =>
+          val ezlform = ezoomlayerForm.fill(ezl)
+          Ok(views.html.ezoomlayeredit(ezb, ezlform))
+        }.getOrElse{
+          NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
+        }
+      }
+    }
+  }
   
 
   /**
    * Loads an ezoomlayer from a marked down file and displays it
    * in the ezoomlayer edition form
    */
-  def loadEzoomLayer = Action(parse.multipartFormData){implicit request =>
-    val ezoombookid = UUID.randomUUID
-    val layerid = UUID.randomUUID
-    val userid = UUID.randomUUID
-    request.body.file("ezlfile").map{filePart =>
-      val lines = scala.io.Source.fromFile(filePart.ref.file).getLines.toSeq
-      books.util.Transformer(lines) match{
-        case Right(layerData) =>
-          val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
-          val filledForm = ezoomlayerForm(ezoombookid, layerid, userid).bind(layerData)
-          //          println("[INFO] Ze doc: " + Json.stringify(layerData))
-          filledForm.fold(
-            errors =>{
-              //              println("[INFO] Error form: " + errors.errors.mkString("\n"))
-              Ok(views.html.ezoomlayeredit(None, errors))
-            },
-            ezl => {
-              //              println("[INFO] ezl: " + ezl);
-              Ok(views.html.ezoomlayeredit(None, ezoomlayerForm.fill(ezl)))
-            }
-          )
-        case Left(error) =>
-          println("[ERROR] " + error)
-          Ok(views.html.ezoomlayeredit(None, ezoomlayerForm(ezoombookid, layerid, userid).
-            withGlobalError("An error occurred while trying to load the file. " + error)))
+  def loadEzoomLayer(ezbId:String) = Action(parse.multipartFormData){implicit request =>
+    withUser{user =>
+      withEzoomBook(ezbId){ezb =>
+        val ezlform = ezoomlayerForm.bind(
+          Map("ezoombook_id" -> ezb.ezoombook_id.toString,
+            "ezoomlayer_id" -> UUID.randomUUID.toString,
+            "ezoomlayer_owner" -> user.id.toString)
+        )
+
+        request.body.file("ezlfile").map{filePart =>
+          val lines = scala.io.Source.fromFile(filePart.ref.file).getLines.toSeq
+          books.util.Transformer(lines) match{
+            case Right(layerData) =>
+              val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
+              val filledForm = ezlform.bind(layerData)
+              //          println("[INFO] Ze doc: " + Json.stringify(layerData))
+              Ok(views.html.ezoomlayeredit(ezb, filledForm))
+//              filledForm.fold(
+//                errors =>{
+//                  //              println("[INFO] Error form: " + errors.errors.mkString("\n"))
+//                  Ok(views.html.ezoomlayeredit(Some(ezb), errors))
+//                },
+//                ezl => {
+//                  //              println("[INFO] ezl: " + ezl);
+//                  Ok(views.html.ezoomlayeredit(Some(ezb), ezoomlayerForm.fill(ezl)))
+//                }
+//              )
+            case Left(error) =>
+              println("[ERROR] " + error)
+              Ok(views.html.ezoomlayeredit(ezb,
+                ezlform.withGlobalError("An error occurred while trying to load the file. " + error)))
+          }
+        }.getOrElse{
+          println("[ERROR] oops!")
+          Ok(views.html.ezoomlayeredit(ezb,
+            ezlform.withGlobalError("An error occurred while trying to load the file.")))
+        }
       }
-    }.getOrElse{
-      println("[ERROR] oops!")
-      Ok(views.html.ezoomlayeredit(None, ezoomlayerForm(ezoombookid, layerid, userid).
-        withGlobalError("An error occurred while trying to load the file.")))
     }
   }
 
@@ -267,5 +298,13 @@ object EzoomBooks extends Controller with ContextProvider{
   def readEzb(ezbId:String) = Action {implicit request =>
     val ezbuuid = UUID.fromString(ezbId)
     Ok(views.html.read())
+  }
+
+  def withEzoomBook(ezbId:String)(block:(Ezoombook) => Result):Result = {
+    BookDO.getEzoomBook(UUID.fromString(ezbId)).map{ezb =>
+      block(ezb)
+    }.getOrElse{
+      NotFound("Oops! We couldn't find the EzoomBook you are looking for :(")
+    }
   }
 }
