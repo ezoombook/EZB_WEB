@@ -3,7 +3,7 @@
 @import utils.EzbHelpers._
 @import helper._
 @import ezbhelper._
-
+@import utils.MD5Util
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
@@ -42,28 +42,49 @@ function toggle(divtag){
 @main("Welcome to your Workingspace", scripts){
 
 <style>
-    .rightpannel{
-    position: absolute;
-    right:2%;
-    left: 51%;
-    }
-
-    .leftpannel{
-    position: absolute;
-    left:2%;
-    right: 51%;
-    }
+  
 </style>
-
-<body>
-<div class="container">
-    <section id="article34" class="menu cool">
-        </br></br></br>
+        
         <center><h1>@session.get("userName")'s Working Space</h1></center>
 
-        <div class="leftpannel">
+       
             </br>
-            <fieldset>
+            
+            <div class="row">
+<div class="span3">
+@defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
+            <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon" >
+         }
+         </br>
+         <fieldset>
+             
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th><i class="icon-envelope"></i>&nbsp;Message</th>
+                        <th>author</th>
+                        <th>date</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+</div>
+
+
+<div class="span9">
+
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-edit"></i>&nbsp;Contribution</a></li>
+    <li><a href="#tab2" data-toggle="tab"><i class="icon-globe"></i>&nbsp;Community</a></li>
+    <li><a href="#tab3" data-toggle="tab"><i class="icon-book"></i>&nbsp;Books</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+      <fieldset>
                 <legend><h1>Project</h1></legend>
 
                 <table class="table table-striped">
@@ -76,39 +97,27 @@ function toggle(divtag){
 
                     </tbody>
                 </table>
-
-
             </fieldset>
-
+            </br>
             <fieldset>
-                <legend><h1>Readlist</h1></legend>
+                <legend><h1>EzoomBook</h1></legend>
 
                 <table class="table table-striped">
                     <tbody>
                     <tr>
-                        <th>Books</th>
+                        <th>Name</th>
+                        <th>book</th>
                         <th></th>
                     </tr>
 
                     </tbody>
                 </table>
 
-            </fieldset>
-            <fieldset>
-                <legend><h1>Favorite books</h1></legend>
-
-                <table class="table table-striped">
-                    <tbody>
-                    <tr>
-                        <th>Book</th>
-                        <th></th>
-                    </tr>
-
-                    </tbody>
-                </table>
 
             </fieldset>
-            <fieldset>
+    </div>
+    <div class="tab-pane" id="tab2">
+      <fieldset>
                 <legend><h1>My friends</h1></legend>
 
                 <table class="table table-striped">
@@ -146,10 +155,7 @@ function toggle(divtag){
                 </dl>
 
             </fieldset>
-        </div>
-
-
-        <div class="rightpannel">
+       
             <fieldset>
                 <h1 style="float:left">Create a group</h1>
                 </br></br></br></br>
@@ -199,15 +205,16 @@ function toggle(divtag){
 
                 </fieldset>
             </fieldset>
-            <fieldset>
-                <legend><h1>New Message</h1></legend>
+    </div>
+    <div class="tab-pane" id="tab3">
+       
+     <fieldset>
+                <legend><h1>My Books</h1></legend>
 
                 <table class="table table-striped">
                     <tbody>
                     <tr>
-                        <th>Message</th>
-                        <th>author</th>
-                        <th>date</th>
+                        <th>Name</th>
                         <th></th>
                     </tr>
 
@@ -215,8 +222,46 @@ function toggle(divtag){
                 </table>
 
             </fieldset>
-        </div>
-    </section>
+    <fieldset>
+                <legend><h1>Reading list</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Books</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+            <fieldset>
+                <legend><h1>Favorite books</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Book</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+            
+    </div>
+  </div>
+  
 </div>
-</body>
+</div>
+
+            
+
+           
+            
+            
+    
+ 
 }
