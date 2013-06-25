@@ -54,8 +54,10 @@
             <td>@g.ezoombook_layers.size</td>
             <td><i class=" icon-star"></i><i class=" icon-star"></i><i class=" icon-star"></i><i class=" icon-star"></i><i class=" icon-star-empty"></i>
             </td>
-            @if(!context.user.isEmpty){
-                <td><a href="/ezlayer/edit/@g.ezoombook_id/" class="btn">Edit</a></td>
+            @if(!context.user.isEmpty && context.user.get.id.toString.equals(g.ezoombook_owner)){
+                <td><a href="/ezlayer/edit/@g.ezoombook_id/" class="btn" =>Edit</a></td>
+            }else{
+           <td></td>
             }
          </tr>
         }
