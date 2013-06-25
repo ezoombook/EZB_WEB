@@ -3,10 +3,12 @@ package controllers
 import models._
 import users.dal._
 import books.dal._
+import project.dal._
 import forms.{AppForms, EzbForms}
 import AppForms._
 import EzbForms._
 import play.api.data.Forms._
+
 
 import play.api._
 import play.api.mvc._
@@ -83,7 +85,15 @@ object Application extends Controller with ContextProvider{
 def errorlogin = Action {implicit request =>
     Ok(views.html.errorlogin())
   }
+  
+  def generalerror = Action {implicit request =>
+    Ok(views.html.generalerror())
+  }
 
+  def forum = Action {implicit request =>
+    Ok(views.html.forum())
+  }
+  
   /**
    * Lists existing users
    * @return
@@ -226,7 +236,11 @@ Ok("contact saved")
    */
   def home = Action { implicit request =>
     context.user.map{u =>
-      Ok(views.html.workspace(UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
+     val listproj = BookDO.getOwnedProjects(u.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+      Ok(views.html.workspace(listproj, UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
     }.getOrElse(
 	    Unauthorized("Oops, you are not connected")
     )

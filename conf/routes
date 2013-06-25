@@ -73,6 +73,7 @@ GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
 
 #error
 GET     /errorlogin                 controllers.Application.errorlogin
+GET     /generalerror                  controllers.Application.generalerror
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
@@ -85,3 +86,6 @@ GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
 POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks
+
+#forum http://ezoombook.forumactif.org  login:admin pwd:azerty1&
+GET     /forum                         controllers.Application.forum
