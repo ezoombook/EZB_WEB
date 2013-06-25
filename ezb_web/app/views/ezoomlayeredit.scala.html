@@ -26,7 +26,7 @@
         }
         case "contrib.Summary" => {
             @hidden(c("contrib_type"), 'value -> "contrib.Summary")
-            @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary"))
+            @textarea(c("contrib_content"), 'rows -> 3, 'cols -> 50, '_label -> "", 'class -> (level+"summary"), 'style -> "width:100%")
         }
     }
 }
@@ -82,6 +82,19 @@
     -moz-border-radius:8px;
     -webkit-border-radius:8px;
     border-radius:8px;
+}
+.ezb_summary
+{
+ width: 98%; 
+}
+
+.quote
+{
+ width: 98%; 
+}
+.contrib_summary
+{
+ width: 98%; 
 }
 </style>
     <div class="row">

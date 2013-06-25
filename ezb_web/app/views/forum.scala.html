@@ -1,0 +1,8 @@
+@()(implicit session:Session, context:Context)
+@main("forum"){
+
+<iframe id="iforum" style="border:none; width:100%; height:1050px"></iframe>
+ 
+<script type="text/javascript">document.getElementById("iforum").src='http://ezoombook.forumactif.org'+document.location.hash.replace(/^#/,'')</script>
+
+}

@@ -16,7 +16,7 @@
 <div>
             @form(routes.Application.contactadmin) {
                 @inputText(contactForm("usermail"), '_label -> <p>enter your e-mail for the answer</p>)
-                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"span12", '_label -> <p>Message</p>)
+                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"span12", 'placeholder -> "Be sure that the answer to your question isn't in the FAQ", '_label -> <p>Message</p>)
                 <input type="submit"  value="submit">
             }
         </div>

@@ -3,6 +3,7 @@ package controllers
 import models._
 import users.dal._
 import books.dal._
+import project.dal._
 
 import play.api._
 import users.dal.Group
@@ -62,7 +63,15 @@ object Community extends Controller with ContextProvider{
    */
   def groups = Action{ implicit request =>
     session.get("userId").map(UUID.fromString(_)).map{uid =>
-      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+       val listproj = BookDO.getOwnedProjects(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+     val listpro = BookDO.getProjectsByMember(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
     }.getOrElse(
       Unauthorized("Oops, you are not connected")
     )
@@ -123,12 +132,20 @@ object Community extends Controller with ContextProvider{
     //((group:Group)=>(group.name, group.ownerId))
    def newGroup = Action{ implicit request =>
     session.get("userId").map(UUID.fromString(_)).map{uid =>
+      val listproj = BookDO.getOwnedProjects(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+     val listpro = BookDO.getProjectsByMember(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
       groupForm.bindFromRequest.fold(
       errors => 
-        BadRequest(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+        BadRequest(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
       ,
       (group)=>{UserDO.newGroup(group._1, uid)
-      Ok(views.html.workspace(UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
       }
     )}
     .getOrElse(

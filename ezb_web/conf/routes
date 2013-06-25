@@ -69,11 +69,12 @@ POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
 GET     /ezlayer/form/:id           controllers.EzoomBooks.newEzoomlayer(id:String)
 POST    /ezlayer/load               controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save               controllers.EzoomBooks.saveEzoomlayer
-GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid:String,lid:String)
+GET     /ezlayer/edit/:bid    controllers.EzoomBooks.ezoomLayerEdit(bid:String)
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
 
 #error
 GET     /errorlogin                 controllers.Application.errorlogin
+GET     /generalerror                  controllers.Application.generalerror
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
@@ -86,3 +87,6 @@ GET	    /asearch            controllers.Application.asearch
 POST	/adminusers		    controllers.AdminApp.createUsers
 POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks
+
+#forum http://ezoombook.forumactif.org  login:admin pwd:azerty1&
+GET     /forum                         controllers.Application.forum
