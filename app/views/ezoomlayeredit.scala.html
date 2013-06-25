@@ -107,6 +107,17 @@
             </div>
         </div>
         <div class="span9">
+            @if(ezlForm.hasErrors){
+            <div class="alert alert-error">
+                <a class="close" data-dismiss="alert">x</a>
+                <p>It seems there are some errors in your request...</p>
+                <ul>
+                @ezlForm.errors.map{err =>
+                    <li>@err.key : @err.message</li>
+                }
+                </ul>
+            </div>
+            }
             @form(routes.EzoomBooks.saveEzoomlayer, 'id -> "ezl_form"){
             <fieldset class="field">
                 <legend>eZoomLayer</legend>
