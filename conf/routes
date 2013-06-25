@@ -50,7 +50,8 @@ GET	    /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
 POST    /bookreedit/save    controllers.EzoomBooks.saveEditedBook
 
 GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
-
+GET	    /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
+GET	    /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
 # Tutorial
 GET	    /tutorial           controllers.Application.tutorial
