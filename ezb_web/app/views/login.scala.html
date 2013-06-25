@@ -111,8 +111,8 @@ width:50%;
             }
         </div>
         <div>
-            <!--<a data-toggle="modal" href="#forgotpassword" class="btn btn-primary btn-large" style="height:20px">Forgot your password ?</a>-->
-            <a data-toggle="modal" href="#forgotpassword">Forgot your password ?</a>
+           
+            <a href="/changepassword">Forgot your password ?</a>
         </div>
         <div>
             <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a>
@@ -125,7 +125,7 @@ width:50%;
                 @inputText(userForm("username"), '_label -> <p>Username</p>)
                 @inputText(userForm("mail"), '_label -> <p>Mail</p>)
                 @inputText(userForm("password"), '_label -> <p>password</p>)
-                <a class="btn btn-primary" data-toggle="modal" href="#infos" >Contract license</a>
+                <a class="btn btn-primary" data-toggle="modal" href="#infos" >Contract license</a></br>
                 <a><input type="checkbox" onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >I agree with Contract License</a></br></br>
                 <a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
                 <input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
@@ -223,21 +223,6 @@ Nulla tincidunt rutrum nulla eu ornare. Fusce sed odio quis erat consequat conse
    </div>
    
 
-<!-- Forgot Password Modal -->
-<div id="forgotpassword" class="modal hide fade in" style="display: none; ">
-    <div class="modal-header">
-        <a class="close" data-dismiss="modal">X</a>
-        <h3>Forget you password?</h3>
-    </div>
-    <div class="modal-body">
-        <input type="text" placeholder="email adress">
-        <p>You will be send an email to change you password</p>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-    </div>
-</div> <!-- /End Modal -->
-<p><a data-toggle="modal" href="#forgotpassword" class="btn btn-primary btn-large" style="height:20px">Forget your password ?</a></p>
 
 
 </div></body>
