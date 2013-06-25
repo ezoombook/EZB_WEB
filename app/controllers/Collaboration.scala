@@ -112,7 +112,11 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
        BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
        list :+ (proj,ezb) 
      }.getOrElse{list}}
-        BadRequest(views.html.workspace(listproj, UserDO.userOwnedGroups(user.id),
+     val listpro = BookDO.getProjectsByMember(user.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+        BadRequest(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(user.id), BookDO.getUserBooks(user.id), UserDO.userOwnedGroups(user.id),
           UserDO.userIsMemberGroups(user.id),Community.groupForm))
       }
     }
