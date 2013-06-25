@@ -31,7 +31,7 @@ object EzbForms extends FormHelpers{
       "tags" -> list(text),
       "summary" -> text
     )((id,title,authors,languages,publishers,published_dates,tags,summary) =>
-      Book(id,title,authors,languages,publishers,published_dates, tags, summary, List[BookPart]()))
+      Book(id,title,authors,languages,publishers,published_dates, tags, summary, Array[Byte](), List[BookPart]()))
       ((book:Book) => Some(book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages, book.bookPublishers, book.bookPublishedDates,
         book.bookTags, book.bookSummary))
   )

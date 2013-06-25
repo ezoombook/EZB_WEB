@@ -3,47 +3,27 @@
 @import helper._
 @import ezbhelper._
 
-<script>
-
-function toggle(divtag){
-		if(document.getElementById(divtag).style.display=="none"){
-			document.getElementById(divtag).style.display="block";
-		} else {
-			document.getElementById(divtag).style.display="none";
-		}
-	}
-</script>
-
 @main("read a book"){
-<div class="container">
-<h1>Books</h1>
+<div class="row">
+    <h1>Books</h1>
+    <a href="/books/new" class="bulle">Add a book</a>
+</div>
 
-
-<li class=e><a href="/books/new" class="bulle">Add a book</a></li>
-</br></br></br></br>
-
-
-
-			
-			
-					
-					@bookList.grouped(4).map{blist=>
-					<div class="row">
-					@blist.map{book=>
-					<div class="span3">
-						<table class="table"><tbody><tr><td><a href="/books/@book.bookId">@book.bookTitle</a></td></tr><tr><td>@book.bookAuthors</td></tr><tr><td>@book.bookPublishedDates</td></tr><tr><td>@book.bookTags</td></tr></tbody></table>
-						
-
-						
-					</div>
-					}
-					</div>
-
-					}	
-					
-			
-			
-		</div>
-	
-
+@bookList.grouped(4).map{blist=>
+    <div class="row">
+    @blist.map{book=>
+        <div class="span3">
+            <table class="table" style="border: 1px solid #ddd;">
+                <tbody>
+                <tr><td><img src='@routes.EzoomBooks.bookCover(book.bookId.toString)' style='width: 300px;'></td></tr>
+                <tr><td><a href="/books/@book.bookId">@book.bookTitle</a></td></tr>
+                <tr><td>@book.bookAuthors</td></tr>
+                <tr><td>@book.bookPublishedDates</td></tr>
+                <tr><td>@book.bookTags</td></tr>
+                </tbody>
+            </table>
+        </div>
+    }
+    </div>
+}
 }
