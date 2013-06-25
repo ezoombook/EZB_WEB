@@ -5,6 +5,7 @@ import models._
 import utils.FormHelpers
 import users.dal.Group
 import project.dal._
+import books.dal._
 
 import play.api._
 import play.api.mvc._
@@ -107,7 +108,11 @@ object Collaboration extends Controller with ContextProvider with FormHelpers{
           BookDO.getEzoomBook(project.ezoombookId),
           Form(memberMapping)))
       }.getOrElse{
-        BadRequest(views.html.workspace(UserDO.userOwnedGroups(user.id),
+        val listproj = BookDO.getOwnedProjects(user.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+        BadRequest(views.html.workspace(listproj, UserDO.userOwnedGroups(user.id),
           UserDO.userIsMemberGroups(user.id),Community.groupForm))
       }
     }

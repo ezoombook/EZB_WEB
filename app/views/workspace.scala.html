@@ -1,9 +1,10 @@
-@(userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
+@(listproj:List[(EzbProject,Ezoombook)], userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
 
 @import utils.EzbHelpers._
 @import helper._
 @import ezbhelper._
 @import utils.MD5Util
+@import utils.DateFormatter._
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
@@ -91,10 +92,15 @@ function toggle(divtag){
                     <tbody>
                     <tr>
                         <th>Project</th>
-                        <th>group</th>
-                        <th></th>
+                    
+                        <th>ezoombook</th><th>creation date</th>
                     </tr>
-
+                        @for(g<-listproj) {  
+                        
+                        <tr>
+                            <td>@g._1.projectName</td><td>@g._2.ezoombook_title</td><td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
+                        </tr>
+                         }
                     </tbody>
                 </table>
             </fieldset>
@@ -257,11 +263,4 @@ function toggle(divtag){
 </div>
 </div>
 
-            
-
-           
-            
-            
-    
- 
 }
