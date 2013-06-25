@@ -7,6 +7,14 @@
                      emit(doc.book_id, null)
                    }
                  }"
+        },
+        "by_owner" : {
+            "map" :
+                "function (doc, meta) {
+                   if(doc.ezoombook_owner && doc.ezoombook_id){
+                     emit(doc.ezoombook_owner, null)
+                   }
+                 }"
         }
     }
 }

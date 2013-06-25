@@ -14,13 +14,18 @@ import com.couchbase.client.protocol.views.Query
 
 case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
-	         bookSummary:String, bookParts:List[BookPart]){
+	         bookSummary:String, bookCover: Array[Byte], bookParts:List[BookPart]){
 
   def this(bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
 	         bookSummary:String, bookParts:List[BookPart]) = this(UUID.randomUUID, bookTitle, bookAuthors, bookLanguages, 
 		 bookPublishers, bookPublishedDates, bookTags,
-	         bookSummary, bookParts)
+	         bookSummary, Array[Byte](), bookParts)
+
+  def setCover(newCover:Array[Byte]):Book = {
+    Book(bookId, bookTitle, bookAuthors, bookLanguages, bookPublishers, bookPublishedDates, bookTags,
+	 bookSummary, newCover, bookParts) 
+  }  
 
   override def toString = "{id = "+bookId+", title=" + bookTitle+ ", authors= "+bookAuthors.mkString("[",",","]") +
                           ", publishers= " + bookPublishers.mkString("[",",","]") +
@@ -32,6 +37,7 @@ case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLa
 case class BookPart(val partId:String, val bookId:UUID, val content:Array[Byte]){}
 
 object Book extends UUIDjsParser{
+  import play.api.libs.functional.syntax._
 
   implicit val BookPartWrites:Writes[BookPart] = new Writes[BookPart]{
     def writes(b:BookPart) = JsString(b.partId) 
@@ -44,7 +50,25 @@ object Book extends UUIDjsParser{
     }
   }
 
-  implicit val fmt = Json.format[Book]
+  val emptyArray = new Format[Array[Byte]] {
+    def writes(v:Array[Byte]) = JsArray()
+    def reads(jval: JsValue) = JsSuccess(Array[Byte]())
+  }
+
+  implicit val fmt: Format[Book] = (
+    (__ \ "bookId").format[UUID] ~
+    (__ \ "bookTitle").format[String] ~
+    (__ \ "bookAuthors").format[List[String]] ~
+    (__ \ "bookLanguages").format[List[String]] ~
+    (__ \ "bookPublishers").format[List[String]] ~
+    (__ \ "bookPublishedDates").format[List[String]] ~
+    (__ \ "bookTags").format[List[String]] ~
+    (__ \ "bookSummary").format[String] ~
+    (__ \ "bookParts").format[List[BookPart]]
+  )((bid, title, authors, langs, publs, pubdats, tags, summ, parts) =>
+      Book(bid, title, authors, langs, publs, pubdats, tags, summ, Array[Byte](), parts),
+    book => (book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages,
+      book.bookPublishers, book.bookPublishedDates, book.bookTags, book.bookSummary, book.bookParts))
 }
 
 trait BookComponent{
@@ -53,6 +77,7 @@ trait BookComponent{
   def saveBook(book:Book)(implicit couchclient:CouchbaseClient){
     val key = "book:"+book.bookId
     couchclient.set(key, 0, Json.toJson(book).toString)
+    couchclient.set("cover:"+book.bookId, 0, book.bookCover)
   }
 
   def saveBookPart(part:BookPart)(implicit couchclient:CouchbaseClient){
@@ -69,7 +94,7 @@ trait BookComponent{
     val query = new Query()
 
     // We don't want the full documents and only the top 20
-    query.setIncludeDocs(true).setLimit(20)
+    query.setIncludeDocs(true)//.setLimit(20)
 
     // Send the query
     val result = couchclient.query(bookView,query)
@@ -85,8 +110,9 @@ trait BookComponent{
       val publishedDates = js(1).asOpt[List[String]].map(_.map(_.toString)).getOrElse(List[String]())
       val tags = js(2).as[List[String]]
       val summary = js(3).as[String]
+      val cover = getBookCover(bookId)
 
-      Book(bookId,row.getKey(),authors,Nil,Nil,publishedDates,tags,summary,Nil)
+      Book(bookId,row.getKey(),authors,Nil,Nil,publishedDates,tags,summary,cover,Nil)
     }.toList
   }
 
@@ -98,7 +124,10 @@ trait BookComponent{
           println("[ERROR] " + err)
           None
         },
-        book => Some(book)
+        book => {
+	  val cover = getBookCover(bookId)	  
+	  Some(book.setCover(cover))
+        }  
       )
       case _ => None
     }
@@ -159,6 +188,25 @@ trait BookComponent{
     }.toList
   }
 
+  /**
+   * Returns the eZoomBooks owned by a user
+   */
+  def getEzoombooksUser(uId:UUID)(implicit couchclient:CouchbaseClient):List[Ezoombook] = {
+    val view = couchclient.getView("ezb", "by_owner")
+    val query = (new Query()).setIncludeDocs(true).setKey(uId.toString)
+    couchclient.query(view,query).foldLeft(List[Ezoombook]()){(lst,row) =>
+      val js = row.getDocument().asInstanceOf[String]
+      Json.parse(js).validate[Ezoombook].fold(
+        err => {
+          println(s"[ERROR] Invalid Json document with ower_id = ${uId.toString}. Expected: EzoomBook")
+          println("[ERROR] " + err)
+          lst
+        },
+        ezb => ezb +: lst
+      )
+    }.toList
+  }
+
   def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
@@ -197,6 +245,14 @@ trait BookComponent{
       case _ =>
         println(s"[ERROR] Ezoomlayer $ezlId not found.")
         None
+    }
+  }
+
+  def getBookCover(bookId:UUID)(implicit couchclient:CouchbaseClient):Array[Byte] = {
+    val key = "cover:"+bookId.toString
+    couchclient.get(key) match{
+      case arr:Array[Byte] => arr
+      case _ => Array[Byte]()
     }
   }
 }

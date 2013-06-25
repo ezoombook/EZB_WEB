@@ -85,9 +85,12 @@ trait EzbProjectComponent{
     }.toList
   }
 
-//  def getProjectsByMember(implicit couchclient:CouchbaseClient):List[EzbProject] = {
-//
-//  }
+  def getProjectsByMember(userId:UUID)(implicit couchclient:CouchbaseClient):List[EzbProject] = {
+    val view = couchclient.getView("projects", "by_member")
+    val query = new Query()
+    query.setIncludeDocs(true).setKey(userId.toString)
+    parseProjectResult(couchclient.query(view,query))
+  }
 
   def addProjectMember(projId:UUID, newMember:TeamMember)(implicit couchclient:CouchbaseClient):Option[EzbProject] = {
     val key = projectKey(projId)
