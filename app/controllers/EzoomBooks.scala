@@ -11,12 +11,14 @@ import scala.Some
 import Play.current
 import cache.Cache
 
+import java.io._
 import java.util.UUID
 import play.api._
 import play.api.mvc._
 import play.api.data._
 import Forms._
 import play.api.libs.json.Json
+import org.apache.commons.io.IOUtils
 
 /**
  * Created with IntelliJ IDEA.
@@ -68,27 +70,25 @@ object EzoomBooks extends Controller with ContextProvider{
   def saveBook = Action{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
+        println("[ERROR] Found errors in bookForm: " + errors)
         BadRequest(views.html.bookedit(List[(String,Long)](), errors))
       },
       book => {
-        session.get("userId").map(UUID.fromString(_)).map{uid =>
+        withUser{user =>
           getCachedBook.map{cb =>
             val newbook = new Book(cb.bookId, book.bookTitle, book.bookAuthors, book.bookAuthors,
               book.bookPublishers, book.bookPublishedDates, book.bookTags,
-              book.bookSummary, cb.bookParts)
+              book.bookSummary, cb.bookCover, cb.bookParts)
             println("My new book: " + newbook)
             BookDO.saveBook(newbook)
             BookDO.saveBookParts(newbook)
-            UserDO.newUserBook(uid, newbook.bookId)
-
-            Ok(views.html.bookedit(UserDO.listBooks(uid), bookForm))
+            UserDO.newUserBook(user.id, newbook.bookId)
+            Redirect(routes.EzoomBooks.readBook(newbook.bookId.toString))
           }.getOrElse(
-            Ok(views.html.bookedit(UserDO.listBooks(uid),
+            Ok(views.html.bookedit(UserDO.listBooks(user.id),
               bookForm.withGlobalError("An error occurred while trying to save the file.")))
           )
-        }.getOrElse(
-          Unauthorized("Oops, you are not connected")
-        )
+        }
       }
     )
   }
@@ -232,6 +232,25 @@ object EzoomBooks extends Controller with ContextProvider{
     }.getOrElse{
       println("[ERROR] Could not load book " + id)
       BadRequest(views.html.listbooks(BookDO.listBooks,bookForm))
+    }
+  }
+
+  def bookCover(bookId:String) = Action{implicit request =>    
+    val cover = BookDO.getBookCover(UUID.fromString(bookId))
+//    val fis = new FileInputStream(new File("/Users/mayleen/ezoombook2.png"))
+//    val cover = IOUtils.toByteArray(fis)
+    if (cover.size > 0){
+      Ok(cover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
+    }else{
+      Redirect(routes.Assets.at("/images/bookcover.png"))
+    }
+  }
+
+  def cachedBookCover = Action{implicit request =>
+    getCachedBook.map{cb =>
+      Ok(cb.bookCover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
+    }.getOrElse{
+      Redirect(routes.Assets.at("/images/bookcover.png"))
     }
   }
 
