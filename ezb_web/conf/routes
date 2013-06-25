@@ -60,7 +60,7 @@ GET	    /faq                controllers.Application.faq
 
 # Contact
 GET     /contact            controllers.Application.contact
-
+POST    /contactadmin     controllers.Application.contactadmin
 #EZOOMBOOK
 #GET     /ezb/edit/:id       controllers.EzoomBooks.newEzoomBook(id:String)
 POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
@@ -70,6 +70,9 @@ POST    /ezlayer/load               controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save               controllers.EzoomBooks.saveEzoomlayer
 GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid:String,lid:String)
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
+
+#error
+GET     /errorlogin                 controllers.Application.errorlogin
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
