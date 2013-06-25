@@ -6,6 +6,7 @@ import books.dal._
 import forms.{AppForms, EzbForms}
 import AppForms._
 import EzbForms._
+import play.api.data.Forms._
 
 import play.api._
 import play.api.mvc._
@@ -45,13 +46,21 @@ object Application extends Controller with ContextProvider{
   
     )
     
+      val contactForm = Form(
+    tuple(
+      "usermail" -> text,
+      "arequest" -> text
+    )
+  
+    )
+    
     
        def faq = Action {implicit request =>
     Ok(views.html.faq())
        }
        
        def contact = Action {implicit request =>
-    Ok(views.html.contact())
+    Ok(views.html.contact(contactForm))
        }
        
        def asearch = Action {implicit request =>
@@ -71,7 +80,9 @@ object Application extends Controller with ContextProvider{
     Redirect(routes.Application.login)
   }
   
-
+def errorlogin = Action {implicit request =>
+    Ok(views.html.errorlogin())
+  }
 
   /**
    * Lists existing users
@@ -133,6 +144,8 @@ println("[INFO] Login validation...")
   def changePassword = Action { implicit request =>
     Ok(views.html.forgottenPwd(Form("email" -> email)))
   }
+  
+ 
 
   /**
    * Creates a temporal link to reset the user password and sends it to the user by email
@@ -170,6 +183,30 @@ Transport.send(message)
       })
   }
 
+  def contactadmin = Action { implicit request =>
+    import AppDB._
+   contactForm.bindFromRequest.fold(
+ errors => {println("bad:"+errors)
+ BadRequest(views.html.contact(errors))},
+ (contactform) => {
+              // Set up the mail object
+val properties = System.getProperties
+properties.put("mail.smtp.host", "localhost")
+val session = javax.mail.Session.getDefaultInstance(properties)
+val message = new MimeMessage(session)
+ 
+// Set the from, to, subject, body text
+message.setFrom(new InternetAddress("ezoombook@laposte.net"))
+message.setRecipients(Message.RecipientType.TO, "ezoombook@laposte.net")
+message.setSubject("Message from"+contactform._1)
+message.setText(contactform._2)
+
+// And send it
+Transport.send(message)
+Ok("contact saved")
+  })}
+  
+  
   /**
    * Validates that the link is still valid. i.e, hasn't been used or it's not expired
    * and redirects the user to the change password view

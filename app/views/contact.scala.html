@@ -1,8 +1,8 @@
-@()(implicit session:Session, context:Context)
+@(contactForm: Form[(String,String)])(implicit session:Session, context:Context)
 @import helper._
 @main("Contact us"){
-</br></br></br>
-  <div class="container">
+
+
 <h1>Contact</h1>
 
 
@@ -12,5 +12,12 @@
 <a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-de-nantes-science/" >Science</a></br>
 <a href="http://ezoombook.wordpress.com/people-involved/law-and-intellectual-property/" >Law</a>
 
-
+</br></br>
+<div>
+            @form(routes.Application.contactadmin) {
+                @inputText(contactForm("usermail"), '_label -> <p>enter your e-mail for the answer</p>)
+                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"span12", '_label -> <p>Message</p>)
+                <input type="submit"  value="submit">
+            }
+        </div>
 }
