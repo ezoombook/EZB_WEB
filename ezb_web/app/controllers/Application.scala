@@ -257,7 +257,11 @@ object Application extends Controller with ContextProvider {
        BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
        list :+ (proj,ezb) 
      }.getOrElse{list}}
-      Ok(views.html.workspace(listproj, UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
+      val listpro = BookDO.getProjectsByMember(u.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(u.id), BookDO.getUserBooks(u.id), UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
     }.getOrElse(
 	    Unauthorized("Oops, you are not connected")
     )

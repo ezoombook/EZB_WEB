@@ -67,7 +67,11 @@ object Community extends Controller with ContextProvider{
        BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
        list :+ (proj,ezb) 
      }.getOrElse{list}}
-      Ok(views.html.workspace(listproj, UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+     val listpro = BookDO.getProjectsByMember(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
     }.getOrElse(
       Unauthorized("Oops, you are not connected")
     )
@@ -132,12 +136,16 @@ object Community extends Controller with ContextProvider{
        BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
        list :+ (proj,ezb) 
      }.getOrElse{list}}
+     val listpro = BookDO.getProjectsByMember(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
       groupForm.bindFromRequest.fold(
       errors => 
-        BadRequest(views.html.workspace(listproj, UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+        BadRequest(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
       ,
       (group)=>{UserDO.newGroup(group._1, uid)
-      Ok(views.html.workspace(listproj, UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
+      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
       }
     )}
     .getOrElse(

@@ -1,4 +1,4 @@
-@(listproj:List[(EzbProject,Ezoombook)], userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
+@(listproj:List[(EzbProject,Ezoombook)], listpro:List[(EzbProject,Ezoombook)], listezb:List[Ezoombook], listmyb:List[Book], userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
 
 @import utils.EzbHelpers._
 @import helper._
@@ -101,6 +101,12 @@ function toggle(divtag){
                             <td>@g._1.projectName</td><td>@g._2.ezoombook_title</td><td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
                         </tr>
                          }
+                             @for(g<-listpro) {  
+                        
+                        <tr>
+                            <td>@g._1.projectName</td><td>@g._2.ezoombook_title</td><td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
+                        </tr>
+                         }
                     </tbody>
                 </table>
             </fieldset>
@@ -112,10 +118,16 @@ function toggle(divtag){
                     <tbody>
                     <tr>
                         <th>Name</th>
-                        <th>book</th>
+                        
                         <th></th>
                     </tr>
-
+ @for(g<-listezb){
+                        <tr>
+                            <td>@g.ezoombook_title</td>
+                           
+                           
+                        </tr>
+                        }
                     </tbody>
                 </table>
 
@@ -223,7 +235,13 @@ function toggle(divtag){
                         <th>Name</th>
                         <th></th>
                     </tr>
-
+ @for(g<-listmyb){
+                        <tr>
+                            <td>@g.bookTitle</td>
+                           
+                           
+                        </tr>
+                        }
                     </tbody>
                 </table>
 
