@@ -69,7 +69,7 @@ POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
 GET     /ezlayer/form/:id           controllers.EzoomBooks.newEzoomlayer(id:String)
 POST    /ezlayer/load               controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save               controllers.EzoomBooks.saveEzoomlayer
-GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid:String,lid:String)
+GET     /ezlayer/edit/:bid    controllers.EzoomBooks.ezoomLayerEdit(bid:String)
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
 
 #error
