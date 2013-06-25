@@ -95,7 +95,7 @@ trait GroupComponent{
      * Returns a list of groups where a user belongs.
      */ 
     def getGroupsByMember(member_id:UUID)(implicit session:Session) = {
-      Query(GroupMembers).filter(_.userId == member_id.bind).map(_.groupId).list
+      Query(GroupMembers).filter(_.userId === member_id.bind).map(_.groupId).list
     }
   }
 }
