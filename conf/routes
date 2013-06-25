@@ -8,7 +8,7 @@ GET     /                   controllers.Application.index
 GET	    /home			    controllers.Application.home
 GET	/truehome				controllers.Application.truehome
 
-GET	    /users			    controllers.Application.users
+#GET	    /users			    controllers.Application.users
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
@@ -50,7 +50,8 @@ GET	    /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
 POST    /bookreedit/save    controllers.EzoomBooks.saveEditedBook
 
 GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
-
+GET	    /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
+GET	    /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
 # Tutorial
 GET	    /tutorial           controllers.Application.tutorial
@@ -82,7 +83,7 @@ GET     /assets/*file       controllers.Assets.at(path="/public", file)
 GET	    /asearch            controllers.Application.asearch
 
 # To create some data
-GET  	/admin			    controllers.AdminApp.index
+#GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
 POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks

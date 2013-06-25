@@ -18,15 +18,15 @@
 
 <div class="btn-toolbar pull-right">
     <div class="btn-group">
-        <a class="btn" href="/home">
+        <a class="btn" href="/home" rel="tooltip" data-original-title="Working space">
             @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
                 <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
             }
         </a>
-        <a class="btn" href="/parameters" >
+        <a class="btn" href="/parameter" rel="tooltip" data-original-title="Configure your account">
             <i class="icon-wrench"></i>
         </a>
-        <a class="btn" href="/logout">  
+        <a class="btn" href="/logout" rel="tooltip" data-original-title="log out">
             <i class="icon-off"></i>
         </a>
     </div>
