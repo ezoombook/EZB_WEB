@@ -3,10 +3,12 @@ package controllers
 import models._
 import users.dal._
 import books.dal._
+import project.dal._
 import forms.{AppForms, EzbForms}
 import AppForms._
 import EzbForms._
 import play.api.data.Forms._
+
 
 import play.api._
 import play.api.mvc._
@@ -61,6 +63,15 @@ object Application extends Controller with ContextProvider {
     implicit request =>
       Ok(views.html.contact(contactForm))
   }
+  
+  def generalerror = Action {implicit request =>
+    Ok(views.html.generalerror())
+  }
+
+
+  def forum = Action {implicit request =>
+    Ok(views.html.forum())
+  }
 
   def asearch = Action {
     implicit request =>
@@ -85,6 +96,7 @@ object Application extends Controller with ContextProvider {
   def errorlogin = Action {
     implicit request =>
       Ok(views.html.errorlogin())
+
   }
 
   /**
@@ -238,14 +250,22 @@ object Application extends Controller with ContextProvider {
   /**
    * Displays the user home page
    */
-  def home = Action {
-    implicit request =>
-      context.user.map {
-        u =>
-          Ok(views.html.workspace(UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id), groupForm))
-      }.getOrElse(
-        Unauthorized("Oops, you are not connected")
-      )
+
+  def home = Action { implicit request =>
+    context.user.map{u =>
+     val listproj = BookDO.getOwnedProjects(u.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+      val listpro = BookDO.getProjectsByMember(u.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
+       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
+       list :+ (proj,ezb) 
+     }.getOrElse{list}}
+      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(u.id), BookDO.getUserBooks(u.id), UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
+    }.getOrElse(
+	    Unauthorized("Oops, you are not connected")
+    )
+
   }
 
   /**
