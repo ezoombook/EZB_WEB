@@ -14,6 +14,7 @@ import play.api.Play.current
 object BookDO{
 
   import AppDB._
+  import AppDB.dal.profile.simple._
 
   def newBook(byteArray: Array[Byte]):Book = EpubLoader.loadBook(Left(new ByteArrayInputStream(byteArray)))
 
@@ -109,5 +110,37 @@ object BookDO{
 
   def getBookCover(bookId:UUID):Array[Byte] = {
     AppDB.cdal.getBookCover(bookId)
+  }
+
+  /**
+   * Returns the list of books uploaded by a user
+   * @param uid
+   */
+  def getUserBooks(uid:UUID):List[Book] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+        AppDB.dal.UserBooks.getBooksByUser(uid).foldLeft(List[Book]()){(lst,ubook) =>
+          AppDB.cdal.getBook(ubook._1).map{book =>
+            lst :+ book
+          }.getOrElse{
+            println("[ERROR] Could not find book with id " + ubook._1)
+            lst
+          }
+        }
+    }
+  }
+
+  /**
+   * Resturns the eZoomBooks created by the user
+   */
+  def getUserEzoombooks(uid:UUID):List[Ezoombook] = {
+    AppDB.cdal.getEzoombooksUser(uid)
+  }
+
+  /**
+   * Returns the project where the user participates
+   */
+  def getProjectsByMember(uid:UUID):List[EzbProject] = {
+    AppDB.cdal.getProjectsByMember(uid)
   }
 }

@@ -188,6 +188,25 @@ trait BookComponent{
     }.toList
   }
 
+  /**
+   * Returns the eZoomBooks owned by a user
+   */
+  def getEzoombooksUser(uId:UUID)(implicit couchclient:CouchbaseClient):List[Ezoombook] = {
+    val view = couchclient.getView("ezb", "by_owner")
+    val query = (new Query()).setIncludeDocs(true).setKey(uId.toString)
+    couchclient.query(view,query).foldLeft(List[Ezoombook]()){(lst,row) =>
+      val js = row.getDocument().asInstanceOf[String]
+      Json.parse(js).validate[Ezoombook].fold(
+        err => {
+          println(s"[ERROR] Invalid Json document with ower_id = ${uId.toString}. Expected: EzoomBook")
+          println("[ERROR] " + err)
+          lst
+        },
+        ezb => ezb +: lst
+      )
+    }.toList
+  }
+
   def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
