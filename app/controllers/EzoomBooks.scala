@@ -152,7 +152,7 @@ object EzoomBooks extends Controller with ContextProvider{
   def saveEzoomlayer(ezbId:String) = Action{implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
-        ezoomlayerForm.bindFromRequest.fold(
+        ezoomlayerForm(ezb.ezoombook_id,UUID.randomUUID,user.id).bindFromRequest.fold(
           errors => {
             BadRequest(views.html.ezoomlayeredit(ezb, errors))
           },
@@ -177,7 +177,7 @@ object EzoomBooks extends Controller with ContextProvider{
             "ezoomlayer_owner" -> user.id.toString)
         )
 
-        Ok(views.html.ezoomlayeredit(ezb, ezlform))
+        Ok(views.html.ezoomlayeredit(ezb, ezoomlayerForm))
       }
     }
   }
