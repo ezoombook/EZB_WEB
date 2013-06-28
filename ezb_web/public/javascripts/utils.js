@@ -94,6 +94,7 @@ function addContrib(ctype){
                     var j = $("#part_fieldset_"+i).children(".quote").length;
                     $("#part_fieldset_"+i).append(contribField("textarea","quote",part_contrib_cont_nav,[i,j]));
                     $("#part_fieldset_"+i).append(contribField("input","quote",part_contrib_type_nav,[i,j])
+                                                    .attr("value","contrib.Quote")
                                                     .attr("type","hidden"));
                 })
             )
