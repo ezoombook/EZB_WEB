@@ -62,11 +62,12 @@ GET	    /faq                controllers.Application.faq
 # Contact
 GET     /contact            controllers.Application.contact
 POST    /contactadmin     controllers.Application.contactadmin
+
 #EZOOMBOOK
-#GET     /ezb/edit/:id       controllers.EzoomBooks.ezoomBookEdit(id:String)
+GET    /ezb/edit/:id       controllers.EzoomBooks.ezoomBookEdit(id:String)
 POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
 
-#GET     /ezlayer/form/:id          controllers.EzoomBooks.newEzoomlayer(id:String)
+#GET    /ezlayer/form/:id          controllers.EzoomBooks.newEzoomlayer(id:String)
 POST    /ezlayer/load/:bid          controllers.EzoomBooks.loadEzoomLayer(bid:String)
 POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:String)
 GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
