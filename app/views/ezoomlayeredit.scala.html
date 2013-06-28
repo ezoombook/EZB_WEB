@@ -28,6 +28,9 @@
             @hidden(c("contrib_type"), 'value -> "contrib.Summary")
             @textarea(c("contrib_content"), 'rows -> 3, 'cols -> 50, '_label -> "", 'class -> (level+"summary"), 'style -> "width:100%")
         }
+        case _ => {
+            <p>Could not display contribution. Unknown type @ctype</p>
+        }
     }
 }
 

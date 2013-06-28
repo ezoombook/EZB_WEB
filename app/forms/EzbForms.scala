@@ -118,7 +118,7 @@ object EzbForms extends FormHelpers{
 
   private def atomicContribMapping:Mapping[AtomicContrib] = mapping(
     "contrib_id" -> text,
-    "contrib_type" -> text,
+    "contrib_type" -> nonEmptyText,
     "ezoomlayer_id" -> of[UUID],
     "ezoombook_id" -> of[UUID],
     "user_id" -> of[UUID],
@@ -130,7 +130,7 @@ object EzbForms extends FormHelpers{
 
   private def atomicContribMapping(ezlid:UUID,ezbid:UUID,uid:UUID,partid:String):Mapping[AtomicContrib] = mapping(
     "contrib_id" -> ignored(UUID.randomUUID().toString),
-    "contrib_type" -> text,
+    "contrib_type" -> nonEmptyText,
     "ezoomlayer_id" -> ignored(ezlid),
     "ezoombook_id" -> ignored(ezbid),
     "user_id" -> ignored(uid),
