@@ -4,6 +4,7 @@
 @import utils.EzbHelpers._
 @import ezbhelper._
 
+
 @displayPart(part:Field) = {
     <fieldset class="part_field">
     @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
@@ -26,7 +27,7 @@
         }
         case "contrib.Summary" => {
             @hidden(c("contrib_type"), 'value -> "contrib.Summary")
-            @textarea(c("contrib_content"), 'rows -> 3, 'cols -> 50, '_label -> "", 'class -> (level+"summary"), 'style -> "width:100%")
+            @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary"))
         }
         case _ => {
             <p>Could not display contribution. Unknown type @ctype</p>
@@ -90,16 +91,16 @@
 }
 .ezb_summary
 {
- width: 98%; 
+ width: 89%; 
 }
 
 .quote
 {
- width: 98%; 
+ width: 89%; 
 }
 .contrib_summary
 {
- width: 98%; 
+ width: 89%; 
 }
 </style>
     <div class="row">
@@ -163,7 +164,8 @@
             <fieldset id="summaries_set" class="field">
                 <legend>Book Summaries</legend>
                 @repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
-                    @textarea(f, '_label -> "", 'class -> "ezb_summary")
+                    @textarea(f, '_label -> "what", 'class -> "ezb_summary")
+                 
                 }
             </fieldset>
             <fieldset id="contribs_set" class="field">
@@ -182,10 +184,18 @@
                             @cf match{
                             case "contrib.Part" => { @displayPart(f) }
                             case _ => { @displayAtomic(cf, f, "contrib_") }
+                            
                             }
+                            <ul class="navigation">
+                <li>quotation</li>
+                </ul>
+                <ul>
+                <li>summary</li>
+                </ul>
                         </div>
                     }.getOrElse{ }
                 }
+                
             </fieldset>
 
             }
