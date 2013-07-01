@@ -53,15 +53,15 @@ object Application extends Controller with ContextProvider {
     )
 
   )
-  
-    val passwordForm = Form(
+
+  val passwordForm = Form(
     tuple(
       "password1" -> text,
       "password2" -> text
     )
 
   )
-  
+
   val passwordrForm = Form(
     tuple(
       "email" -> text,
@@ -79,14 +79,16 @@ object Application extends Controller with ContextProvider {
     implicit request =>
       Ok(views.html.contact(contactForm))
   }
-  
-  def generalerror = Action {implicit request =>
-    Ok(views.html.generalerror())
+
+  def generalerror = Action {
+    implicit request =>
+      Ok(views.html.generalerror())
   }
 
 
-  def forum = Action {implicit request =>
-    Ok(views.html.forum())
+  def forum = Action {
+    implicit request =>
+      Ok(views.html.forum())
   }
 
   def asearch = Action {
@@ -196,7 +198,7 @@ object Application extends Controller with ContextProvider {
             uid =>
               val id = utils.MD5Util.md5Hex(userEmail + (new java.util.Date()).getTime)
               AppDB.storeTemporalLinkId(id, uid.toString)
-println("voic"+id)
+              println("voic" + id)
               // Set up the mail object
               val properties = System.getProperties
               properties.put("mail.smtp.host", "localhost")
@@ -245,8 +247,12 @@ println("voic"+id)
           Ok("contact saved")
         })
   }
-  
-    def changepass = Action {
+
+  /**
+   * Changes the password from the parameter page
+   * @return
+   */
+  def changepass = Action {
     implicit request =>
       import AppDB._
       passwordForm.bindFromRequest.fold(
@@ -255,19 +261,22 @@ println("voic"+id)
           BadRequest(views.html.parameter(errors, ""))
         },
         (passwordform) => {
-         if (passwordform._1 == passwordform._2 && passwordform._1 != "") {
-           UserDO.changePassword(context.user.get.id, passwordform._2)
-           Ok(views.html.parameter(passwordForm, "sucess"))
-         }else{
-           var error = "Mismatch password"
-          
-           Ok(views.html.parameter(passwordForm, error))
+          if (passwordform._1 == passwordform._2 && passwordform._1 != "") {
+            UserDO.changePassword(context.user.get.id, passwordform._2)
+            Ok(views.html.parameter(passwordForm, "sucess"))
+          } else {
+            var error = "Mismatch password"
+
+            Ok(views.html.parameter(passwordForm, error))
           }
         })
   }
 
-  
-      def changepasswo = Action {
+  /**
+   * Changes the password from the "forgot your password" link
+   * @return
+   */
+  def changepasswo = Action {
     implicit request =>
       import AppDB._
       passwordrForm.bindFromRequest.fold(
@@ -276,22 +285,22 @@ println("voic"+id)
           BadRequest(views.html.passwordReset("", errors, ""))
         },
         (passwordrform) => {
-         if (passwordrform._2 != "") {
-           
-           
-           UserDO.getUserId(passwordrform._1).map {
-        uid =>
-         UserDO.changePassword(uid, passwordrform._2)
-      }.getOrElse(
-        Unauthorized("Oops! that is not a valid page!")
-      )
-           
-      
-           Ok(views.html.passwordReset("", passwordrForm, "sucess"))
-         }else{
-           var error = "Mismatch password"
-          
-           Ok(views.html.passwordReset("", passwordrForm, error))
+          if (passwordrform._2 != "") {
+
+
+            UserDO.getUserId(passwordrform._1).map {
+              uid =>
+                UserDO.changePassword(uid, passwordrform._2)
+            }.getOrElse(
+              Unauthorized("Oops! that is not a valid page!")
+            )
+
+
+            Ok(views.html.passwordReset("", passwordrForm, "sucess"))
+          } else {
+            var error = "Mismatch password"
+
+            Ok(views.html.passwordReset("", passwordrForm, error))
           }
         })
   }
@@ -306,7 +315,7 @@ println("voic"+id)
       import AppDB._
       AppDB.getTemporalLinkId(linkId).map {
         uid =>
-          Ok(views.html.passwordReset(uid,passwordrForm, ""))
+          Ok(views.html.passwordReset(uid, passwordrForm, ""))
       }.getOrElse(
         Unauthorized("Ooops! that is not a valid page!")
       )
@@ -316,20 +325,32 @@ println("voic"+id)
    * Displays the user home page
    */
 
-  def home = Action { implicit request =>
-    context.user.map{u =>
-     val listproj = BookDO.getOwnedProjects(u.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
-       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
-       list :+ (proj,ezb) 
-     }.getOrElse{list}}
-      val listpro = BookDO.getProjectsByMember(u.id).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
-       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
-       list :+ (proj,ezb) 
-     }.getOrElse{list}}
-      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(u.id), BookDO.getUserBooks(u.id), UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id),groupForm))
-    }.getOrElse(
-	    Unauthorized("Oops, you are not connected")
-    )
+  def home = Action {
+    implicit request =>
+      context.user.map {
+        u =>
+          val listproj = BookDO.getOwnedProjects(u.id).foldLeft(List[(EzbProject, Ezoombook)]()) {
+            (list, proj) =>
+              BookDO.getEzoomBook(proj.ezoombookId).map {
+                ezb =>
+                  list :+(proj, ezb)
+              }.getOrElse {
+                list
+              }
+          }
+          val listpro = BookDO.getProjectsByMember(u.id).foldLeft(List[(EzbProject, Ezoombook)]()) {
+            (list, proj) =>
+              BookDO.getEzoomBook(proj.ezoombookId).map {
+                ezb =>
+                  list :+(proj, ezb)
+              }.getOrElse {
+                list
+              }
+          }
+          Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(u.id), BookDO.getUserBooks(u.id), UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id), groupForm))
+      }.getOrElse(
+        Unauthorized("Oops, you are not connected")
+      )
 
   }
 
