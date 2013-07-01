@@ -53,6 +53,22 @@ object Application extends Controller with ContextProvider {
     )
 
   )
+  
+    val passwordForm = Form(
+    tuple(
+      "password1" -> text,
+      "password2" -> text
+    )
+
+  )
+  
+  val passwordrForm = Form(
+    tuple(
+      "email" -> text,
+      "password" -> text
+    )
+
+  )
 
   def faq = Action {
     implicit request =>
@@ -180,7 +196,7 @@ object Application extends Controller with ContextProvider {
             uid =>
               val id = utils.MD5Util.md5Hex(userEmail + (new java.util.Date()).getTime)
               AppDB.storeTemporalLinkId(id, uid.toString)
-
+println("voic"+id)
               // Set up the mail object
               val properties = System.getProperties
               properties.put("mail.smtp.host", "localhost")
@@ -194,7 +210,7 @@ object Application extends Controller with ContextProvider {
               message.setText(id)
 
               // And send it
-              Transport.send(message)
+              //Transport.send(message)
 
               Unauthorized("We have sent you a link to reset your password.")
           }.getOrElse {
@@ -229,7 +245,56 @@ object Application extends Controller with ContextProvider {
           Ok("contact saved")
         })
   }
+  
+    def changepass = Action {
+    implicit request =>
+      import AppDB._
+      passwordForm.bindFromRequest.fold(
+        errors => {
+          println("bad:" + errors)
+          BadRequest(views.html.parameter(errors, ""))
+        },
+        (passwordform) => {
+         if (passwordform._1 == passwordform._2 && passwordform._1 != "") {
+           UserDO.changePassword(context.user.get.id, passwordform._2)
+           Ok(views.html.parameter(passwordForm, "sucess"))
+         }else{
+           var error = "Mismatch password"
+          
+           Ok(views.html.parameter(passwordForm, error))
+          }
+        })
+  }
 
+  
+      def changepasswo = Action {
+    implicit request =>
+      import AppDB._
+      passwordrForm.bindFromRequest.fold(
+        errors => {
+          println("bad:" + errors)
+          BadRequest(views.html.passwordReset("", errors, ""))
+        },
+        (passwordrform) => {
+         if (passwordrform._2 != "") {
+           
+           
+           UserDO.getUserId(passwordrform._1).map {
+        uid =>
+         UserDO.changePassword(uid, passwordrform._2)
+      }.getOrElse(
+        Unauthorized("Oops! that is not a valid page!")
+      )
+           
+      
+           Ok(views.html.passwordReset("", passwordrForm, "sucess"))
+         }else{
+           var error = "Mismatch password"
+          
+           Ok(views.html.passwordReset("", passwordrForm, error))
+          }
+        })
+  }
 
   /**
    * Validates that the link is still valid. i.e, hasn't been used or it's not expired
@@ -241,7 +306,7 @@ object Application extends Controller with ContextProvider {
       import AppDB._
       AppDB.getTemporalLinkId(linkId).map {
         uid =>
-          Ok(views.html.passwordReset(uid))
+          Ok(views.html.passwordReset(uid,passwordrForm, ""))
       }.getOrElse(
         Unauthorized("Ooops! that is not a valid page!")
       )
@@ -287,6 +352,6 @@ object Application extends Controller with ContextProvider {
 
   def parameter = Action {
     implicit request =>
-      Ok(views.html.parameter())
+      Ok(views.html.parameter(passwordForm, ""))
   }
 }
