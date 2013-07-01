@@ -21,9 +21,11 @@ GET		/logout				controllers.Application.userLogout
 GET     /changepassword     controllers.Application.changePassword
 POST    /changepassword     controllers.Application.sendPasswordResetLink
 GET     /passwdreset/:t     controllers.Application.passwordReset(t:String)
+POST    /changepass         controllers.Application.changepass
+POST    /changepasswo         controllers.Application.changepasswo
 
 #Parameter
-GET		/parameters			controllers.Application.parameter
+GET		/parameter			controllers.Application.parameter
 
 # Community
 GET	    /groups			    controllers.Community.groups
