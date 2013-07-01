@@ -1,4 +1,4 @@
-@()(implicit session:Session, context:Context)
+@(passwordForm: Form[(String,String)], error : String)(implicit session:Session, context:Context)
 
 @import helper._
 @import utils.MD5Util
@@ -52,6 +52,16 @@
   
   <div class="rightpannel">
 <fieldset>
+    @if(error != ""){
+               
+           
+    <div class="alert alert-info">
+<button type="button" class="close" data-dismiss="alert">x</button>
+ @error
+</div>
+ }else{}
+</br>
+
 <h4>Change Personnal information</h4>
 </br>
 
@@ -60,7 +70,13 @@
 <p>Change your password</p>
 
 </br>
-
+<div>
+            @form(routes.Application.changepass) {
+                @inputPassword(passwordForm("password1"), '_label -> <p>enter your new password</p>)
+                @inputPassword(passwordForm("password2"), '_label -> <p>enter your new password again</p>)
+                <input type="submit"  value="submit">
+            }
+        </div>
 </br>
 </br>
 
@@ -82,6 +98,9 @@
   <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Fermer</a> </div>
 </div>
 <a class="btn btn-primary" data-toggle="modal" href="#infos" >Delete my account</a>
+</br>
+</br>
+</br>
 
    </fieldset> 
     </div>
