@@ -268,4 +268,26 @@ object EzoomBooks extends Controller with ContextProvider{
     val ezbuuid = UUID.fromString(ezbId)
     Ok(views.html.read())
   }
+  
+  /**
+  def addezbtrl(ezbId:String) = Action {implicit request =>
+      BookDO.getEzoomBook(ezbId).map {
+        abook =>
+         readinglist = readinglist +: abook
+      }.getOrElse(
+        Unauthorized("Oops! that is not a valid page!")
+      )
+  }
+  */
+  
+   /**
+  def addezbtf(ezbId:String) = Action {implicit request =>
+      BookDO.getEzoomBook(ezbId).map {
+        abook =>
+         favorite = favorite +: abook
+      }.getOrElse(
+        Unauthorized("Oops! that is not a valid page!")
+      )
+  }
+  */
 }

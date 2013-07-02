@@ -73,6 +73,8 @@ POST    /ezlayer/load               controllers.EzoomBooks.loadEzoomLayer
 POST    /ezlayer/save               controllers.EzoomBooks.saveEzoomlayer
 GET     /ezlayer/edit/:bid    controllers.EzoomBooks.ezoomLayerEdit(bid:String)
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
+#POST    /addezbtrl/:id              controllers.EzoomBooks.addezbtrl(id:String)
+#POST    /addezbtf/:id              controllers.EzoomBooks.addezbtf(id:String)
 
 #error
 GET     /errorlogin                 controllers.Application.errorlogin
