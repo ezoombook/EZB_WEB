@@ -43,7 +43,7 @@
         <th>Available Levels</th>
         <th>Popularity</th>
         @if(!context.user.isEmpty){
-            <th></th>
+            <th></th><th></th>
         }
     </tr>
     <tr>
@@ -57,7 +57,8 @@
             @if(!context.user.isEmpty && context.user.get.id.toString.equals(g.ezoombook_owner)){
                 <td><a href="/ezlayer/edit/@g.ezoombook_id" class="btn" =>Edit</a></td>
             }else{
-           <td></td>
+           <td><a href="/#" class="btn" =>favorite</a></td>
+           <td><a href="/#" class="btn" =>readinglist</a></td>
             }
          </tr>
         }

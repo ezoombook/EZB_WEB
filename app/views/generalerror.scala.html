@@ -1,17 +1,53 @@
 @()(implicit session:Session, context:Context)
 @main("error"){
 
+
 <style>
 .sharperGlow {
     text-shadow: 1px 0px 0px #686868, 1px 1px 0px #686868, 0px 1px 0px #686868, 
     -1px 1px 0px #686868, -1px 0px 0px #686868, -1px -1px 0px #686868, 
     0px -1px 0px #686868, 1px -1px 0px #686868, 1px 4px 5px #aeaeae;
 }
+.container
+{
+cursor:url(@routes.Assets.at("/images/torch.jpeg")), pointer;
+}
+
 </style>
 
 
 <div class="sharperGlow">
 </br></br></br>
-<center><p><h1>Oups it's kinda 404</h1></p><center>
+<center><p><h1>Wow it's burning 404</h1></p><center>
 </div>
+</br></br></br></br></br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img border="0" style="position:fixed" id="tilight" src=@routes.Assets.at("/images/tilight.png") width="20%" alt="eZoomBook">
+</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
+<script src=@routes.Assets.at("javascripts/jquery-1.9.0.min.js")></script>
+<script>
+        //will move the cat when mouse over it
+        $(function() {
+            var startTime = new Date().getTime();  
+            var elapsedTime = 0;  
+            // Dimensions de la fenêtre
+            var largeur = ($(window).width()) - 349;
+            var hauteur = ($(window).height());
+            
+            $("#tilight").mousemove(function annoyingMove() {
+                var x = Math.floor(Math.random()*largeur);
+                var y = Math.floor(Math.random()*hauteur);
+                $('#tilight').animate({
+                    left : x,
+                    top : y
+                }, 500);
+            });
+            
+            $("#tilight").click(function(){
+                elapsedTime = new Date().getTime() - startTime;  
+                startTime = new Date().getTime();  
+                alert('Félicitation, vous avez mis environ '+Math.floor(elapsedTime/1000)+' secondes pour bruler le navet!');
+            });
+        });
+</script>
+</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
 }

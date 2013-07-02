@@ -22,7 +22,18 @@ function createField(fclass, ftype, name, name2, set){
                 .attr("name", name+"["+i+"]"+n2)
                 .attr("class", fclass);
 
-    $("#"+set).append(newField);
+   function contribDiv(){ return $("<div>").attr("class", "contrib"); }
+     var dav = contribDiv();
+     dav.append(newField);
+     dav.append($("<input>")
+                .attr("type","button")
+                .attr("value","Delete")
+                .click(function(){
+             dav.remove()
+            })
+                
+            );
+     $("#"+set).append(dav);
 }
 
 function contribField(ftype, fclass, nav_names, nav_index){
@@ -44,29 +55,43 @@ function genName(names, indexes, left, right){
 
 function addContrib(ctype){
     var i = $(".contrib").length;
-    var par_nav = ["part_contribs",["contrib_type","contrib_content"]];
-    var ezl_nav = ["ezoomlayer_contribs",["contrib_content","part_title","contrib_type",par_nav]];
 
-    var sum_nav = [ezl_nav[0],ezl_nav[1][0]];
-    var part_sum_nav = [ezl_nav[0],par_nav[0],par_nav[1][1]];
-    var part_titl_nav = [ezl_nav[0],ezl_nav[1][1]];
+    //var par_nav = ["part_contribs",["contrib_type","contrib_content"]];
+    //var ezl_nav = ["ezoomlayer_contribs",["contrib_content","part_title","contrib_type",par_nav]];
+
+    var sum_nav = ["ezoomlayer_contribs","contrib_content"];  //[ezl_nav[0],ezl_nav[1][0]];
+    var ezl_contrib_type_nav = ["ezoomlayer_contribs","contrib_type"];
+    var part_titl_nav = ["ezoomlayer_contribs","part_title"]; //[ezl_nav[0],ezl_nav[1][1]];
+    var part_contrib_cont_nav = ["ezoomlayer_contribs","part_contribs","contrib_content"];
+    var part_contrib_type_nav = ["ezoomlayer_contribs","part_contribs","contrib_type"];
+
+//ezoomlayer_contribs_1__part_contribs_0__contrib_content
 
     function contribDiv(){ return $("<div>").attr("class", "contrib"); }
 
-    var contrib = (function(){if (ctype == "summary"){
+    var contrib = (function(){if (ctype == "summary"){ //If contrib.type is Summary
             var div = contribDiv();
             div.append(contribField("textarea","contrib_summary", sum_nav, [i]));
-            div.append(contribField("input","", [ezl_nav[0],ezl_nav[1][2]], [i])
+            div.append(contribField("input","", ezl_contrib_type_nav, [i])
                         .attr("type", "hidden")
                         .attr("value","contrib.Summary"));
+             div.append($("<input>")
+                .attr("type","button")
+                .attr("value","Delete")
+                .click(function(){
+              div.remove()
+            })
+                
+               
+            );
             return div;
-        }else{
+        }else{     //Otherwise contrib.type is Part
             var div = contribDiv();
             var fieldset = $("<fieldset>")
                 .attr("id", "part_fieldset_"+i)
                 .attr("class", "part_field");
 
-            fieldset.append(contribField("input","",[ezl_nav[0],par_nav[1][0]],[i])
+            fieldset.append(contribField("input","",ezl_contrib_type_nav,[i])
                         .attr("type","hidden")
                         .attr("value","contrib.Part"));
 
@@ -80,18 +105,48 @@ function addContrib(ctype){
                     })
             );
 
+            
+            
+            
+            
             fieldset.append($("<input>")
                 .attr("type","button")
                 .attr("class","addquote")
                 .attr("id","btnAddQuote_"+i)
                 .attr("value","+")
                 .click(function(){
+                                
+                                
+                                
+                                
+                                
+                                 var dev = contribDiv();
                     var j = $("#part_fieldset_"+i).children(".quote").length;
-                    $("#part_fieldset_"+i).append(contribField("textarea","quote",part_sum_nav,[i,j]));
-                    $("#part_fieldset_"+i).append(contribField("input","quote",[ezl_nav[0],par_nav[0],par_nav[1][0]])
-                                                    .attr("type","hidden"))
+                    dev.append(contribField("textarea","quote",part_contrib_cont_nav,[i,j]));
+                    dev.append(contribField("input","quote",part_contrib_type_nav,[i,j])
+                                                    .attr("type","hidden"));
+                    
+              dev.append($("<input>")
+                .attr("type","button")
+                .attr("value","Delete")
+                .click(function(){
+             dev.remove();
+            
+            })  
+            );
+              $("#part_fieldset_"+i).append(dev);
                 })
             )
+            
+              fieldset.append($("<input>")
+                .attr("type","button")
+                .attr("value","Delete")
+                .click(function(){
+               fieldset.remove()
+            })  
+            );
+          
+            
             div.append(fieldset);
             return div;
         }

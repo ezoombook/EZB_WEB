@@ -123,7 +123,7 @@ function toggle(divtag){
                     </tr>
  @for(g<-listezb){
                         <tr>
-                            <td>@g.ezoombook_title</td><td><a href="/ezlayer/edit/@g.ezoombook_id" class="btn" =>Edit</a></td>
+                            <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td><td><a href="/ezlayer/edit/@g.ezoombook_id" class="btn" =>Edit</a></td>
                            
                            
                         </tr>
@@ -237,8 +237,8 @@ function toggle(divtag){
                     </tr>
  @for(g<-listmyb){
                         <tr>
-                            <td>@g.bookTitle</td>
-                           
+                            <td><a href="/books/@g.bookId">@g.bookTitle</a></td>
+                            <td><a href="/bookreedit/@g.bookId" class="btn" =>Edit</a></td>
                            
                         </tr>
                         }
