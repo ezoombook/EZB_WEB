@@ -18,10 +18,19 @@ object BookDO{
 
   def newBook(byteArray: Array[Byte]):Book = EpubLoader.loadBook(Left(new ByteArrayInputStream(byteArray)))
 
-  def newBook(file: File):Book = EpubLoader.loadBook(Right(new ZipFile(file)))
+  def newBook(file: File):Book = {
+    val ziped = new ZipFile(file)
+    Cache.set("epub",ziped,0)
+    EpubLoader.loadBook(Right(ziped))
+  }
 
   def saveBook(book:Book){
-    AppDB.cdal.saveBook(book)
+    Cache.getAs[ZipFile]("epub").map{epub =>
+      AppDB.cdal.saveBookResources(book.bookId, epub)
+      AppDB.cdal.saveBook(book)
+    }.getOrElse{
+      println("[ERROR] Could not save resources for loaded book. Cached epub not found")
+    }
   }
 
   def saveBookParts(book:Book){
@@ -76,6 +85,10 @@ object BookDO{
     AppDB.cdal.getBook(UUID.fromString(bookId))
   }
 
+  def getBookPart(partId:String):Option[BookPart] = {
+    AppDB.cdal.getBookPart(partId)
+  }
+
   /**
    * Creates a new project
    */
@@ -113,6 +126,10 @@ object BookDO{
 
   def getBookCover(bookId:UUID):Array[Byte] = {
     AppDB.cdal.getBookCover(bookId)
+  }
+
+  def getBookResource(bookId:UUID,resPath:String):Array[Byte] = {
+    Cache.getOrElse(bookId+":"+resPath)(AppDB.cdal.getBookResource(bookId,resPath))
   }
 
   /**

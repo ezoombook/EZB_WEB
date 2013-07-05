@@ -30,11 +30,20 @@ object EpubExample extends App{
 
   val bookId = UUID.randomUUID()
 
-  val parts:List[BookPart] = (for(r <- epub.getContents) yield {
-    val partId = bookId +":"+ UUID.randomUUID
-    //    bdal.addPart(partId, r.getData)
-    new BookPart(partId, bookId, r.getData)
-  }).toList
+  println("Resources: ")
+  for(r <- epub.getResources.getAll){
+    println(r)
+  }
+  println("Contents: ")
+  for(r <- epub.getContents){
+    println(r)
+  }
+
+//  val parts:List[BookPart] = (for(r <- epub.getContents) yield {
+//    val partId = bookId +":"+ UUID.randomUUID
+//    //    bdal.addPart(partId, r.getData)
+//    new BookPart(partId, r.getData)
+//  }).toList
 
   implicit class optionOps[+A](list: java.util.List[A]){
     def getOrElse[B >: A](index:Int, default: => B):B = {

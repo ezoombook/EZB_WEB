@@ -13,7 +13,7 @@
                 "function (doc, meta) {
                    if(doc.projectId && doc.projectTeam){
                      for(i=0; i<doc.projectTeam.length; i++){
-                        emit(doc.projectTeam[i], null)
+                        emit(doc.projectTeam[i].userId, null)
                      }
                    }
                  }"

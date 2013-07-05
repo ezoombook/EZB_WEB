@@ -5,6 +5,7 @@ import books.dal.{Book, BookPart}
 import java.util.UUID
 import java.io.InputStream
 import nl.siegmann.epublib.epub.EpubReader
+import nl.siegmann.epublib.domain.Resource
 import scala.collection.JavaConversions._
 import java.util.zip.ZipFile
 
@@ -17,7 +18,7 @@ object EpubLoader{
     val bookId = UUID.randomUUID()
 
     val parts:List[BookPart] = (for(r <- epub.getContents) yield {
-      new BookPart(bookId +":"+ UUID.randomUUID, bookId, r.getData)
+      new BookPart(bookId +":"+ UUID.randomUUID, r.getData)
     }).toList
 
     new Book(bookId, 
@@ -35,6 +36,10 @@ object EpubLoader{
   def readEpub(in: Either[InputStream,ZipFile]) = {
     val epubReader = new EpubReader()
     in.fold(epubReader.readEpub(_), epubReader.readEpub(_))
+  }
+
+  def getResources(in: ZipFile):List[Resource] = {
+    readEpub(Right(in)).getResources.getAll.toList
   }
 
   implicit class optionOps[+A](list: java.util.List[A]){

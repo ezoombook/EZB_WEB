@@ -1,6 +1,6 @@
 package books.dal
 
-import books.util.UUIDjsParser
+import books.util.{UUIDjsParser, EpubLoader}
 import play.api.libs.json._
 import play.api.libs.functional._
 
@@ -11,6 +11,7 @@ import scala.collection.JavaConversions._
 
 import com.couchbase.client.CouchbaseClient
 import com.couchbase.client.protocol.views.Query
+import java.util.zip.ZipFile
 
 case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
@@ -34,7 +35,7 @@ case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLa
                           ", summary= " + bookSummary
 }
 
-case class BookPart(val partId:String, val bookId:UUID, val content:Array[Byte]){}
+case class BookPart(val partId:String, val content:Array[Byte]){}
 
 object Book extends UUIDjsParser{
   import play.api.libs.functional.syntax._
@@ -45,7 +46,7 @@ object Book extends UUIDjsParser{
 
   implicit val BookPartReads:Reads[BookPart] = new Reads[BookPart]{
     def reads(jval: JsValue) = jval match{
-      case JsString(s) => JsSuccess(new BookPart(s, null, null))
+      case JsString(s) => JsSuccess(new BookPart(s, Array[Byte]()))
       case _ => JsError("Expected: id. Found: " + jval)
     }
   }
@@ -82,6 +83,12 @@ trait BookComponent{
 
   def saveBookPart(part:BookPart)(implicit couchclient:CouchbaseClient){
     couchclient.set("part:"+part.partId, 0, part.content)
+  }
+
+  def saveBookResources(bookId:UUID, zipedFile:ZipFile)(implicit couchclient:CouchbaseClient){
+    EpubLoader.getResources(zipedFile).foreach{r =>
+      couchclient.set(bookId+":"+r.getHref, 0, r.getData)
+    }
   }
 
   /**
@@ -125,10 +132,18 @@ trait BookComponent{
           None
         },
         book => {
-	  val cover = getBookCover(bookId)	  
-	  Some(book.setCover(cover))
+	        val cover = getBookCover(bookId)
+	        Some(book.setCover(cover))
         }  
       )
+      case _ => None
+    }
+  }
+
+  def getBookPart(partId:String)(implicit couchclient:CouchbaseClient):Option[BookPart] = {
+    val key = "part:"+partId
+    couchclient.get(key) match {
+      case content:Array[Byte] => Some(BookPart(partId, content))
       case _ => None
     }
   }
@@ -260,4 +275,15 @@ trait BookComponent{
       case _ => Array[Byte]()
     }
   }
+
+  def getBookResource(bookId:UUID, resPath:String)(implicit couchclient:CouchbaseClient):Array[Byte] = {
+    val key = bookId + ":" + resPath
+    couchclient.get(key) match{
+      case arr:Array[Byte] => arr
+      case _ =>
+        println(s"[ERROR] Resource with key $key not found")
+        Array[Byte]()
+    }
+  }
+
 }
