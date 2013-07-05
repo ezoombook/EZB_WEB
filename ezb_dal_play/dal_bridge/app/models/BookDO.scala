@@ -33,11 +33,11 @@ object BookDO{
     }
   }
 
-  def saveBookParts(book:Book){
-    for(bp <- book.bookParts){
-      AppDB.cdal.saveBookPart(bp)
-    }
-  }
+//  def saveBookParts(book:Book){
+//    for(bp <- book.bookParts){
+//      AppDB.cdal.saveBookPart(bp)
+//    }
+//  }
 
   def saveEzoomBook(ezb:Ezoombook){
     AppDB.cdal.saveEzoomBook(ezb)

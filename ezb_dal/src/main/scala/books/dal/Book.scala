@@ -15,11 +15,11 @@ import java.util.zip.ZipFile
 
 case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
-	         bookSummary:String, bookCover: Array[Byte], bookParts:List[BookPart]){
+	         bookSummary:String, bookCover: Array[Byte], bookParts:Map[String,String]){
 
   def this(bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
-	         bookSummary:String, bookParts:List[BookPart]) = this(UUID.randomUUID, bookTitle, bookAuthors, bookLanguages, 
+	         bookSummary:String, bookParts:Map[String,String]) = this(UUID.randomUUID, bookTitle, bookAuthors, bookLanguages,
 		 bookPublishers, bookPublishedDates, bookTags,
 	         bookSummary, Array[Byte](), bookParts)
 
@@ -65,7 +65,7 @@ object Book extends UUIDjsParser{
     (__ \ "bookPublishedDates").format[List[String]] ~
     (__ \ "bookTags").format[List[String]] ~
     (__ \ "bookSummary").format[String] ~
-    (__ \ "bookParts").format[List[BookPart]]
+    (__ \ "bookParts").format[Map[String,String]]
   )((bid, title, authors, langs, publs, pubdats, tags, summ, parts) =>
       Book(bid, title, authors, langs, publs, pubdats, tags, summ, Array[Byte](), parts),
     book => (book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages,
@@ -119,7 +119,7 @@ trait BookComponent{
       val summary = js(3).as[String]
       val cover = getBookCover(bookId)
 
-      Book(bookId,row.getKey(),authors,Nil,Nil,publishedDates,tags,summary,cover,Nil)
+      Book(bookId,row.getKey(),authors,Nil,Nil,publishedDates,tags,summary,cover,Map[String,String]())
     }.toList
   }
 
@@ -140,6 +140,7 @@ trait BookComponent{
     }
   }
 
+  //TODO Change to get resource....
   def getBookPart(partId:String)(implicit couchclient:CouchbaseClient):Option[BookPart] = {
     val key = "part:"+partId
     couchclient.get(key) match {

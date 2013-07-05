@@ -17,9 +17,10 @@ object EpubLoader{
 
     val bookId = UUID.randomUUID()
 
-    val parts:List[BookPart] = (for(r <- epub.getContents) yield {
-      new BookPart(bookId +":"+ UUID.randomUUID, r.getData)
-    }).toList
+    val parts:Map[String,String] = (for(r <- epub.getContents) yield {
+      //new BookPart(bookId +":"+ UUID.randomUUID, r.getData)
+      (bookId+":"+r.getHref) -> r.getTitle
+    }).toMap
 
     new Book(bookId, 
 	      /* Title  */ meta.getFirstTitle(),
