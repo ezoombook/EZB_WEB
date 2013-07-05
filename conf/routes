@@ -55,6 +55,12 @@ GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 GET	    /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
 GET	    /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
+GET     /bookread/:bid/:index    controllers.EzoomBooks.readLevelZero(bid:String,index:Int)
+GET     /bookpart/:bid/:pid      controllers.EzoomBooks.bookPart(bid:String,pid:String)
+
+# Book resources
+GET     /bookread/:bid/*file    controllers.EzoomBooks.bookResource(bid:String,file)
+
 # Tutorial
 GET	    /tutorial           controllers.Application.tutorial
 
@@ -75,6 +81,8 @@ POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:St
 GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
 GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid,lid)
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
+
+POST    /quote                      controllers.EzoomBooks.addQuote
 
 #error
 GET     /errorlogin                 controllers.Application.errorlogin

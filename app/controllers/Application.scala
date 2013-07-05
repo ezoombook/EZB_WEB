@@ -198,7 +198,7 @@ object Application extends Controller with ContextProvider {
             uid =>
               val id = utils.MD5Util.md5Hex(userEmail + (new java.util.Date()).getTime)
               AppDB.storeTemporalLinkId(id, uid.toString)
-              println("voic" + id)
+              println("voic: " + id)
               // Set up the mail object
               val properties = System.getProperties
               properties.put("mail.smtp.host", "localhost")

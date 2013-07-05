@@ -35,6 +35,12 @@
     }
 }
 
+@levelMap(body: (Map[Int,String]) => Html ) = {
+    @defining(Map(0->"Higly Detailed", 1->"Fairly Detailed", 2->"Fairly Abridged", 3->"Highly Abridged")){lmap =>
+        @body(lmap)
+    }
+}
+
 @displayEzbInfo(ezb:Ezoombook) = {
     <dl>
         <dt>Title:</dt><dd>@ezb.ezoombook_title</dd>
@@ -43,11 +49,12 @@
         <dt>Layers</dt>
         <ul>
         @ezb.ezoombook_layers.map{layer =>
-            @defining(Map(0->"Higly Detailed", 1->"Fairly Detailed", 2->"Fairly Abridged", 3->"Highly Abridged")){lmap =>
+            @levelMap{lmap =>
             <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer">@lmap.get(ezb.ezoombook_layers.indexOf(layer)).getOrElse("undef")</a></li>
             }
         }
         </ul>
+        <dt><a href="/ezb/edit/@ezb.ezoombook_id">Add a layer...</a></dt><dd></dd>
     </dl>
 }
 
@@ -146,8 +153,10 @@
                     <input type="submit" value="Save eZoomLayer">
                 </div>
                 <div>
-                    @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 5) yield(i.toString -> i.toString),
-                    '_label -> "Level:")
+                    @levelMap{lmap =>
+                        @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString -> lmap(i-1)),
+                        '_label -> "Level:")
+                    }
                 </div>
                 <div>
                     @checkbox(ezlForm("ezoomlayer_locked"), '_label -> "Locked")
@@ -164,7 +173,7 @@
             <fieldset id="summaries_set" class="field">
                 <legend>Book Summaries</legend>
                 @repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
-                    @textarea(f, '_label -> "what", 'class -> "ezb_summary")
+                    @textarea(f, '_label -> "", 'class -> "ezb_summary")
                  
                 }
             </fieldset>
@@ -186,12 +195,6 @@
                             case _ => { @displayAtomic(cf, f, "contrib_") }
                             
                             }
-                            <ul class="navigation">
-                <li>quotation</li>
-                </ul>
-                <ul>
-                <li>summary</li>
-                </ul>
                         </div>
                     }.getOrElse{ }
                 }

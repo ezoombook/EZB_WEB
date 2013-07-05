@@ -1,0 +1,111 @@
+@(book:Book,partIndex:Int,partContent:Html)(implicit context:Context)
+
+@import helper._
+
+@script = {
+<script src="@routes.Assets.at("javascripts/masha.js")" ></script>
+<script type="text/javascript">//<![CDATA[
+    var bookId = "@book.bookId";
+    var layerId = "234";
+    var userId = "@context.user.get.id";
+
+    function getSelected() {     //:string
+        var t = '';
+        if (window.getSelection) {
+            t = window.getSelection().toString();
+        } else if (document.getSelection) {
+            t = document.getSelection().toString();
+        } else if (document.selection) {
+            t = document.selection.createRange().text.toString();
+        }
+        return t;
+    };
+
+    function saveQuote(e){
+        var selRange = MaSha.instance.getLastRange();
+
+        if(selRange){
+            var quote = MaSha.instance.deserializeRange(selRange).cloneContents().textContent;
+            console.log("Saving <<"+quote+">>");
+            var quoteMsg = {"bookid":bookId, "layerid":layerId, "content":quote, "range":selRange};
+
+            $.ajax({
+                type:"POST",
+                url:"@routes.EzoomBooks.addQuote",
+                data:JSON.stringify(quoteMsg),
+                contentType:"application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data){
+                    console.log("Quote saved: " + data);
+                },
+                failure: function(xhr,ajaxOptions,trownErr){
+                    console.log("Error: " + xhr.responseText);
+                }
+            });
+        }else{
+            console.log('Ooops it`s an empty string');
+        }
+    }
+
+    $(document).ready(function() {
+        MaSha.instance = new MaSha({
+                'selectable': 'reader',
+                //'select_message':  'quote-saved-msg',
+                'validate': true,
+                'onMark': saveQuote,
+                'marker': 'marker-bar'});
+
+        MaSha.prototype.getLastRange = function(){
+            for(var k in this.ranges) {}
+            return this.ranges[k]; //this.deserializeRange(this.ranges[k]);
+        }
+    });
+    //]]>
+</script>
+}
+
+@main(book.bookTitle, script){
+<style>
+#pop{
+    background-color:   #fff;
+    border:             1px solid  1px solid #ccc;
+    border:             1px solid rgba(0,0,0,.2);
+                        .border-radius(6px);
+                        .box-shadow(0 5px 10px rgba(0,0,0,.2));
+}
+</style>
+
+<h1>@book.bookTitle</h1>
+
+<div id="pop" style="display:none">
+    <ul role="menu">
+        <li><a href="#" onClick='saveQuote()'>Save quote</a></li>
+        <li>Insert summary</li>
+        <li>Cancel</li>
+    </ul>
+</div>
+<div id="quote-saved-msg" style="display:none">
+    <div class="upmsg-selectable-inner">
+        <a class="btn close" data-dismiss="alert">&times;</a>
+        <p>Your selection has been saved to the eZoomBook.</p>
+    </div>
+</div>
+<a id="marker-bar" href="#" class="masha-marker-bar">
+    <span class="masha-marker" title="mark">Select Quote</span>
+</a>
+<div class="row">
+    <div class="span1">
+        @if(partIndex > 0){
+        <a href="@routes.EzoomBooks.readLevelZero(book.bookId.toString,partIndex-1)"><i class="icon-chevron-left"></i></a>
+        }
+    </div>
+    <div class="span10" id="reader">
+        @partContent
+    </div>
+    <div class="span1">
+        @if(partIndex < book.bookParts.size-1){
+        <a href="@routes.EzoomBooks.readLevelZero(book.bookId.toString,partIndex+1)"><i class="icon-chevron-right"></i></a>
+        }
+    </div>
+</div>
+}

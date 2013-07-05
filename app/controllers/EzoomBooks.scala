@@ -18,6 +18,7 @@ import play.api.mvc._
 import play.api.data._
 import Forms._
 import play.api.libs.json.Json
+import play.api.libs.json.Reads
 import org.apache.commons.io.IOUtils
 
 /**
@@ -299,6 +300,66 @@ object EzoomBooks extends Controller with ContextProvider{
   def readEzb(ezbId:String) = Action {implicit request =>
     val ezbuuid = UUID.fromString(ezbId)
     Ok(views.html.read())
+  }
+
+  def bookPart(bookId:String,partId:String) = Action{implicit request =>
+    BookDO.getBookPart(bookId+":"+partId).map{bpart =>
+      //TODO get extension corresponding to epub format : play.api.libs.MimeTypes.forExtension("txt")
+      Ok(bpart.content).as(play.api.http.MimeTypes.HTML)
+    }.getOrElse{
+      NotFound("Oops! We couldn't find the chapter you are looking for")
+    }
+  }
+
+  def bookResource(bookId:String, file:String) = Action{implicit request =>
+    val mtype = file.split('.').lastOption match{
+      case Some(ext) => play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY)
+      case _ => play.api.http.MimeTypes.BINARY
+    }
+    val res = BookDO.getBookResource(UUID.fromString(bookId),file)
+
+    if (res.size > 0){
+      Ok(res).as(mtype)
+    }else{
+      Redirect(routes.Assets.at("/images/bookcover.png"))
+    }
+  }
+
+  def readLevelZero(bookId:String,partIndex:Int) = Action{implicit request =>
+    BookDO.getBook(bookId).map{book =>
+      val partId = book.bookParts(partIndex).partId
+      BookDO.getBookPart(partId).map{bpart =>
+        Ok(views.html.bookread(book,partIndex,play.api.templates.Html(new String(bpart.content))))
+      }.getOrElse{
+        NotFound("Oops! We couldn't find the chapter you are looking for")
+      }
+    }.getOrElse{
+      NotFound("Oops! We couldn't find the chapter you are looking for")
+    }
+  }
+
+  //TODO define in special BodyParser
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
+
+  implicit val quoteReads: Reads[(String, String, String, String)] = (
+    (__ \ 'bookid).read[String] ~
+      (__ \ 'layerid).read[String] ~
+      (__ \ 'content).read[String] ~
+      (__ \ 'range).read[String]
+    ) tupled
+
+  def addQuote = Action(parse.json){ request =>
+    request.body.validate[(String,String,String,String)].map{
+      case (bookId,layerId,content,range) =>
+        println(s"received: $bookId, $layerId, $content at $range")
+        Ok("Quote saved!")
+    }.recoverTotal{
+      e => {
+        println("[ERROR] Detected error:"+ JsError.toFlatJson(e))
+        BadRequest("Detected error:"+ JsError.toFlatJson(e))
+      }
+    }
   }
 
   def withEzoomBook(ezbId:String)(block:(Ezoombook) => Result):Result = {
