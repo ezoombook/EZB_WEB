@@ -9,18 +9,6 @@
     var layerId = "234";
     var userId = "@context.user.get.id";
 
-    function getSelected() {     //:string
-        var t = '';
-        if (window.getSelection) {
-            t = window.getSelection().toString();
-        } else if (document.getSelection) {
-            t = document.getSelection().toString();
-        } else if (document.selection) {
-            t = document.selection.createRange().text.toString();
-        }
-        return t;
-    };
-
     function saveQuote(e){
         var selRange = MaSha.instance.getLastRange();
 
@@ -93,6 +81,7 @@
 <a id="marker-bar" href="#" class="masha-marker-bar">
     <span class="masha-marker" title="mark">Select Quote</span>
 </a>
+<!-- Reader -->
 <div class="row">
     <div class="span1">
         @if(partIndex > 0){
@@ -107,5 +96,5 @@
         <a href="@routes.EzoomBooks.readLevelZero(book.bookId.toString,partIndex+1)"><i class="icon-chevron-right"></i></a>
         }
     </div>
-</div>
+</div> <!-- Reader End -->
 }
