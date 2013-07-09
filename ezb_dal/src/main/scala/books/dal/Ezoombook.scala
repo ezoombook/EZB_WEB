@@ -57,6 +57,9 @@ trait Contrib{
   def contrib_status: Status.Value
   def contrib_locked: Boolean
   def contrib_content: String
+
+//  override def toString = s""" contrib_type : $contrib_type"""
+
 }
 
 case class AtomicContrib(val contrib_id:String,
@@ -67,12 +70,15 @@ case class AtomicContrib(val contrib_id:String,
                          val part_id: Option[String],
                          val contrib_status: Status.Value,
                          val contrib_locked: Boolean,
-                         val contrib_content: String) extends Contrib
+                         val contrib_content: String) extends Contrib 
+
+//  override def toString = super.toString + s"""contrib_content : $contrib_content"""
+
 
 object AtomicContrib extends UUIDjsParser{
   import play.api.libs.functional.syntax._
 
-  implicit val contribFmt: Format[AtomicContrib] = (
+  implicit val contribFmt:Format[AtomicContrib] = (
     (__ \ "contrib_id").format[String] ~
     (__ \ "contrib_type").format[String] ~
     (__ \ "ezoomlayer_id").format[UUID] ~
@@ -95,12 +101,48 @@ case class EzlPart(val contrib_id:String,
               part_title: String,
               part_summary: Option[String],
               part_contribs: List[AtomicContrib]) extends Contrib{
+
   val contrib_type = "contrib.Part"
   val contrib_content = ""
+
 }
+//  override def toString = super.toString + (s"""part_contribs: ${part_contribs.mkString("[","\n","]")}""")
+
 
 object EzlPart extends UUIDjsParser{
-  implicit val fmt = Json.format[EzlPart]
+//  implicit val fmt = Json.format[EzlPart]
+  import play.api.libs.functional.syntax._
+
+  implicit val fmt = new Format[EzlPart]{
+    def reads(js:JsValue) = Json.fromJson(js)((
+      (__ \ "contrib_id" ).read[String] ~
+        (__ \ "ezoomlayer_id" ).read[UUID] ~
+        (__ \ "ezoombook_id").read[UUID] ~
+        (__ \ "user_id" ).read[UUID] ~
+        (__ \ "part_id" ).readNullable[String] ~
+        (__ \ "contrib_status" ).read[Status.Value] ~
+        (__ \ "contrib_locked" ).read[Boolean] ~
+        (__ \ "part_title" ).read[String] ~
+        (__ \ "part_summary" ).readNullable[String] ~
+        (__ \ "part_contribs" ).read[List[AtomicContrib]]
+      )(EzlPart.apply _))
+
+    def writes(ezlPart:EzlPart) = Json.toJson(ezlPart)((
+      (__ \ "contrib_id" ).write[String] ~
+      (__ \ "contrib_type" ).write[String] ~
+      (__ \ "ezoomlayer_id" ).write[UUID] ~
+      (__ \ "ezoombook_id").write[UUID] ~
+      (__ \ "user_id" ).write[UUID] ~
+      (__ \ "part_id" ).writeNullable[String] ~
+      (__ \ "contrib_status" ).write[Status.Value] ~
+      (__ \ "contrib_locked" ).write[Boolean] ~
+      (__ \ "part_title" ).write[String] ~
+      (__ \ "part_summary" ).writeNullable[String] ~
+      (__ \ "part_contribs" ).write[List[AtomicContrib]]
+    )((p => (p.contrib_id,p.contrib_type,p.ezoomlayer_id,p.ezoombook_id,p.user_id,
+                  p.part_id,p.contrib_status,p.contrib_locked,p.part_title,p.part_summary,p.part_contribs))))
+
+  }
 }
 
 case class EzoomLayer(ezoomlayer_id: UUID,
@@ -110,7 +152,18 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoomlayer_status: Status.Value,
                       ezoomlayer_locked: Boolean,
                       ezoomlayer_summaries:List[String],
-                      ezoomlayer_contribs: List[Contrib])
+                      ezoomlayer_contribs: List[Contrib]) {
+
+  override def toString =
+    s"""sezoomlayer_id : $ezoomlayer_id
+        ezoombook_id : $ezoombook_id
+        ezoomlayer_level : $ezoomlayer_level
+        ezoomlayer_owner : $ezoomlayer_owner
+        ezoomlayer_status : $ezoomlayer_status
+        ezoomlayer_locked : $ezoomlayer_locked
+        ezoomlayer_summaries : $ezoomlayer_summaries
+        ezoomlayer_contribs : ${ezoomlayer_contribs.mkString("[","\n","]")}"""
+}
 
 object EzoomLayer extends UUIDjsParser{
   import play.api.libs.functional.syntax._

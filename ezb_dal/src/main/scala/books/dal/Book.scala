@@ -207,7 +207,8 @@ trait BookComponent{
     }.toList
   }
 
-  def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient){
+  def saveLayer(ezl:EzoomLayer)(implicit couchclient:CouchbaseClient):Option[Ezoombook] = {
+    //Save the layer
     val key = "ezoomlayer:"+ezl.ezoomlayer_id
     couchclient.set(key, 0, Json.toJson(ezl).toString())
 
@@ -217,6 +218,7 @@ trait BookComponent{
       case cas:CASValue[_] => Json.parse(cas.getValue().asInstanceOf[String]).validate[Ezoombook].fold(
         err => {
           println("[WARNING] Could not update ezoombok associated to ezoomlayer: " + err)
+          None
         },
         ezb => {
           if(!ezb.ezoombook_layers.contains(ezl.ezoomlayer_id.toString)){
@@ -225,9 +227,12 @@ trait BookComponent{
               ezb.ezoombook_title,ezb.ezoombook_public,ezb.ezoombook_layers :+ ezl.ezoomlayer_id.toString)
             couchclient.cas(ezbKey, cas.getCas, Json.toJson(newEzb).toString())
           }
+          Some(ezb)
         }
       )
-      case _ => println("[WARNING] Oops there is no ezoombook associated to this ezoomlayer")
+      case _ =>
+        println("[WARNING] Oops there is no ezoombook associated to this ezoomlayer")
+        None
     }
   }
 

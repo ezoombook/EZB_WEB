@@ -36,7 +36,10 @@ object BookDO{
   }
 
   def saveLayer(ezl:EzoomLayer){
-    AppDB.cdal.saveLayer(ezl)
+    Cache.set("ezl:"+ezl, ezl)
+    AppDB.cdal.saveLayer(ezl).map{ezb =>
+      Cache.set("ezb:"+ezb.ezoombook_id,ezb)
+    }
   }
 
   /**
