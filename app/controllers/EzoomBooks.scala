@@ -50,7 +50,9 @@ object EzoomBooks extends Controller with ContextProvider{
   def loadBook = Action(loadFile){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
       println("[INFO] created from File " + request.body.asFile.getPath)
-      Some(BookDO.newBook(request.body.asFile))
+      val book = BookDO.newBook(request.body.asFile)
+      println("Part title: " + book.bookParts)
+      Some(book)
     } else {
       println("[INFO] created from bytes")
       request.body.asBytes().map(BookDO.newBook(_))
@@ -82,7 +84,7 @@ object EzoomBooks extends Controller with ContextProvider{
               book.bookSummary, cb.bookCover, cb.bookParts)
             println("My new book: " + newbook)
             BookDO.saveBook(newbook)
-            BookDO.saveBookParts(newbook)
+            //BookDO.saveBookParts(newbook)
             UserDO.newUserBook(user.id, newbook.bookId)
             Redirect(routes.EzoomBooks.readBook(newbook.bookId.toString))
           }.getOrElse(
@@ -155,7 +157,7 @@ object EzoomBooks extends Controller with ContextProvider{
       withEzoomBook(ezbId){ezb =>
         ezoomlayerForm(ezb.ezoombook_id,UUID.randomUUID,user.id).bindFromRequest.fold(
           errors => {
-            BadRequest(views.html.ezoomlayeredit(ezb, errors))
+            BadRequest(views.html.ezoomlayeredit(ezb, errors,BookDO.getBook(ezb.book_id.toString)))
           },
           ezl => {
 //println("The ezl: " + Json.prettyPrint(Json.toJson(ezl)))
@@ -168,18 +170,18 @@ object EzoomBooks extends Controller with ContextProvider{
   }
 
   /**
-   * Displays the ezoomlayer edit form without specifying a ezoomlayer
+   * Displays the ezoomlayer edit form without specifying a ezoomlayer,
+   * creating by default a new empty ezoomlayer.
    */
   def ezoomBookEdit(ezbId:String) = Action{implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
-        val ezlform = ezoomlayerForm.bind(
-          Map("ezoombook_id" -> ezb.ezoombook_id.toString,
-            "ezoomlayer_id" -> UUID.randomUUID.toString,
-            "ezoomlayer_owner" -> user.id.toString)
-        )
-
-        Ok(views.html.ezoomlayeredit(ezb, ezoomlayerForm))
+        BookDO.setWorkingEzb(ezb)
+        val newEzlayer = EzoomLayer(UUID.randomUUID, ezb.ezoombook_id, 1,
+          "user:"+user.id, books.dal.Status.workInProgress, false, List[String](), List[Contrib]())
+        BookDO.setWorkingLayer(newEzlayer)
+        val ezlform = ezoomlayerForm.fill(newEzlayer)
+        Ok(views.html.ezoomlayeredit(ezb, ezoomlayerForm,BookDO.getBook(ezb.book_id.toString)))
       }
     }
   }
@@ -191,8 +193,9 @@ object EzoomBooks extends Controller with ContextProvider{
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         BookDO.getEzoomLayer(UUID.fromString(ezlId)).map{ezl =>
+          BookDO.setWorkingLayer(ezl)
           val ezlform = ezoomlayerForm.fill(ezl)
-          Ok(views.html.ezoomlayeredit(ezb, ezlform))
+          Ok(views.html.ezoomlayeredit(ezb, ezlform,BookDO.getBook(ezb.book_id.toString)))
         }.getOrElse{
           NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
         }
@@ -220,27 +223,16 @@ object EzoomBooks extends Controller with ContextProvider{
             case Right(layerData) =>
               val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
               val filledForm = ezlform.bind(layerData)
-              //          println("[INFO] Ze doc: " + Json.stringify(layerData))
-              Ok(views.html.ezoomlayeredit(ezb, filledForm))
-//              filledForm.fold(
-//                errors =>{
-//                  //              println("[INFO] Error form: " + errors.errors.mkString("\n"))
-//                  Ok(views.html.ezoomlayeredit(Some(ezb), errors))
-//                },
-//                ezl => {
-//                  //              println("[INFO] ezl: " + ezl);
-//                  Ok(views.html.ezoomlayeredit(Some(ezb), ezoomlayerForm.fill(ezl)))
-//                }
-//              )
+              Ok(views.html.ezoomlayeredit(ezb, filledForm, BookDO.getBook(ezb.book_id.toString)))
             case Left(error) =>
               println("[ERROR] " + error)
               Ok(views.html.ezoomlayeredit(ezb,
-                ezlform.withGlobalError("An error occurred while trying to load the file. " + error)))
+                ezlform.withGlobalError("An error occurred while trying to load the file. " + error), BookDO.getBook(ezb.book_id.toString)))
           }
         }.getOrElse{
           println("[ERROR] oops!")
           Ok(views.html.ezoomlayeredit(ezb,
-            ezlform.withGlobalError("An error occurred while trying to load the file.")))
+            ezlform.withGlobalError("An error occurred while trying to load the file."), BookDO.getBook(ezb.book_id.toString)))
         }
       }
     }
@@ -302,14 +294,14 @@ object EzoomBooks extends Controller with ContextProvider{
     Ok(views.html.read())
   }
 
-  def bookPart(bookId:String,partId:String) = Action{implicit request =>
-    BookDO.getBookPart(bookId+":"+partId).map{bpart =>
-      //TODO get extension corresponding to epub format : play.api.libs.MimeTypes.forExtension("txt")
-      Ok(bpart.content).as(play.api.http.MimeTypes.HTML)
-    }.getOrElse{
-      NotFound("Oops! We couldn't find the chapter you are looking for")
-    }
-  }
+//  def bookPart(bookId:String,partId:String) = Action{implicit request =>
+//    BookDO.getBookPart(UUID.fromString(bookId), partId).map{bpart =>
+//      //TODO get extension corresponding to epub format : play.api.libs.MimeTypes.forExtension("txt")
+//      Ok(bpart.content).as(play.api.http.MimeTypes.HTML)
+//    }.getOrElse{
+//      NotFound("Oops! We couldn't find the chapter you are looking for")
+//    }
+//  }
 
   def bookResource(bookId:String, file:String) = Action{implicit request =>
     val mtype = file.split('.').lastOption match{
@@ -325,14 +317,12 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  def readLevelZero(bookId:String,partIndex:Int) = Action{implicit request =>
+  def readLayer(bookId:String,partIndex:Int) = Action{implicit request =>
     BookDO.getBook(bookId).map{book =>
+println("with context: " + context)
       val partId = book.bookParts(partIndex).partId
-      BookDO.getBookPart(partId).map{bpart =>
-        Ok(views.html.bookread(book,partIndex,play.api.templates.Html(new String(bpart.content))))
-      }.getOrElse{
-        NotFound("Oops! We couldn't find the chapter you are looking for")
-      }
+      Ok(views.html.bookread(book,partIndex,
+        play.api.templates.Html(new String(BookDO.getBookResource(book.bookId, partId)))))
     }.getOrElse{
       NotFound("Oops! We couldn't find the chapter you are looking for")
     }
@@ -342,18 +332,51 @@ object EzoomBooks extends Controller with ContextProvider{
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
 
-  implicit val quoteReads: Reads[(String, String, String, String)] = (
+  implicit val quoteReads: Reads[AtomicContrib] = (
+    (__ \ 'userid).read[String] ~
     (__ \ 'bookid).read[String] ~
-      (__ \ 'layerid).read[String] ~
-      (__ \ 'content).read[String] ~
-      (__ \ 'range).read[String]
-    ) tupled
+    (__ \ 'ezbid).read[String] ~
+    (__ \ 'layerid).read[String] ~
+    (__ \ 'partid).readNullable[String] ~
+    (__ \ 'content).read[String] ~
+    (__ \ 'range).readNullable[String]
+    )((uid,bookId,ezbId,layerId,partId,content,range) =>
+      AtomicContrib("quote:"+UUID.randomUUID,"contrib.Quote",UUID.fromString(layerId),UUID.fromString(ezbId),
+        UUID.fromString(uid),partId,range,books.dal.Status.workInProgress,false,content))
 
+  /**
+   * Receives a Json document containing a quote and adds it to the database
+   * TODO Add authorizied access restriction
+   * @return
+   */
   def addQuote = Action(parse.json){ request =>
-    request.body.validate[(String,String,String,String)].map{
-      case (bookId,layerId,content,range) =>
-        println(s"received: $bookId, $layerId, $content at $range")
+    request.body.validate[AtomicContrib].map{
+      case contrib =>
+        println(s"received: $contrib")
+        val ezl = BookDO.getEzoomLayer(contrib.ezoomlayer_id).getOrElse(
+          EzoomLayer(contrib.ezoomlayer_id, contrib.ezoombook_id, 1,
+            contrib.user_id.toString, books.dal.Status.workInProgress, false, List[String](), List())
+        )
+        val part = ezl.ezoomlayer_contribs.find(_.part_id == contrib.part_id).map{
+          case ezp:EzlPart => ezp.addContrib(contrib)
+        }.getOrElse(
+          EzlPart("part:"+UUID.randomUUID, ezl.ezoomlayer_id, ezl.ezoombook_id, contrib.user_id, contrib.part_id,
+                  books.dal.Status.workInProgress, false, "", None, List(contrib))
+        )
+
+        BookDO.saveLayer(ezl.addContrib(part))
         Ok("Quote saved!")
+/*
+        withEzoomBook(contrib.ezoombook_id.toString){ezb =>
+          context.activeLayer.map{ ezl =>
+            println(s"received: $contrib")
+            //            BookDO.saveLayer(ezl.addContrib(contrib))
+            Ok("Quote saved!")
+          }.getOrElse{
+            NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
+          }
+        }
+*/
     }.recoverTotal{
       e => {
         println("[ERROR] Detected error:"+ JsError.toFlatJson(e))

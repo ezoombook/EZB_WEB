@@ -37,7 +37,7 @@ function toggle(divtag){
 </script>
 }
 
-@main("Welcome to your Workingspace", scripts){
+@main("Book Upload", scripts){
 
 <style>
 
@@ -65,15 +65,15 @@ function toggle(divtag){
 </style>
 
 <fieldset class="leftpannel">
-    
 
-    @if(! bookForm.value.map(b => true).getOrElse(false)){
-        @form(routes.EzoomBooks.loadBook,
-             'enctype -> "multipart/form-data"){
+    @bookForm.value.map{b =>
+        <h4>@b.bookTitle</h4>
+    }.getOrElse{
+        @form(routes.EzoomBooks.loadBook, 'enctype -> "multipart/form-data"){
             <input type="file" name="book">
-        <p>
-             <input type="submit">
-        </p>
+            <p>
+                 <input type="submit">
+            </p>
         }
     }
 
@@ -122,7 +122,11 @@ function toggle(divtag){
         <input type="button" id="btnAddTag" value="Add another tag" >
 
         <h4>@textarea(bookForm("summary"))</h4>
-        <input type="submit" value="Go!">
+        @bookForm.value.map{b =>
+            <input type="submit" value="Go!">
+        }.getOrElse{
+            <p>You must upload a epub file</p>
+        }
         </fieldset>
     }
 }

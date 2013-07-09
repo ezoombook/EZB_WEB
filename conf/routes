@@ -55,8 +55,8 @@ GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 GET	    /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
 GET	    /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
-GET     /bookread/:bid/:index    controllers.EzoomBooks.readLevelZero(bid:String,index:Int)
-GET     /bookpart/:bid/:pid      controllers.EzoomBooks.bookPart(bid:String,pid:String)
+GET     /bookread/:bid/:index    controllers.EzoomBooks.readLayer(bid:String,index:Int)
+#GET     /bookpart/:bid/:pid      controllers.EzoomBooks.bookPart(bid:String,pid:String)
 
 # Book resources
 GET     /bookread/:bid/*file    controllers.EzoomBooks.bookResource(bid:String,file)
