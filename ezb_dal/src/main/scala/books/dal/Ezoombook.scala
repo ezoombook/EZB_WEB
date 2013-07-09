@@ -40,11 +40,22 @@ case class Ezoombook (ezoombook_id:UUID,
                        ezoombook_status:Status.Value,
                        ezoombook_title:String,
                        ezoombook_public:Boolean,
-                       ezoombook_layers:List[String] = List[String]()
+                       ezoombook_layers:Map[String,String] = Map[String,String]()
                        )
 
 object Ezoombook extends UUIDjsParser{
-  implicit val fmt = Json.format[Ezoombook]
+  import play.api.libs.functional.syntax._
+
+  //implicit val fmt = Json.format[Ezoombook]
+  implicit val fmt:Format[Ezoombook] = (
+    (__ \ 'ezoombook_id).format[UUID] ~
+      (__ \ 'book_id).format[UUID] ~
+      (__ \ 'ezoombook_owner).format[String] ~
+      (__ \ 'ezoombook_status).format[Status.Value] ~
+      (__ \ 'ezoombook_title).format[String] ~
+      (__ \ 'ezoombook_public).format[Boolean] ~
+      (__ \ 'ezoombook_layers).format[Map[String,String]]
+  )(Ezoombook.apply, unlift(Ezoombook.unapply))
 }
 
 trait Contrib{
@@ -68,6 +79,7 @@ case class AtomicContrib(val contrib_id:String,
                          val ezoombook_id: UUID,
                          val user_id: UUID,
                          val part_id: Option[String],
+                         val range: Option[String],
                          val contrib_status: Status.Value,
                          val contrib_locked: Boolean,
                          val contrib_content: String) extends Contrib 
@@ -85,6 +97,7 @@ object AtomicContrib extends UUIDjsParser{
     (__ \ "ezoombook_id").format[UUID] ~
     (__ \ "user_id").format[UUID] ~
     (__ \ "part_id").formatNullable[String] ~
+    (__ \ "range").formatNullable[String] ~
     (__ \ "contrib_status").format[Status.Value] ~
     (__ \ "contrib_locked").format[Boolean] ~
     (__ \ "contrib_content").format[String]
@@ -105,6 +118,8 @@ case class EzlPart(val contrib_id:String,
   val contrib_type = "contrib.Part"
   val contrib_content = ""
 
+  def addContrib(contrib:AtomicContrib):EzlPart = EzlPart(contrib_id, ezoomlayer_id,ezoombook_id,user_id,part_id,
+                  contrib_status,contrib_locked,part_title,part_summary,part_contribs :+ contrib)
 }
 //  override def toString = super.toString + (s"""part_contribs: ${part_contribs.mkString("[","\n","]")}""")
 
@@ -154,8 +169,11 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoomlayer_summaries:List[String],
                       ezoomlayer_contribs: List[Contrib]) {
 
+  def addContrib(contr:Contrib):EzoomLayer = new EzoomLayer(ezoomlayer_id,ezoombook_id,ezoomlayer_level,
+    ezoomlayer_owner, ezoomlayer_status, ezoomlayer_locked, ezoomlayer_summaries, ezoomlayer_contribs :+ contr)
+
   override def toString =
-    s"""sezoomlayer_id : $ezoomlayer_id
+    s"""ezoomlayer_id : $ezoomlayer_id
         ezoombook_id : $ezoombook_id
         ezoomlayer_level : $ezoomlayer_level
         ezoomlayer_owner : $ezoomlayer_owner
@@ -218,6 +236,7 @@ object AltFormats extends UUIDjsParser{
       ((__ \ "ezoombook_id").read[UUID] or defaultValue(idz.ezbId)) ~
       ((__ \ "user_id").read[UUID] or defaultValue(idz.uid))~
         (__ \ "part_id").readNullable[String] ~
+      (__ \ "range").readNullable[String] ~
       ((__ \ "contrib_status").read[Status.Value] or defaultValue(Status.workInProgress))~
       ((__ \ "contrib_locked").read[Boolean] or defaultValue(false))~
         (__ \ "contrib_content").read[String]

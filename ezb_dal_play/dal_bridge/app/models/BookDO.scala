@@ -39,6 +39,14 @@ object BookDO{
 //    }
 //  }
 
+  def setWorkingEzb(ezb:Ezoombook){
+    Cache.set("working-ezb", ezb, 0)
+  }
+
+  def setWorkingLayer(ezl:EzoomLayer){
+    Cache.set("working-layer", ezl, 0)
+  }
+
   def saveEzoomBook(ezb:Ezoombook){
     AppDB.cdal.saveEzoomBook(ezb)
     Cache.set("ezb:"+ezb.ezoombook_id,ezb)
@@ -85,9 +93,9 @@ object BookDO{
     AppDB.cdal.getBook(UUID.fromString(bookId))
   }
 
-  def getBookPart(partId:String):Option[BookPart] = {
-    AppDB.cdal.getBookPart(partId)
-  }
+//  def getBookPart(bookId:UUID,partId:String):Option[BookPart] = {
+//    AppDB.cdal.getBookPart(bookId,partId)
+//  }
 
   /**
    * Creates a new project

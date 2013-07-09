@@ -15,11 +15,11 @@ import java.util.zip.ZipFile
 
 case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
-	         bookSummary:String, bookCover: Array[Byte], bookParts:Map[String,String]){
+	         bookSummary:String, bookCover: Array[Byte], bookParts:List[BookPart]){
 
   def this(bookTitle:String, bookAuthors:List[String], bookLanguages:List[String], 
 		 bookPublishers:List[String], bookPublishedDates:List[String], bookTags:List[String],
-	         bookSummary:String, bookParts:Map[String,String]) = this(UUID.randomUUID, bookTitle, bookAuthors, bookLanguages,
+	         bookSummary:String, bookParts:List[BookPart]) = this(UUID.randomUUID, bookTitle, bookAuthors, bookLanguages,
 		 bookPublishers, bookPublishedDates, bookTags,
 	         bookSummary, Array[Byte](), bookParts)
 
@@ -35,21 +35,20 @@ case class Book (bookId:UUID, bookTitle:String, bookAuthors:List[String], bookLa
                           ", summary= " + bookSummary
 }
 
-case class BookPart(val partId:String, val content:Array[Byte]){}
+/*
+  A part contained in the spine of the book
+  @partId Is the href path of the epub resource
+ */
+case class BookPart(val partId:String, val title:Option[String]){}
 
 object Book extends UUIDjsParser{
   import play.api.libs.functional.syntax._
 
-  implicit val BookPartWrites:Writes[BookPart] = new Writes[BookPart]{
-    def writes(b:BookPart) = JsString(b.partId) 
-  }
-
-  implicit val BookPartReads:Reads[BookPart] = new Reads[BookPart]{
-    def reads(jval: JsValue) = jval match{
-      case JsString(s) => JsSuccess(new BookPart(s, Array[Byte]()))
-      case _ => JsError("Expected: id. Found: " + jval)
-    }
-  }
+  implicit val bookPartFormat:Format[BookPart] = (
+    (__ \ "partId").format[String] ~
+    (__ \ "title").format[Option[String]]
+  )((partId, title) => BookPart(partId, title),
+  part => (part.partId, part.title))
 
   val emptyArray = new Format[Array[Byte]] {
     def writes(v:Array[Byte]) = JsArray()
@@ -65,7 +64,7 @@ object Book extends UUIDjsParser{
     (__ \ "bookPublishedDates").format[List[String]] ~
     (__ \ "bookTags").format[List[String]] ~
     (__ \ "bookSummary").format[String] ~
-    (__ \ "bookParts").format[Map[String,String]]
+    (__ \ "bookParts").format[List[BookPart]]
   )((bid, title, authors, langs, publs, pubdats, tags, summ, parts) =>
       Book(bid, title, authors, langs, publs, pubdats, tags, summ, Array[Byte](), parts),
     book => (book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages,
@@ -81,9 +80,9 @@ trait BookComponent{
     couchclient.set("cover:"+book.bookId, 0, book.bookCover)
   }
 
-  def saveBookPart(part:BookPart)(implicit couchclient:CouchbaseClient){
-    couchclient.set("part:"+part.partId, 0, part.content)
-  }
+//  def saveBookPart(part:BookPart)(implicit couchclient:CouchbaseClient){
+//    couchclient.set("part:"+part.partId, 0, part.content)
+//  }
 
   def saveBookResources(bookId:UUID, zipedFile:ZipFile)(implicit couchclient:CouchbaseClient){
     EpubLoader.getResources(zipedFile).foreach{r =>
@@ -119,7 +118,7 @@ trait BookComponent{
       val summary = js(3).as[String]
       val cover = getBookCover(bookId)
 
-      Book(bookId,row.getKey(),authors,Nil,Nil,publishedDates,tags,summary,cover,Map[String,String]())
+      Book(bookId,row.getKey(),authors,Nil,Nil,publishedDates,tags,summary,cover,List[BookPart]())
     }.toList
   }
 
@@ -140,14 +139,10 @@ trait BookComponent{
     }
   }
 
-  //TODO Change to get resource....
-  def getBookPart(partId:String)(implicit couchclient:CouchbaseClient):Option[BookPart] = {
-    val key = "part:"+partId
-    couchclient.get(key) match {
-      case content:Array[Byte] => Some(BookPart(partId, content))
-      case _ => None
-    }
-  }
+//  def getBookPart(bookId:UUID,partId:String)(implicit couchclient:CouchbaseClient):Option[BookPart] = {
+//    val key = "part:"+partId
+//    Some(BookPart(partId, "", getBookResource(bookId, partId)))
+//  }
 
   def saveEzoomBook(ezb:Ezoombook)(implicit couchclient:CouchbaseClient){
     val key = "ezb:"+ezb.ezoombook_id
@@ -240,7 +235,7 @@ trait BookComponent{
           if(!ezb.ezoombook_layers.contains(ezl.ezoomlayer_id.toString)){
             val newEzb = Ezoombook(ezb.ezoombook_id,
               ezb.book_id,ezb.ezoombook_owner,ezb.ezoombook_status,
-              ezb.ezoombook_title,ezb.ezoombook_public,ezb.ezoombook_layers :+ ezl.ezoomlayer_id.toString)
+              ezb.ezoombook_title,ezb.ezoombook_public,ezb.ezoombook_layers + (ezl.ezoomlayer_level.toString -> ezl.ezoomlayer_id.toString))
             couchclient.cas(ezbKey, cas.getCas, Json.toJson(newEzb).toString())
           }
           Some(ezb)
@@ -264,7 +259,7 @@ trait BookComponent{
           ezl => Some(ezl)
         )
       case _ =>
-        println(s"[ERROR] Ezoomlayer $ezlId not found.")
+        println(s"[ERROR] Ezoomlayer $key not found.")
         None
     }
   }
@@ -286,5 +281,10 @@ trait BookComponent{
         Array[Byte]()
     }
   }
+
+//  def getBooksByAuthor(authName:String)(implicit couchclient:CouchbaseClient):List[Book] = {
+//    val view = couchclient.getView("book","by_author")
+//    val query = new Query()
+//  }
 
 }
