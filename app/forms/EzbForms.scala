@@ -65,15 +65,26 @@ object EzbForms extends FormHelpers{
     mapping(
       "ezoomlayer_id" -> of[UUID],
       "ezoombook_id" -> of[UUID],
-      "ezoomlayer_level" -> number,
+      "ezoomlayer_level" -> default(number, 1),
       "ezoomlayer_owner" -> text,
-      "ezoomlayer_status" -> of[Status.Value],
-      "ezoomlayer_locked" -> boolean,
+      "ezoomlayer_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+      "ezoomlayer_locked" -> default(boolean, false),
       "ezoomlayer_summaries" -> list(text),
       "ezoomlayer_contribs" -> list(contribMapping)
     )(EzoomLayer.apply)
       (EzoomLayer.unapply)
   )
+
+//  private def contribMappingAlt:Mapping[] = mapping(
+//    "contrib_type" -> nonEmptyText,
+//    "contrib_part" -> optional(text),
+//    "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
+//    "contrib_locked" -> default(boolean, false),
+//    "contrib_content" -> default(text, ""),
+//    "part_title" -> optional(text),
+//    "part_summary" -> optional(text),
+//    "part_contribs" -> optional(list(atomicContribMapping(ezlId,ezbId,uid,partId)))
+//  )
 
   private def contribMapping(partId:String,ezlId:UUID,ezbId:UUID,uid:UUID):Mapping[Contrib] = mapping(
     "contrib_id" -> default(text, UUID.randomUUID().toString),
@@ -107,7 +118,7 @@ object EzbForms extends FormHelpers{
 
   private def atomicContribMapping:Mapping[AtomicContrib] = mapping(
     "contrib_id" -> text,
-    "contrib_type" -> text,
+    "contrib_type" -> nonEmptyText,
     "ezoomlayer_id" -> of[UUID],
     "ezoombook_id" -> of[UUID],
     "user_id" -> of[UUID],
@@ -119,7 +130,7 @@ object EzbForms extends FormHelpers{
 
   private def atomicContribMapping(ezlid:UUID,ezbid:UUID,uid:UUID,partid:String):Mapping[AtomicContrib] = mapping(
     "contrib_id" -> ignored(UUID.randomUUID().toString),
-    "contrib_type" -> text,
+    "contrib_type" -> nonEmptyText,
     "ezoomlayer_id" -> ignored(ezlid),
     "ezoombook_id" -> ignored(ezbid),
     "user_id" -> ignored(uid),
