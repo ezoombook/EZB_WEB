@@ -27,7 +27,12 @@ trait FormHelpers {
 
   implicit def uuidForam:Formatter[UUID] = new Formatter[UUID]{
     def bind(key:String, data:Map[String,String]) =
-      data.get(key).map(UUID.fromString(_)).toRight(Seq(FormError(key, "error.required", Nil)))
+      data.get(key).flatMap{id =>
+        if (!id.isEmpty)
+          Some(UUID.fromString(id))
+        else
+          None
+      }.toRight(Seq(FormError(key, "error.required", Nil)))
 
     def unbind(key:String, value: UUID):Map[String, String] = Map(key -> value.toString)
   }
