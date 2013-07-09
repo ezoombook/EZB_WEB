@@ -1,4 +1,4 @@
-@(ezoombook:Ezoombook, ezlForm:Form[EzoomLayer])(implicit context:Context)
+@(ezoombook:Ezoombook, ezlForm:Form[EzoomLayer], bookOpt:Option[Book])(implicit context:Context)
 
 @import helper._
 @import utils.EzbHelpers._
@@ -35,8 +35,8 @@
     }
 }
 
-@levelMap(body: (Map[Int,String]) => Html ) = {
-    @defining(Map(0->"Higly Detailed", 1->"Fairly Detailed", 2->"Fairly Abridged", 3->"Highly Abridged")){lmap =>
+@levelMap(body: (Map[String,String]) => Html ) = {
+    @defining(Map("1"->"Higly Detailed", "2"->"Fairly Detailed", "3"->"Fairly Abridged", "4"->"Highly Abridged")){lmap =>
         @body(lmap)
     }
 }
@@ -50,7 +50,7 @@
         <ul>
         @ezb.ezoombook_layers.map{layer =>
             @levelMap{lmap =>
-            <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer">@lmap.get(ezb.ezoombook_layers.indexOf(layer)).getOrElse("undef")</a></li>
+            <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer._2">@lmap.getOrElse(layer._1, "undef")</a></li>
             }
         }
         </ul>
@@ -127,9 +127,20 @@
                     <input type="submit">
                 }
             </div>
+            @bookOpt.map{book =>
             <div>
-                <h2 id="book_info_header">Book Info</h2>
+                <h3 id="book_info_header">Book Info</h3>
+                <dl>
+                    <dt>Title:</dt><dd>@book.bookTitle</dd>
+                    <dt>Author(s):</dt><dd>@book.bookAuthors.mkString(",")</dd>
+                    @ezlForm.value.map{ezl =>
+                        <dt><a href="/bookread/@book.bookId/0">Navigate this book... </a> </dt><dd></dd>
+                    }.getOrElse{
+                        <dt><a href="/bookread/@book.bookId/0">Navigate this book... </a> </dt><dd></dd>
+                    }
+                </dl>
             </div>
+            }.getOrElse{<div>Please specify a book!</div>}
         </div>
         <div class="span9">
             @if(ezlForm.hasErrors){
@@ -154,7 +165,7 @@
                 </div>
                 <div>
                     @levelMap{lmap =>
-                        @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString -> lmap(i-1)),
+                        @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
                         '_label -> "Level:")
                     }
                 </div>

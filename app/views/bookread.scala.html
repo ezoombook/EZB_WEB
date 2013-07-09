@@ -3,19 +3,22 @@
 @import helper._
 
 @script = {
+@context.activeLayer.map{ezl =>
 <script src="@routes.Assets.at("javascripts/masha.js")" ></script>
 <script type="text/javascript">//<![CDATA[
-    var bookId = "@book.bookId";
-    var layerId = "234";
-    var userId = "@context.user.get.id";
-
     function saveQuote(e){
         var selRange = MaSha.instance.getLastRange();
 
         if(selRange){
             var quote = MaSha.instance.deserializeRange(selRange).cloneContents().textContent;
             console.log("Saving <<"+quote+">>");
-            var quoteMsg = {"bookid":bookId, "layerid":layerId, "content":quote, "range":selRange};
+            var quoteMsg = {"userid":"@context.user.map(_.id).getOrElse("")",
+                            "bookid":"@book.bookId",
+                            "ezbid":"@ezl.ezoombook_id",
+                            "layerid":"@ezl.ezoomlayer_id",
+                            "partid":"@book.bookParts(partIndex).partId",
+                            "content":quote,
+                            "range":selRange};
 
             $.ajax({
                 type:"POST",
@@ -50,6 +53,9 @@
     });
     //]]>
 </script>
+}.getOrElse{
+@Html("")
+}
 }
 
 @main(book.bookTitle, script){
@@ -85,7 +91,7 @@
 <div class="row">
     <div class="span1">
         @if(partIndex > 0){
-        <a href="@routes.EzoomBooks.readLevelZero(book.bookId.toString,partIndex-1)"><i class="icon-chevron-left"></i></a>
+        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,partIndex-1)'><i class="icon-chevron-left"></i></a>
         }
     </div>
     <div class="span10" id="reader">
@@ -93,7 +99,7 @@
     </div>
     <div class="span1">
         @if(partIndex < book.bookParts.size-1){
-        <a href="@routes.EzoomBooks.readLevelZero(book.bookId.toString,partIndex+1)"><i class="icon-chevron-right"></i></a>
+        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,partIndex+1)'><i class="icon-chevron-right"></i></a>
         }
     </div>
 </div> <!-- Reader End -->

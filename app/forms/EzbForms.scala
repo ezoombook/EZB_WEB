@@ -29,11 +29,15 @@ object EzbForms extends FormHelpers{
       "publishers" -> list(text),
       "published_dates" -> list(text),
       "tags" -> list(text),
-      "summary" -> text
-    )((id,title,authors,languages,publishers,published_dates,tags,summary) =>
-      Book(id,title,authors,languages,publishers,published_dates, tags, summary, Array[Byte](), List[BookPart]()))
+      "summary" -> text,
+      "parts" -> list(mapping(
+          "partId" -> text,
+          "title" -> optional(text)
+      )(BookPart.apply)(BookPart.unapply))
+    )((id,title,authors,languages,publishers,published_dates,tags,summary,parts) =>
+      Book(id,title,authors,languages,publishers,published_dates, tags, summary, Array[Byte](), parts))
       ((book:Book) => Some(book.bookId, book.bookTitle, book.bookAuthors, book.bookLanguages, book.bookPublishers, book.bookPublishedDates,
-        book.bookTags, book.bookSummary))
+        book.bookTags, book.bookSummary, book.bookParts))
   )
 
   val ezoomBookForm = Form[Ezoombook](
@@ -44,8 +48,10 @@ object EzbForms extends FormHelpers{
       "ezb_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezb_title" -> text,
       "ezb_public" -> default(boolean, false),
-      "ezb_layers" -> list(text)
-    )(Ezoombook.apply)(Ezoombook.unapply)
+      "ezb_layers" -> seq(tuple("level" -> text, "ezl_id" -> text))
+    )((ezbid,bid,owner,status,title,public,layers) => Ezoombook(ezbid,bid,owner,status,title,public,layers.toMap))
+      (ezb => Some(ezb.ezoombook_id, ezb.book_id, ezb.ezoombook_owner, ezb.ezoombook_status, ezb.ezoombook_title,
+                    ezb.ezoombook_public,ezb.ezoombook_layers.toSeq))
   )
 
   def ezoomlayerForm(ezoombookid:UUID, layerid:UUID, userid:UUID) = Form[EzoomLayer](
@@ -123,6 +129,7 @@ object EzbForms extends FormHelpers{
     "ezoombook_id" -> of[UUID],
     "user_id" -> of[UUID],
     "contrib_part" -> optional(text),
+    "range" -> optional(text),
     "contrib_status" -> of[Status.Value],
     "contrib_locked" -> boolean,
     "contrib_content" -> text
@@ -135,6 +142,7 @@ object EzbForms extends FormHelpers{
     "ezoombook_id" -> ignored(ezbid),
     "user_id" -> ignored(uid),
     "contrib_part" -> optional(ignored(partid)),
+    "range" -> optional(text),
     "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
     "contrib_locked" -> default(boolean, true),
     "contrib_content" -> text
@@ -158,7 +166,7 @@ object EzbForms extends FormHelpers{
           part_title.getOrElse(""),part_summary,part_contribs.getOrElse(List[AtomicContrib]()))
       case _ =>
         AtomicContrib(contrib_id,contrib_type,ezoomlayer_id,ezoombook_id,
-          user_id,part_id,contrib_status,contrib_locked,contrib_content)
+          user_id,part_id,None,contrib_status,contrib_locked,contrib_content)
   }
 
   private def contribUnapply(contrib:Contrib) = Some(

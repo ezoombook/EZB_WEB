@@ -1,9 +1,13 @@
 package controllers
 
 import users.dal.User
+import books.dal.{Ezoombook,EzoomLayer}
 import models.Context
 
 import play.api.mvc.{Result, Request, Controller}
+import play.api.cache
+import cache.Cache
+import play.api.Play.current
 
 import java.util.UUID
 
@@ -28,7 +32,11 @@ trait ContextProvider extends Controller{
       )
     )
 
-    Context(user)
+    val ezb = Cache.getAs[Ezoombook]("working-ezb")
+
+    val layer = Cache.getAs[EzoomLayer]("working-layer")
+
+    Context(user, ezb, layer)
   }
 
   def withUser[A](block: (User) => Result)(implicit request:Request[A]):Result = {
