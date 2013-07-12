@@ -8,243 +8,276 @@
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
-    $(document).ready(function(){
+$(document).ready(function(){
     $('#btnAddAuth').click(function () {
-        cloner('authors');
+      cloner('authors');
     });
     $('#btnAddLang').click(function () {
-        cloner('languages');
+      cloner('languages');
     });
     $('#btnAddPublshr').click(function () {
-        cloner('publishers');
+      cloner('publishers');
     });
     $('#btnAddPubDate').click(function () {
-        cloner('published_dates');
+      cloner('published_dates');
     });
     $('#btnAddTag').click(function () {
-        cloner('tags');
+      cloner('tags');
     });
-    });
+});
 
-    function toggle(divtag){
-        if(document.getElementById(divtag).style.display=="none"){
-            document.getElementById(divtag).style.display="block";
-        } else {
-            document.getElementById(divtag).style.display="none";
-        }
+function toggle(divtag){
+    if(document.getElementById(divtag).style.display=="none"){
+        document.getElementById(divtag).style.display="block";
+    } else {
+        document.getElementById(divtag).style.display="none";
     }
-    //]]>
+}
+
+//]]>
+
 </script>
 }
 
+
 @main("Welcome to your Workingspace", scripts){
 
-<center><h1>@session.get("userName")'s Working Space</h1></center>
+<style>
+  
+</style>
+        
+        <center><h1>@session.get("userName")'s Working Space</h1></center>
 
-<div class="row">
+       
+            </br>
+            
+            <div class="row">
 <div class="span3">
-    @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
-    <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon">
-    }
-    </br>
-        <table class="table table-striped">
-            <tbody>
-            <tr>
-                <th><i class="icon-envelope"></i>&nbsp;Message</th>
-                <th>author</th>
-                <th>date</th>
-                <th></th>
-            </tr>
+@defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
+            <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon" >
+         }
+         </br>
+         <fieldset>
+             
 
-            </tbody>
-        </table>
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th><i class="icon-envelope"></i>&nbsp;Message</th>
+                        <th>author</th>
+                        <th>date</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </fieldset>
 </div>
 
 
 <div class="span9">
 
-<ul class="nav nav-tabs">
+  <ul class="nav nav-tabs">
     <li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-edit"></i>&nbsp;Contribution</a></li>
     <li><a href="#tab2" data-toggle="tab"><i class="icon-globe"></i>&nbsp;Community</a></li>
     <li><a href="#tab3" data-toggle="tab"><i class="icon-book"></i>&nbsp;Books</a></li>
-</ul>
-<div class="tab-content">
+  </ul>
+  <div class="tab-content">
     <div class="tab-pane active" id="tab1">
-            <h2>Your Projects</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>Project</th>
-
-                    <th>ezoombook</th>
-                    <th>creation date</th>
-                </tr>
-                @for(g<-listproj) {
-
-                <tr>
-                    <td>@g._1.projectName</td>
-                    <td>@g._2.ezoombook_title</td>
-                    <td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
-                </tr>
-                }
-                @for(g<-listpro) {
-
-                <tr>
-                    <td>@g._1.projectName</td>
-                    <td>@g._2.ezoombook_title</td>
-                    <td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
-                </tr>
-                }
-                </tbody>
-            </table>
-        </br>
-            <h2>Your EzoomBooks</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>Name</th>
-
-                    <th></th>
-                </tr>
-                @for(g<-listezb){
-                <tr>
-                    <td>@g.ezoombook_title</td>
-                    <td><a href="/ezb/edit/@g.ezoombook_id" class="btn" =>Edit</a></td>
-                </tr>
-                }
-                </tbody>
-            </table>
-
-    </div>
-    <div class="tab-pane" id="tab2">
-            <h2>My friends</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th>Groups</th>
-                    <th>Favorite books</th>
-                    <th></th>
-                </tr>
-
-                </tbody>
-            </table>
-
-            <h4>@inputText(groupForm(""))</h4>
-            <dl>
-                <li onClick="toggle('seeuser')"><h3>Add a friend
-
-                </h3></li>
-
-                <div id="seeuser" style="display:none">
-                    <table class="table table-striped">
-                        <tbody>
-                        <tr>
-                            <th>Name</th>
-                            <th>Groups</th>
-                            <th>Favorite books</th>
-                            <th></th>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-
-            </dl>
-
-            <h1 style="float:left">Create a group</h1>
-            </br></br></br></br>
-
-            @form(routes.Community.newGroup){
-            <h4>@inputText(groupForm("groupName"),'_label->"Name of the group")</h4>
-
-            @hidden(groupForm("ownerId"), 'value -> session.get("userId"))
-            <input type="submit" value="Create a group">
-            }
-            </br>
-                <h2>Your groups</h2>
+      <fieldset>
+                <legend><h1>Project</h1></legend>
 
                 <table class="table table-striped">
                     <tbody>
                     <tr>
-                        <th>Title</th>
-                        <th>You own</th>
-                        <th></th>
+                        <th>Project</th>
+                    
+                        <th>ezoombook</th><th>creation date</th>
                     </tr>
-                    @for(g<-userGroups){
-                    <tr>
-                        <td>@g.name</td>
-                        <td>X</td>
-                        <td>
-                            @form(routes.Community.group(g.id.toString())){
-                            <input type="submit" value="choose this group"></td>
-                        }
-                    </tr>
-                    }
-
-                    @for(g<-colabGroups){
-                    <tr>
-                        <td>@g.name</td>
-                        <td></td>
-                        <td>
-                            @form(routes.Community.group(g.id.toString())){
-                            <input type="submit" value="choose this group"></td>
-                        }
-                    </tr>
-                    }
+                        @for(g<-listproj) {  
+                        
+                        <tr>
+                            <td>@g._1.projectName</td><td>@g._2.ezoombook_title</td><td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
+                        </tr>
+                         }
+                             @for(g<-listpro) {  
+                        
+                        <tr>
+                            <td>@g._1.projectName</td><td>@g._2.ezoombook_title</td><td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
+                        </tr>
+                         }
                     </tbody>
                 </table>
+            </fieldset>
+            </br>
+            <fieldset>
+                <legend><h1>EzoomBook</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Name</th>
+                        
+                        <th></th>
+                    </tr>
+ @for(g<-listezb){
+                        <tr>
+                            <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td><td><a href="/ezlayer/edit/@g.ezoombook_id" class="btn" =>Edit</a></td>
+                           
+                           
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+
+
+            </fieldset>
+    </div>
+    <div class="tab-pane" id="tab2">
+      <fieldset>
+                <legend><h1>My friends</h1></legend>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th>Groups</th>
+                        <th>Favorite books</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <h4>@inputText(groupForm(""))</h4>
+                <dl>
+                    <li onClick="toggle('seeuser')"><h3>Add a friend
+
+                    </h3></li>
+
+                    <div id="seeuser" style="display:none">
+                        <table class="table table-striped">
+                            <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <th>Groups</th>
+                                <th>Favorite books</th>
+                                <th></th>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </dl>
+
+            </fieldset>
+       
+            <fieldset>
+                <h1 style="float:left">Create a group</h1>
+                </br></br></br></br>
+
+                @form(routes.Community.newGroup){
+                <h4>@inputText(groupForm("groupName"),'_label->"Name of the group")</h4>
+
+                @hidden(groupForm("ownerId"), 'value -> session.get("userId"))
+                <input type="submit" value="Create a group">
+                }
+                </br>
+                <fieldset>
+                    <legend><h1>My groups</h1></legend>
+
+
+                    <table class="table table-striped">
+                        <tbody>
+                        <tr>
+                            <th>Title</th>
+                            <th>You own</th>
+                            <th></th>
+                        </tr>
+                        @for(g<-userGroups){
+                        <tr>
+                            <td>@g.name</td>
+                            <td>X</td>
+                            <td>
+                                @form(routes.Community.group(g.id.toString())){
+                                <input type="submit" value="choose this group"></td>
+                            }
+                        </tr>
+                        }
+
+                        @for(g<-colabGroups){
+                        <tr>
+                            <td>@g.name</td>
+                            <td></td>
+                            <td>
+                                @form(routes.Community.group(g.id.toString())){
+                                <input type="submit" value="choose this group"></td>
+                            }
+                        </tr>
+                        }
+                        </tbody>
+                    </table>
+
+
+                </fieldset>
+            </fieldset>
     </div>
     <div class="tab-pane" id="tab3">
+       
+     <fieldset>
+                <legend><h1>My Books</h1></legend>
 
-            <h2>Your Books</h2>
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <th></th>
+                    </tr>
+ @for(g<-listmyb){
+                        <tr>
+                            <td><a href="/books/@g.bookId">@g.bookTitle</a></td>
+                            <td><a href="/bookreedit/@g.bookId" class="btn" =>Edit</a></td>
+                           
+                        </tr>
+                        }
+                    </tbody>
+                </table>
 
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th></th>
-                </tr>
-                @for(g<-listmyb){
-                <tr>
-                    <td>@g.bookTitle</td>
+            </fieldset>
+    <fieldset>
+                <legend><h1>Reading list</h1></legend>
 
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Books</th>
+                        <th></th>
+                    </tr>
 
-                </tr>
-                }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
 
-            <h2>Your Reading Lists</h2>
+            </fieldset>
+            <fieldset>
+                <legend><h1>Favorite books</h1></legend>
 
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>Books</th>
-                    <th></th>
-                </tr>
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Book</th>
+                        <th></th>
+                    </tr>
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
 
-            <h2>Your Favorite Books</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>Book</th>
-                    <th></th>
-                </tr>
-
-                </tbody>
-            </table>
-
+            </fieldset>
+            
     </div>
-</div>
-
+  </div>
+  
 </div>
 </div>
 

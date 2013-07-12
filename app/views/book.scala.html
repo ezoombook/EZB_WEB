@@ -43,7 +43,7 @@
         <th>Available Levels</th>
         <th>Popularity</th>
         @if(!context.user.isEmpty){
-            <th></th>
+            <th></th><th></th><th></th>
         }
     </tr>
     <tr>
@@ -54,9 +54,12 @@
             <td>@g.ezoombook_layers.size</td>
             <td>@for(i <- 1 to 5){<i class=" icon-star"></i>}</td>
             @if(!context.user.isEmpty && context.user.get.id.toString.equals(g.ezoombook_owner)){
-                <td><a href="/ezb/edit/@g.ezoombook_id" class="btn" =>Edit</a></td>
+                <td><a href="/ezb/edit/@g.ezoombook_id" class="btn" =>Edit</a></td> <td><a href="/#" class="btn" =>favorite</a></td>
+           <td><a href="/#" class="btn" =>readinglist</a></td>
             }else{
-           <td></td>
+            <td></td>
+           <td><a href="/#" class="btn" =>favorite</a></td>
+           <td><a href="/#" class="btn" =>readinglist</a></td>
             }
          </tr>
         }
