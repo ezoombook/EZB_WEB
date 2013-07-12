@@ -81,6 +81,8 @@ POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:St
 GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
 GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid,lid)
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
+#POST    /addezbtrl/:id              controllers.EzoomBooks.addezbtrl(id:String)
+#POST    /addezbtf/:id              controllers.EzoomBooks.addezbtf(id:String)
 
 POST    /quote                      controllers.EzoomBooks.addQuote
 
