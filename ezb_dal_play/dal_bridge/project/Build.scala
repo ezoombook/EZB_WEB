@@ -10,7 +10,7 @@ object ApplicationBuild extends Build {
 
   val appDependencies = Seq(
     // Add your project dependencies here,
-    "ezb-dal" %% "ezb-dal" % "0.1-SNAPSHOT" excludeAll(ExclusionRule(organization="play")), 
+    "ezb-dal" %% "ezb-dal" % "0.1-SNAPSHOT" excludeAll(ExclusionRule(organization="play"),ExclusionRule(organization="nl")),
     jdbc,
     "com.typesafe.slick" %% "slick" % "1.0.0",
     "couchbase" % "couchbase-client" % "1.1.2"

@@ -19,7 +19,7 @@ object EzbDalBuild extends Build {
       "com.typesafe.slick" %% "slick" % "1.0.0",
       "org.mindrot" % "jbcrypt" % "0.3m",
       "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
-      "couchbase" % "couchbase-client" % "1.1.6",
+      "couchbase" % "couchbase-client" % "1.1.6" ,
       "nl.siegmann.epublib" % "epublib-core" % "3.1"
   )
 
