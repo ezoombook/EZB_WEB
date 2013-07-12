@@ -359,10 +359,22 @@ println("with context: " + context)
         )
         val part = ezl.ezoomlayer_contribs.find(_.part_id == contrib.part_id).map{
           case ezp:EzlPart => ezp.addContrib(contrib)
-        }.getOrElse(
-          EzlPart("part:"+UUID.randomUUID, ezl.ezoomlayer_id, ezl.ezoombook_id, contrib.user_id, contrib.part_id,
-                  books.dal.Status.workInProgress, false, "", None, List(contrib))
-        )
+        }.getOrElse{
+            val partTitle:String = if(!contrib.part_id.isEmpty){
+              BookDO.getEzoomBook(ezl.ezoombook_id).flatMap{ezb =>
+                println("ezb: ok")
+                BookDO.getBook(ezb.book_id.toString).flatMap{book =>
+                  println("  book ok... looking for part " + contrib.part_id)
+                  book.bookParts.find(_.partId == contrib.part_id.get).map{part =>
+                    println(s"    part ${part.title} ok")
+                    part.title.getOrElse("")
+                  }
+                }
+              }.getOrElse("")
+            }else{""}
+            EzlPart("part:"+UUID.randomUUID, ezl.ezoomlayer_id, ezl.ezoombook_id, contrib.user_id, contrib.part_id,
+              books.dal.Status.workInProgress, false, partTitle, None, List(contrib))
+        }
 
         BookDO.saveLayer(ezl.addContrib(part))
         Ok("Quote saved!")
