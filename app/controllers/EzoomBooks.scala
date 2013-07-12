@@ -404,4 +404,27 @@ println("with context: " + context)
       NotFound("Oops! We couldn't find the EzoomBook you are looking for :(")
     }
   }
+
+  /**
+  def addezbtrl(ezbId:String) = Action {implicit request =>
+      BookDO.getEzoomBook(ezbId).map {
+        abook =>
+         readinglist = readinglist +: abook
+      }.getOrElse(
+        Unauthorized("Oops! that is not a valid page!")
+      )
+  }
+    */
+
+  /**
+  def addezbtf(ezbId:String) = Action {implicit request =>
+      BookDO.getEzoomBook(ezbId).map {
+        abook =>
+         favorite = favorite +: abook
+      }.getOrElse(
+        Unauthorized("Oops! that is not a valid page!")
+      )
+  }
+    */
+
 }

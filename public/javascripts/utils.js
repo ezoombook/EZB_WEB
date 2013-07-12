@@ -105,25 +105,16 @@ function addContrib(ctype){
                     })
             );
 
-            
-            
-            
-            
             fieldset.append($("<input>")
                 .attr("type","button")
                 .attr("class","addquote")
                 .attr("id","btnAddQuote_"+i)
                 .attr("value","+")
                 .click(function(){
-                                
-                                
-                                
-                                
-                                
-                                 var dev = contribDiv();
                     var j = $("#part_fieldset_"+i).children(".quote").length;
-                    dev.append(contribField("textarea","quote",part_contrib_cont_nav,[i,j]));
-                    dev.append(contribField("input","quote",part_contrib_type_nav,[i,j])
+                    $("#part_fieldset_"+i).append(contribField("textarea","quote",part_contrib_cont_nav,[i,j]));
+                    $("#part_fieldset_"+i).append(contribField("input","quote",part_contrib_type_nav,[i,j])
+                                                    .attr("value","contrib.Quote")
                                                     .attr("type","hidden"));
                     
               dev.append($("<input>")
