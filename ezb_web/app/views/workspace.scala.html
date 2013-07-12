@@ -33,33 +33,20 @@ function toggle(divtag){
         document.getElementById(divtag).style.display="none";
     }
 }
-
 //]]>
-
 </script>
 }
 
-
 @main("Welcome to your Workingspace", scripts){
 
-<style>
-  
-</style>
-        
         <center><h1>@session.get("userName")'s Working Space</h1></center>
 
-       
-            </br>
-            
             <div class="row">
 <div class="span3">
 @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
             <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon" >
          }
          </br>
-         <fieldset>
-             
-
                 <table class="table table-striped">
                     <tbody>
                     <tr>
@@ -71,8 +58,6 @@ function toggle(divtag){
 
                     </tbody>
                 </table>
-
-            </fieldset>
 </div>
 
 
@@ -85,8 +70,7 @@ function toggle(divtag){
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="tab1">
-      <fieldset>
-                <legend><h1>Project</h1></legend>
+            <h2>Your Projects</h2>
 
                 <table class="table table-striped">
                     <tbody>
@@ -109,10 +93,8 @@ function toggle(divtag){
                          }
                     </tbody>
                 </table>
-            </fieldset>
             </br>
-            <fieldset>
-                <legend><h1>EzoomBook</h1></legend>
+            <h2>Your EzoomBooks</h2>
 
                 <table class="table table-striped">
                     <tbody>
@@ -131,12 +113,9 @@ function toggle(divtag){
                     </tbody>
                 </table>
 
-
-            </fieldset>
     </div>
     <div class="tab-pane" id="tab2">
-      <fieldset>
-                <legend><h1>My friends</h1></legend>
+            <h2>My friends</h2>
 
                 <table class="table table-striped">
                     <tbody>
@@ -172,9 +151,6 @@ function toggle(divtag){
 
                 </dl>
 
-            </fieldset>
-       
-            <fieldset>
                 <h1 style="float:left">Create a group</h1>
                 </br></br></br></br>
 
@@ -185,9 +161,7 @@ function toggle(divtag){
                 <input type="submit" value="Create a group">
                 }
                 </br>
-                <fieldset>
-                    <legend><h1>My groups</h1></legend>
-
+                <h2>Your groups</h2>
 
                     <table class="table table-striped">
                         <tbody>
@@ -219,15 +193,10 @@ function toggle(divtag){
                         }
                         </tbody>
                     </table>
-
-
-                </fieldset>
-            </fieldset>
     </div>
     <div class="tab-pane" id="tab3">
        
-     <fieldset>
-                <legend><h1>My Books</h1></legend>
+            <h2>Your Books</h2>
 
                 <table class="table table-striped">
                     <tbody>
@@ -245,9 +214,7 @@ function toggle(divtag){
                     </tbody>
                 </table>
 
-            </fieldset>
-    <fieldset>
-                <legend><h1>Reading list</h1></legend>
+            <h2>Your Reading Lists</h2>
 
                 <table class="table table-striped">
                     <tbody>
@@ -259,9 +226,7 @@ function toggle(divtag){
                     </tbody>
                 </table>
 
-            </fieldset>
-            <fieldset>
-                <legend><h1>Favorite books</h1></legend>
+            <h2>Your Favorite Books</h2>
 
                 <table class="table table-striped">
                     <tbody>
@@ -273,8 +238,6 @@ function toggle(divtag){
                     </tbody>
                 </table>
 
-            </fieldset>
-            
     </div>
   </div>
   
