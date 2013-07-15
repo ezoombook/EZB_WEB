@@ -89,7 +89,7 @@ function addContrib(ctype){
             var div = contribDiv();
             var fieldset = $("<fieldset>")
                 .attr("id", "part_fieldset_"+i)
-                .attr("class", "part_field");
+                .attr("class", "part_fieldset");
 
             fieldset.append(contribField("input","",ezl_contrib_type_nav,[i])
                         .attr("type","hidden")
@@ -116,16 +116,16 @@ function addContrib(ctype){
                     $("#part_fieldset_"+i).append(contribField("input","quote",part_contrib_type_nav,[i,j])
                                                     .attr("value","contrib.Quote")
                                                     .attr("type","hidden"));
-                    
-              dev.append($("<input>")
-                .attr("type","button")
-                .attr("value","Delete")
-                .click(function(){
-             dev.remove();
-            
-            })  
-            );
-              $("#part_fieldset_"+i).append(dev);
+/*
+                    $("#part_fieldset_"+i).append($("<input>")
+                        .attr("type","button")
+                        .attr("value","Delete")
+                        .click(function(){
+                            dev.remove();
+                        })
+                    );
+                    $("#part_fieldset_"+i).append(dev);
+*/
                 })
             )
             
