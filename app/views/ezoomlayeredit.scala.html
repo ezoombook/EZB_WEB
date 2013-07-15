@@ -4,33 +4,77 @@
 @import utils.EzbHelpers._
 @import ezbhelper._
 
+@**
+@hidden(ezlForm("contrib_id"))
+@hidden(ezlForm("ezoomlayer_id"))
+@hidden(ezlForm("ezoombook_id"))
+@hidden(ezlForm("user_id"))
+@hidden(ezlForm("contrib_part"))
+@hidden(ezlForm("contrib_status"))
+@hidden(ezlForm("contrib_locked"))
+**@
 
-@displayPart(part:Field) = {
-    <fieldset class="part_field">
-    @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
-    @hidden(part("contrib_type"), 'value -> "contrib.Part")
-    @repeat(part("part_contribs")){pc =>
-        @pc("contrib_type").value.map{ct =>
-            @displayAtomic(ct,pc,"part_")
-        }.getOrElse{
-            <p>Cannot display part content</p>
+@displayPart(part:Field, hide:Boolean, divId:String) = {
+    <div class="part_field @if(hide){hide}" id="part_field_@divId">
+        <div class="row part_div">
+            <div class="span3">
+            @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
+            @hidden(part("contrib_type"))
+            </div>
+            <div class="span1 btn-group">
+                <button class="btn" data-toggle="dropdown" href="#" >
+                    New
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
+                    <li><a href="#" class="btnAddSummary" id="btnAddSummary_@divId">Summary</a></li>
+                </ul>
+            </div>
+            <div class="span1">
+                <a href="#" class="btn"><i class="icon-trash"></i></a>
+            </div>
+        </div>
+        @for(i <- part("part_contribs").indexes;
+             pc = part("part_contribs")("["+i+"]")){
+            @pc("contrib_type").value.map{ct =>
+                @displayAtomic(ct,pc,"contrib_", divId, i.toString, false)
+            }.getOrElse{ <!-- Cannot display part content --> }
         }
-    }
-    </fieldset>
+    </div>
 }
 
-@displayAtomic(ctype:String, c:Field, level:String) = {
-    @ctype match{
-        case "contrib.Quote" => {
-             @hidden(c("contrib_type"), 'value -> "contrib.Quote")
-             @textarea(c("contrib_content"), '_label -> "", 'class -> "quote")
-        }
-        case "contrib.Summary" => {
-            @hidden(c("contrib_type"), 'value -> "contrib.Summary")
-            @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary"))
-        }
-        case _ => {
-            <p>Could not display contribution. Unknown type @ctype</p>
+@displayAtomic(ctype:String, c:Field, level:String, parent:String, divId:String, hide:Boolean) = {
+    @defining(parent+"_"+divId+"_"){div_id =>
+        @ctype match{
+            case "contrib.Quote" => {
+                <div class="row-fluid quote_div @if(hide){hide}" id="quote_div_@div_id">
+                    <div class="span1">
+                        <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
+                    </div>
+                    <div class="span7">
+                        @textarea(c("contrib_content"), '_label -> "", 'class -> "quote")
+                        @hidden(c("contrib_type"))
+                    </div>
+                    <div class="span1">
+                        <a href="#" class="btn"><i class="icon-trash"></i></a>
+                    </div>
+                </div>
+            }
+            case "contrib.Summary" => {
+                <div class="row-fluid summary_div @if(hide){hide}" id="summary_div_@div_id">
+                    <div class="span7">
+                    @hidden(c("contrib_type"))
+                    @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary")  )
+                    </div>
+                    <div class="span1">
+                        <a href="#" class="btn"><i class="icon-trash"></i></a>
+                    </div>
+                </div>
+            }
+            case _ => {
+                <p>Could not display contribution. Unknown type @ctype</p>
+            }
         }
     }
 }
@@ -60,17 +104,108 @@
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
+    function addPart(){
+        var partsCount = $("#contribs_set > .part_field" ).length;
+        var sumCount = $("#contribs_set > .summary_div" ).length;
+        var contribTotal = partsCount+sumCount;
+
+        var newPartField = $("#part_field_999").clone().attr("id", "part_field_"+(partsCount));
+
+        newPartField.find(".part_title:first")
+             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_title")
+             .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_title");
+
+        newPartField.find("#ezoomlayer_contribs_contrib_type:first")
+            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
+            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_type")
+            .attr("value","contrib.Part");
+
+        //Change buttons' id
+        newPartField.find("#btnAddQuote_999").attr("id","btnAddQuote_"+contribTotal)
+            .click(function(e){
+                var divId = e.target.id.split("_")[1];
+                addAtomicContrib(divId, "contrib.Quote");
+            });
+        newPartField.find("#btnAddSummary_999").attr("id","btnAddSummary_"+contribTotal)
+            .click(function(e){
+                var divId = e.target.id.split("_")[1];
+                addAtomicContrib(divId, "contrib.Summary");
+            });
+
+        newPartField.removeClass("hide");
+
+        $("#contribs_set").append(newPartField);
+    }
+
+    function addSummary(){
+        var partsCount = $("#contribs_set > .part_field" ).length;
+        var sumCount = $("#contribs_set > .summary_div" ).length;
+        var contribTotal = partsCount+sumCount;
+
+        var newSummaryDiv = $("#summary_div___999_").clone().attr("id", "summary_div_"+sumCount);
+
+        newSummaryDiv.find("#ezoomlayer_contribs_contrib_type:first")
+            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
+            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_type")
+            .attr("value", "contrib.Summary");
+
+        newSummaryDiv.find("#ezoomlayer_contribs_contrib_content:first")
+            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_content")
+            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_content");
+
+        newSummaryDiv.removeClass("hide");
+
+        $("#contribs_set").append(newSummaryDiv);
+    }
+
+    function addAtomicContrib(parentId, contribType){
+
+        var parent = $("#part_field_"+parentId);
+
+        var numContrs = parent.children(".quote_div").length +
+                        parent.children(".summary_div").length;
+
+        var contribDiv = contribType == "contrib.Quote" ?
+                            $("#quote_div___999_").clone().attr("id","quote_div_"+parentId+"_"+numContrs+"_") :
+                            $("#summary_div___999_").clone().attr("id","quote_div_"+parentId+"_"+numContrs+"_");
+
+        contribDiv.find("#ezoomlayer_contribs_contrib_type:first")
+            .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_type")
+            .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_type")
+            .attr("value", contribType);
+
+        contribDiv.find("#ezoomlayer_contribs_contrib_content:first")
+            .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_content")
+            .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_content");
+
+        contribDiv.removeClass("hide");
+
+        parent.append(contribDiv);
+    }
+
     $(document).ready(function(){
         $('#btnAddezbSummary').click(function () {
             createField("ezb_summary", "textarea", "ezoomlayer_summaries", "", "summaries_set")
         });
         $('#btnAddSummary').click(function () {
-            addContrib("summary")
+            addSummary();
         });
         $('#btnAddPart').click(function () {
-            addContrib("part")
+            addPart();
         });
-    });
+        $('.btnAddQuote').click(function (e){
+            var divId = e.target.id.split("_")[1];
+            if(divId){
+                addAtomicContrib(divId, "contrib.Quote");
+            }
+        });
+        $('.btnAddSummary').click(function (e){
+            var divId = e.target.id.split("_")[1];
+            if(divId){
+                addAtomicContrib(divId, "contrib.Summary");
+            }
+        });
+   });
 //]]>
 </script>
 }
@@ -110,6 +245,16 @@
  width: 89%; 
 }
 </style>
+
+<!-- Invisible part div (used as template) -->
+@displayPart(ezlForm("ezoomlayer_contribs"), true, "999")
+
+<!-- Another template for quotes -->
+@displayAtomic("contrib.Quote", ezlForm("ezoomlayer_contribs"), "contrib_", "_", "999", true)
+
+<!-- And another template for summaries -->
+@displayAtomic("contrib.Summary", ezlForm("ezoomlayer_contribs"), "contrib_", "_", "999", true)
+
     <div class="row">
         <div class="span12">
             <h1>eZoomBook Edition</h1>
@@ -162,7 +307,7 @@
                 @hidden(ezlForm("ezoomlayer_owner"))
                 <div class="save">
                     <input type="submit" value="Save eZoomLayer">
-                    <a href="/#" class="btn"><i class="icon-trash"></i></a>
+                    <a href="#" class="btn"><i class="icon-trash"></i></a>
                 </div>
                 <div>
                     @levelMap{lmap =>
@@ -191,26 +336,15 @@
             </fieldset>
             <fieldset id="contribs_set" class="field">
                 <legend>Contributions</legend>
-                @repeat(ezlForm("ezoomlayer_contribs")){f =>
-                    @hidden(ezlForm("contrib_id"))
-                    @hidden(ezlForm("ezoomlayer_id"))
-                    @hidden(ezlForm("ezoombook_id"))
-                    @hidden(ezlForm("user_id"))
-                    @hidden(ezlForm("contrib_part"))
-                    @hidden(ezlForm("contrib_status"))
-                    @hidden(ezlForm("contrib_locked"))
-
+                @for(i <- ezlForm("ezoomlayer_contribs").indexes;
+                     f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
                     @f("contrib_type").value.map{cf =>
-                        <div class="contrib">
-                            @cf match{
-                            case "contrib.Part" => { @displayPart(f) }
-                            case _ => { @displayAtomic(cf, f, "contrib_") }
-                            
-                            }
-                        </div>
+                        @cf match{
+                            case "contrib.Part" => { @displayPart(f, false, i.toString) }
+                            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
+                        }
                     }.getOrElse{ }
                 }
-                
             </fieldset>
 
             }
