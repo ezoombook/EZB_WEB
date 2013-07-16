@@ -22,7 +22,7 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here   
-//      scalaVersion := "2.10.0",
+      scalaVersion := "2.10.0",
       resolvers ++= appResolvers
   ) 
 }

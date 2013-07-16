@@ -1,5 +1,6 @@
 import sbt._
 import Keys._
+import play.Project._
 
 object EzbDalBuild extends Build {
        val name = "ezb-dal"
@@ -19,16 +20,23 @@ object EzbDalBuild extends Build {
       "com.typesafe.slick" %% "slick" % "1.0.0",
       "org.mindrot" % "jbcrypt" % "0.3m",
       "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
-      "couchbase" % "couchbase-client" % "1.1.6" ,
-      "nl.siegmann.epublib" % "epublib-core" % "3.1"
+      "couchbase" % "couchbase-client" % "1.1.6",
+      "nl.siegmann.epublib" %% "epublib-core" % "3.1"
   )
 
-  lazy val root = Project(name, 
-			  file("."),
-			  settings = Defaults.defaultSettings ++ Seq (
-			    scalaVersion := buildScalaVersion,
-			    resolvers := libresolvers,
-			    libraryDependencies ++= libdependencies
-			  )
+  val main = play.Project(name, version, libdependencies).settings(
+    scalaVersion := "2.10.0",
+    resolvers := libresolvers,
+  )
+
+/*
+  val main = Project(name, 
+    file("."),
+    settings = Defaults.defaultSettings ++ Seq (
+      scalaVersion := buildScalaVersion,
+      resolvers := libresolvers,
+      libraryDependencies ++= libdependencies
+     )
    )
+*/ 
 }

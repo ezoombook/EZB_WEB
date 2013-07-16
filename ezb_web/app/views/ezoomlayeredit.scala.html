@@ -16,23 +16,21 @@
 
 @displayPart(part:Field, hide:Boolean, divId:String) = {
     <div class="part_field @if(hide){hide}" id="part_field_@divId">
-        <div class="row part_div">
-            <div class="span3">
+        <div class="row-fluid part_div">
+            <div class="span6 title_box">
             @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
             @hidden(part("contrib_type"))
             </div>
             <div class="span1 btn-group">
-                <button class="btn" data-toggle="dropdown" href="#" >
-                    New
-                    <span class="caret"></span>
-                </button>
+                <button class="btn" data-toggle="dropdown" href="#" >New<span class="caret"></span></button>
+                <button class="btn" href="#"><i class="icon-trash"></i></button>
                 <ul class="dropdown-menu">
                     <li><a href="#" class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
                     <li><a href="#" class="btnAddSummary" id="btnAddSummary_@divId">Summary</a></li>
                 </ul>
             </div>
             <div class="span1">
-                <a href="#" class="btn"><i class="icon-trash"></i></a>
+
             </div>
         </div>
         @for(i <- part("part_contribs").indexes;
@@ -52,23 +50,19 @@
                     <div class="span1">
                         <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
                     </div>
-                    <div class="span7">
-                        @textarea(c("contrib_content"), '_label -> "", 'class -> "quote")
+                    <div class="span10 text_box">
+                        <a href="#" class="btn delete"><i class="icon-trash"></i></a>
+                        @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
                         @hidden(c("contrib_type"))
-                    </div>
-                    <div class="span1">
-                        <a href="#" class="btn"><i class="icon-trash"></i></a>
                     </div>
                 </div>
             }
             case "contrib.Summary" => {
                 <div class="row-fluid summary_div @if(hide){hide}" id="summary_div_@div_id">
-                    <div class="span7">
+                    <div class="span11 text_box">
                     @hidden(c("contrib_type"))
-                    @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary")  )
-                    </div>
-                    <div class="span1">
-                        <a href="#" class="btn"><i class="icon-trash"></i></a>
+                        <div class="delete"><a href="#" class="btn"><i class="icon-trash"></i></a></div>
+                    @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary contrib")  )
                     </div>
                 </div>
             }
@@ -205,6 +199,14 @@
                 addAtomicContrib(divId, "contrib.Summary");
             }
         });
+        $(".delete").hover(
+            function(){
+                $(this).append($("<span>***</span>"));
+            },
+            function(){
+                $(this).find("span:last").remove();
+            }
+        );
    });
 //]]>
 </script>
@@ -212,37 +214,37 @@
 
 @main("Ezoombook Edition", scripts){
 <style>
-.leftpannel{
-  position: absolute;
-  top: 130px;
-  right: 75%;
-}
-.ezoomlayer{
-  position: absolute;
- top: 170px;
-  left: 30%;
-  
-  
-}
-.field
-{
+.field_set{
     border:2px solid blue;
     -moz-border-radius:8px;
     -webkit-border-radius:8px;
     border-radius:8px;
 }
-.ezb_summary
+.text_box
 {
- width: 89%; 
+  position: relative;
+  padding-left: 5px;
 }
-
-.quote
+textarea.contrib
 {
- width: 89%; 
+  width: 100%;
+  resize: none;
 }
-.contrib_summary
+.title_box
 {
- width: 89%; 
+  padding-left: 5px;
+}
+.part_title
+{
+  width: 100%;
+}
+.delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 20;
+  line-height: 20px;
+  float: right;
 }
 </style>
 
@@ -300,7 +302,7 @@
             </div>
             }
             @form(routes.EzoomBooks.saveEzoomlayer(ezoombook.ezoombook_id.toString), 'id -> "ezl_form"){
-            <fieldset class="field">
+            <fieldset class="field_set">
                 <legend>eZoomLayer</legend>
                 @hidden(ezlForm("ezoomlayer_id"))
                 @hidden(ezlForm("ezoombook_id"))
@@ -327,21 +329,21 @@
                     <input type="button" class="btn" id="btnAddPart" value="+ Part">
                 </div>
             </fieldset>
-            <fieldset id="summaries_set" class="field">
+            <fieldset id="summaries_set" class="field_set">
                 <legend>Book Summaries</legend>
                 @repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
                     @textarea(f, '_label -> "", 'class -> "ezb_summary")
                  
                 }
             </fieldset>
-            <fieldset id="contribs_set" class="field">
+            <fieldset id="contribs_set" class="field_set">
                 <legend>Contributions</legend>
                 @for(i <- ezlForm("ezoomlayer_contribs").indexes;
                      f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
                     @f("contrib_type").value.map{cf =>
                         @cf match{
-                            case "contrib.Part" => { @displayPart(f, false, i.toString) }
-                            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
+                            case "contrib.Part" => { @displayPart(f, false, i.toString) <hr>}
+                            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) <hr>}
                         }
                     }.getOrElse{ }
                 }
