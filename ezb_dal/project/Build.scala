@@ -1,6 +1,5 @@
 import sbt._
 import Keys._
-import play.Project._
 
 object EzbDalBuild extends Build {
        val name = "ezb-dal"
@@ -24,13 +23,7 @@ object EzbDalBuild extends Build {
       "nl.siegmann.epublib" %% "epublib-core" % "3.1"
   )
 
-  val main = play.Project(name, version, libdependencies).settings(
-    scalaVersion := "2.10.0",
-    resolvers := libresolvers,
-  )
-
-/*
-  val main = Project(name, 
+  lazy val root = Project(name,
     file("."),
     settings = Defaults.defaultSettings ++ Seq (
       scalaVersion := buildScalaVersion,
@@ -38,5 +31,4 @@ object EzbDalBuild extends Build {
       libraryDependencies ++= libdependencies
      )
    )
-*/ 
 }
