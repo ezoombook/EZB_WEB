@@ -140,7 +140,6 @@
             }
         });
         $('#btnAddSummary').click(function (e){
-    console.log("coucou!");
             addSummary();
         });
         $(".del_text").hover(
@@ -162,7 +161,7 @@
             }else{
                 $("#ezoomlayer_locked").attr("value","true")
             }
-        })
+        });
         $("#ezoomlayer_status_btn").click(function(){
             var lkdButton = $("#ezoomlayer_status");
             //Toggle
@@ -171,7 +170,11 @@
             }else{
                 $("#ezoomlayer_status").attr("value","@Status.workInProgress")
             }
-        })
+        });
+        $(".part_title").change(function(){
+    console.log("Selected part: " +  $(this).find("option[value='"+$(this).val()+"']").text());
+            $(this).siblings(".part_id").attr("value", $(this).find("option[value='"+$(this).val()+"']").text());
+        });
    });
 //]]>
 </script>
@@ -190,7 +193,16 @@
 <div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId">
     <div class="row-fluid part_div">
         <div class="span6 title_box">
-            @inputText(part("part_title"), '_label -> "", 'class -> "part_title")
+            @bookOpt.map{book =>
+                @select(part("part_id"),
+                    options= book.bookParts.foldLeft(Seq[(String,String)]()){
+                        case (lst,BookPart(id,Some(title))) => lst :+ (id,title)
+                        case (lst, _) => lst
+                    },
+                    '_label -> "",
+                    'class -> "part_title")
+            }
+            @hidden(part("part_title"), 'class -> "part_id")
             @hidden(part("contrib_type"))
         </div>
         <div class="span1 btn-group">
