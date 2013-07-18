@@ -160,8 +160,8 @@ object EzoomBooks extends Controller with ContextProvider{
             BadRequest(views.html.ezoomlayeredit(ezb, errors,BookDO.getBook(ezb.book_id.toString)))
           },
           ezl => {
-//println("The ezl: " + Json.prettyPrint(Json.toJson(ezl)))
             BookDO.saveLayer(ezl)
+            println(s"[INFO] Layer ${ezl.ezoomlayer_id} successfully saved!")
             Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString))
           }
         )
