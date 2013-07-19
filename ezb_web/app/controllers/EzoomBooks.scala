@@ -161,7 +161,6 @@ object EzoomBooks extends Controller with ContextProvider{
           },
           ezl => {
             BookDO.saveLayer(ezl)
-            println(s"[INFO] Layer ${ezl.ezoomlayer_id} successfully saved!")
             Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString))
           }
         )
