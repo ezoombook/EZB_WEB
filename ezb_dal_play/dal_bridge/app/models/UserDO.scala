@@ -2,7 +2,6 @@ package models
 
 import users.dal.{User, Group}
 
-import util.DynamicVariable
 import java.util.UUID
 
 object UserDO{
