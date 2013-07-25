@@ -55,7 +55,7 @@ GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 GET	    /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
 GET	    /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
-GET     /bookread/:bid/:index    controllers.EzoomBooks.readLayer(bid:String,index:Int)
+GET     /bookread/:bid/:index    controllers.EzoomBooks.readLayer(bid:String,index:String)
 #GET     /bookpart/:bid/:pid      controllers.EzoomBooks.bookPart(bid:String,pid:String)
 
 # Book resources
@@ -79,7 +79,9 @@ POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
 POST    /ezlayer/load/:bid          controllers.EzoomBooks.loadEzoomLayer(bid:String)
 POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:String)
 GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
-GET     /ezlayer/edit/:bid/:lid     controllers.EzoomBooks.ezoomLayerEdit(bid,lid)
+GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
+POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
+GET     /workingezlayer             controllers.EzoomBooks.workingEzoomLayer
 GET     /read/:id                   controllers.EzoomBooks.readEzb(id:String)
 #POST    /addezbtrl/:id              controllers.EzoomBooks.addezbtrl(id:String)
 #POST    /addezbtf/:id              controllers.EzoomBooks.addezbtf(id:String)
