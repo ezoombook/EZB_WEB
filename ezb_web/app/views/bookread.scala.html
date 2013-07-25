@@ -1,4 +1,4 @@
-@(book:Book,partIndex:Int,partContent:Html)(implicit context:Context)
+@(book:Book,partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html)(implicit context:Context)
 
 @import helper._
 
@@ -16,7 +16,7 @@
                             "bookid":"@book.bookId",
                             "ezbid":"@ezl.ezoombook_id",
                             "layerid":"@ezl.ezoomlayer_id",
-                            "partid":"@book.bookParts(partIndex).partId",
+                            "partid":"@partId",
                             "content":quote,
                             "range":selRange};
 
@@ -46,6 +46,12 @@
                 'onMark': saveQuote,
                 'marker': 'marker-bar'});
 
+        @quoteRanges.map{qr =>
+            var quoteRange = MaSha.instance.deserializeRange("@qr");
+            MaSha.instance.addSelection(quoteRange);
+        }
+
+        //Add a function to Masha prototype for getting the last selected range
         MaSha.prototype.getLastRange = function(){
             for(var k in this.ranges) {}
             return this.ranges[k]; //this.deserializeRange(this.ranges[k]);
@@ -69,6 +75,25 @@
 }
 </style>
 
+<div class="btn-group">
+    <a href="#" data-toggle="dropdown"><i class="icon-th-list"></i></a>
+    <ul class="dropdown-menu">
+        @context.activeLayer.map{ezl =>
+        <li>
+            <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString, true)">
+                <i class="icon-arrow-left"></i>Go back to eZoomLayer...
+            </a>
+        </li>
+        }.getOrElse{
+        <li>Go back to ?</li>
+        }
+        <li class="divider"></li>
+        <li>Go to chapter:</li>
+        @book.bookParts.map{bookPart =>
+            <li><a href="@routes.EzoomBooks.readLayer(book.bookId.toString, bookPart.partId)">@bookPart.title.getOrElse("-")</a></li>
+        }
+    </ul>
+</div>
 <h1>@book.bookTitle</h1>
 
 <div id="pop" style="display:none">
@@ -91,7 +116,7 @@
 <div class="row">
     <div class="span1">
         @if(partIndex > 0){
-        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,partIndex-1)'><i class="icon-chevron-left"></i></a>
+        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex-1).partId)'><i class="icon-chevron-left"></i></a>
         }
     </div>
     <div class="span10" id="reader">
@@ -99,7 +124,7 @@
     </div>
     <div class="span1">
         @if(partIndex < book.bookParts.size-1){
-        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,partIndex+1)'><i class="icon-chevron-right"></i></a>
+        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex+1).partId)'><i class="icon-chevron-right"></i></a>
         }
     </div>
 </div> <!-- Reader End -->

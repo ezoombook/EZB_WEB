@@ -1,19 +1,9 @@
-@(ezoombook:Ezoombook, ezlForm:Form[EzoomLayer], bookOpt:Option[Book])(implicit context:Context)
+@(ezb:Ezoombook, ezlForm:Form[EzoomLayer], bookOpt:Option[Book])(implicit context:Context)
 
 @import helper._
 @** @import helper.twitterBootstrap._ **@
 @import utils.EzbHelpers._
 @import ezbhelper._
-
-@**
-@hidden(ezlForm("contrib_id"))
-@hidden(ezlForm("ezoomlayer_id"))
-@hidden(ezlForm("ezoombook_id"))
-@hidden(ezlForm("user_id"))
-@hidden(ezlForm("contrib_part"))
-@hidden(ezlForm("contrib_status"))
-@hidden(ezlForm("contrib_locked"))
-**@
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
@@ -172,7 +162,6 @@
             }
         });
         $(".part_title").change(function(){
-    console.log("Selected part: " +  $(this).find("option[value='"+$(this).val()+"']").text());
             $(this).siblings(".part_id").attr("value", $(this).find("option[value='"+$(this).val()+"']").text());
         });
    });
@@ -207,11 +196,19 @@
         </div>
         <div class="span1 btn-group">
             <button class="btn" data-toggle="dropdown" href="#" >New<span class="caret"></span></button>
-            <a class="btn delete" data-toggle="button" href="#"><i class="icon-trash"></i></a>
             <ul class="dropdown-menu">
                 <li><a href="#" class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
                 <li><a href="#" class="btnAddPartSummary" id="btnAddSummary_@divId">Summary</a></li>
             </ul>
+            @bookOpt.map{book =>
+                @part("part_id").value.map{partId =>
+                    <a class="btn" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
+                    Go to book...</a>
+                }
+            }.getOrElse{
+                <a class="btn hide readBtn" href="#">Go to book...</a>
+            }
+            <a class="btn delete" data-toggle="button" href="#"><i class="icon-trash"></i></a>
         </div>
     </div>
     @for(i <- part("part_contribs").indexes;
@@ -235,6 +232,7 @@
                     <a href="#" class="btn delete del_text"><i class="icon-trash"></i></a>
                     @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
                     @hidden(c("contrib_type"))
+                    @hidden(c("range"))
                 </div>
             </div>
             }
@@ -260,7 +258,7 @@
     }
 }
 
-@displayEzbInfo(ezb:Ezoombook) = {
+@displayEzbInfo = {
     <dl>
         <dt>Title:</dt><dd>@ezb.ezoombook_title</dd>
         <dt>Is Public:</dt><dd>@ezb.ezoombook_public</dd>
@@ -269,7 +267,7 @@
         <ul>
             @ezb.ezoombook_layers.map{layer =>
                 @levelMap{lmap =>
-                    <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer._2">@lmap.getOrElse(layer._1, "undef")</a></li>
+                    <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer._2/false">@lmap.getOrElse(layer._1, "undef")</a></li>
                 }
             }
         </ul>
@@ -348,6 +346,33 @@ label{
 <!-- A simple textarea for EZB Summaries -->
 @displayEzbSummary(ezlForm("ezoomlayer_summaries"), true, "999")
 
+<!-- An alert modal to desplay when deleting an EzoomLayer -->
+<div id="deleteAlert" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="deleteAlertHeader" aria-hidden="true">
+    @context.activeLayer.map{ezl =>
+        @form(routes.EzoomBooks.ezoomLayerDelete(ezb.ezoombook_id.toString,ezl.ezoomlayer_level)){
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <h3 id="deleteAlertHeader">EzoomLayer Elimination</h3>
+        </div>
+        <div class="modal-body">
+            <p>You are about to delete an EzoomLayer with all your contributions.
+            Are you sure you want to continue?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <input type="submit" class="btn bnt-primary"
+                    value="Delete Layer">
+        </div>
+        }
+    }.getOrElse{
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <h3 id="deleteAlertHeader">No Active eZoomLayer Found</h3>
+        </div>
+    }
+</div>
+
     <div class="row">
         <div class="span12">
             <h1>eZoomBook Edition</h1>
@@ -357,10 +382,10 @@ label{
         <div class="span3">
             <div>
                 <h3 id="ezoombook_title">eZoomBook Info</h3>
-                @displayEzbInfo(ezoombook)
+                @displayEzbInfo
 
                 <p>Load a layer from a file: </p>
-                @form(routes.EzoomBooks.loadEzoomLayer(ezoombook.ezoombook_id.toString), 'enctype -> "multipart/form-data"){
+                @form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString), 'enctype -> "multipart/form-data"){
                     <input type="file" name="ezlfile"></br>
                     <input type="submit">
                 }
@@ -392,7 +417,7 @@ label{
                 </ul>
             </div>
             }
-            @form(routes.EzoomBooks.saveEzoomlayer(ezoombook.ezoombook_id.toString), 'id -> "ezl_form"){
+            @form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString), 'id -> "ezl_form"){
             <fieldset class="field_set">
                 <legend>eZoomLayer</legend>
                 @hidden(ezlForm("ezoomlayer_id"))
@@ -407,7 +432,9 @@ label{
                     </div>
                     <div class="span6 btn-group">
                         <input class="btn" type="submit" value="Save eZoomLayer">
-                        <button class="btn" href="#">Delete eZoomLayer</button>
+                        @context.activeLayer.map{ezl =>
+                        <button class="btn" href="#deleteAlert" role="button" data-toggle="modal">Delete eZoomLayer</button>
+                        }.getOrElse{}
                     </div>
                 </div>
                 <div class="row-fluid">

@@ -20,7 +20,8 @@ object EzbDalBuild extends Build {
       "org.mindrot" % "jbcrypt" % "0.3m",
       "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
       "couchbase" % "couchbase-client" % "1.1.6",
-      "nl.siegmann.epublib" %% "epublib-core" % "3.1"
+      "nl.siegmann.epublib" %% "epublib-core" % "3.1",
+      "org.scalaz" %% "scalaz-core" % "7.0.2"
   )
 
   lazy val root = Project(name,

@@ -287,4 +287,16 @@ trait BookComponent{
 //    val query = new Query()
 //  }
 
+  def deleteLayer(ezbId:UUID, layerLevel:Int)(implicit couchclient:CouchbaseClient):Boolean = {
+    getEzoomBook(ezbId).flatMap{ezb =>
+      ezb.ezoombook_layers.get(layerLevel.toString).map{layerId =>
+        val modifiedEzb = Ezoombook.removeLayer(ezb, layerLevel.toString)
+        saveEzoomBook(modifiedEzb)
+        couchclient.delete(layerId).get().booleanValue()
+      }
+    }.getOrElse{
+      println(s"[ERROR] Could not find eZoomBook with id $ezbId")
+      false
+    }
+  }
 }

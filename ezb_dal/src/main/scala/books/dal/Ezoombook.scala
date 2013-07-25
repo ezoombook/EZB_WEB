@@ -45,6 +45,7 @@ case class Ezoombook (ezoombook_id:UUID,
 
 object Ezoombook extends UUIDjsParser{
   import play.api.libs.functional.syntax._
+  import scalaz._
 
   //implicit val fmt = Json.format[Ezoombook]
   implicit val fmt:Format[Ezoombook] = (
@@ -56,6 +57,19 @@ object Ezoombook extends UUIDjsParser{
       (__ \ 'ezoombook_public).format[Boolean] ~
       (__ \ 'ezoombook_layers).format[Map[String,String]]
   )(Ezoombook.apply, unlift(Ezoombook.unapply))
+
+  val layersL:Lens[Ezoombook, Map[String,String]] = Lens.lensu(
+    (ezb, newlayers) => ezb.copy(ezoombook_layers = newlayers),
+    _.ezoombook_layers
+  )
+
+  def addLayer(ezb:Ezoombook, newLayer:EzoomLayer):Ezoombook = {
+    layersL.mod( _ + (newLayer.ezoomlayer_level.toString -> newLayer.ezoomlayer_id.toString), ezb)
+  }
+
+  def removeLayer(ezb:Ezoombook, layerLevel:String):Ezoombook = {
+    layersL.mod( _ - (layerLevel), ezb)
+  }
 }
 
 trait Contrib{
@@ -89,6 +103,7 @@ case class AtomicContrib(val contrib_id:String,
 
 object AtomicContrib extends UUIDjsParser{
   import play.api.libs.functional.syntax._
+  import scalaz._
 
   implicit val contribFmt:Format[AtomicContrib] = (
     (__ \ "contrib_id").format[String] ~
@@ -102,6 +117,27 @@ object AtomicContrib extends UUIDjsParser{
     (__ \ "contrib_locked").format[Boolean] ~
     (__ \ "contrib_content").format[String]
   )(AtomicContrib.apply, unlift(AtomicContrib.unapply))
+
+  //Lenses for fields that can be updated
+  val ownerL:Lens[AtomicContrib,UUID] = Lens.lensu(
+    (ac, newOwner) => ac.copy(user_id = newOwner),
+    _.user_id
+  )
+
+  val statusL:Lens[AtomicContrib,Status.Value] = Lens.lensu(
+    (contrib, newStatus) => contrib.copy(contrib_status = newStatus),
+    _.contrib_status
+  )
+
+  val lockedL:Lens[AtomicContrib, Boolean] = Lens.lensu(
+    (contrib, locked) => contrib.copy(contrib_locked = locked),
+    _.contrib_locked
+  )
+
+  val contentL:Lens[AtomicContrib, String] = Lens.lensu(
+    (contrib, newContent) => contrib.copy(contrib_content = newContent),
+    _.contrib_content
+  )
 }
 
 case class EzlPart(val contrib_id:String,
@@ -118,8 +154,9 @@ case class EzlPart(val contrib_id:String,
   val contrib_type = "contrib.Part"
   val contrib_content = ""
 
-  def addContrib(contrib:AtomicContrib):EzlPart = EzlPart(contrib_id, ezoomlayer_id,ezoombook_id,user_id,part_id,
-                  contrib_status,contrib_locked,part_title,part_summary,part_contribs :+ contrib)
+  @deprecated("Use EzlPart lenses")
+  def addContrib(contrib:AtomicContrib):EzlPart = this.copy(part_contribs = this.part_contribs :+ contrib)
+
 }
 //  override def toString = super.toString + (s"""part_contribs: ${part_contribs.mkString("[","\n","]")}""")
 
@@ -127,6 +164,7 @@ case class EzlPart(val contrib_id:String,
 object EzlPart extends UUIDjsParser{
 //  implicit val fmt = Json.format[EzlPart]
   import play.api.libs.functional.syntax._
+  import scalaz._
 
   implicit val fmt = new Format[EzlPart]{
     def reads(js:JsValue) = Json.fromJson(js)((
@@ -158,6 +196,31 @@ object EzlPart extends UUIDjsParser{
                   p.part_id,p.contrib_status,p.contrib_locked,p.part_title,p.part_summary,p.part_contribs))))
 
   }
+
+  //Lenses for fields that can be updated
+  val ownerL:Lens[EzlPart,UUID] = Lens.lensu(
+    (ac, newOwner) => ac.copy(user_id = newOwner),
+    _.user_id
+  )
+
+  val statusL:Lens[EzlPart,Status.Value] = Lens.lensu(
+    (contrib, newStatus) => contrib.copy(contrib_status = newStatus),
+    _.contrib_status
+  )
+
+  val lockedL:Lens[EzlPart, Boolean] = Lens.lensu(
+    (contrib, locked) => contrib.copy(contrib_locked = locked),
+    _.contrib_locked
+  )
+
+  val contribsL:Lens[EzlPart, List[AtomicContrib]] = Lens.lensu(
+    (part, newcontribs) => part.copy(part_contribs = newcontribs),
+    _.part_contribs
+  )
+
+  def addPartContrib(part: EzlPart, newContrib:AtomicContrib):EzlPart = {
+    contribsL.mod(_ :+ newContrib, part)
+  }
 }
 
 case class EzoomLayer(ezoomlayer_id: UUID,
@@ -169,6 +232,7 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoomlayer_summaries:List[String],
                       ezoomlayer_contribs: List[Contrib]) {
 
+  @deprecated("Use lences")
   def addContrib(contr:Contrib):EzoomLayer = new EzoomLayer(ezoomlayer_id,ezoombook_id,ezoomlayer_level,
     ezoomlayer_owner, ezoomlayer_status, ezoomlayer_locked, ezoomlayer_summaries, ezoomlayer_contribs :+ contr)
 
@@ -185,6 +249,7 @@ case class EzoomLayer(ezoomlayer_id: UUID,
 
 object EzoomLayer extends UUIDjsParser{
   import play.api.libs.functional.syntax._
+  import scalaz._
 
   implicit val contribFormat:Format[Contrib] = new Format[Contrib]{
     def reads(json:JsValue):JsResult[Contrib] = (json \ "contrib_type") match {
@@ -209,9 +274,52 @@ object EzoomLayer extends UUIDjsParser{
       (__ \ "ezoomlayer_status").format[Status.Value] ~
       (__ \ "ezoomlayer_locked").format[Boolean] ~
       (__ \ "ezoomlayer_summaries").format[List[String]] ~
-      (__ \ "ezoomlayer_parts").format[List[Contrib]]
+      (__ \ "ezoomlayer_contribs").format[List[Contrib]]
     )(EzoomLayer.apply, unlift(EzoomLayer.unapply))
 
+  val ownerL:Lens[EzoomLayer, String] = Lens.lensu(
+    (ezl, newOwner) => ezl.copy(ezoomlayer_owner = newOwner),
+    _.ezoomlayer_owner
+  )
+
+  val statusL:Lens[EzoomLayer, Status.Value] = Lens.lensu(
+    (ezl, newStatus) => ezl.copy(ezoomlayer_status = newStatus),
+    _.ezoomlayer_status
+  )
+
+  val lockedL:Lens[EzoomLayer, Boolean] = Lens.lensu(
+    (ezl, locked) => ezl.copy(ezoomlayer_locked = locked),
+    _.ezoomlayer_locked
+  )
+
+  val summariesL:Lens[EzoomLayer,List[String]] = Lens.lensu(
+    (ezl, newSummaries) => ezl.copy(ezoomlayer_summaries = newSummaries),
+    _.ezoomlayer_summaries
+  )
+
+  val contribsL:Lens[EzoomLayer, List[Contrib]] = Lens.lensu(
+    (ezl, newcontribs) => ezl.copy(ezoomlayer_contribs = newcontribs),
+    _.ezoomlayer_contribs
+  )
+
+  def updatePart(ezl:EzoomLayer, partId:String, partTitle:String, partContrib:AtomicContrib):EzoomLayer = {
+    def updateContribList(cList:List[Contrib], acumList:List[Contrib]):List[Contrib] = {
+      cList match{
+        case Nil =>
+          println(s"[INFO] Creating new part with title $partTitle and quote: '${partContrib.contrib_content}'")
+          acumList :+
+            EzlPart("part:"+UUID.randomUUID, ezl.ezoomlayer_id, ezl.ezoombook_id, partContrib.user_id,
+              partContrib.part_id, books.dal.Status.workInProgress, false, partTitle, None, List(partContrib))
+        case contrib::rest =>
+          contrib match{
+            case part:EzlPart if part.part_id == partId => (acumList :+ EzlPart.addPartContrib(part, partContrib)) ++ rest
+            case _ => updateContribList(rest, contrib :: acumList)
+          }
+      }
+    }
+
+    contribsL.set(ezl, updateContribList(ezl.ezoomlayer_contribs, List[Contrib]()))
+  }
 }
 
 object AltFormats extends UUIDjsParser{

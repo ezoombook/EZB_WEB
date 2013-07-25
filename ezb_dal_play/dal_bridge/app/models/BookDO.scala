@@ -47,17 +47,23 @@ object BookDO{
     Cache.set("working-layer", ezl, 0)
   }
 
+  def getWorkingEzb:Option[Ezoombook] = {
+    Cache.getAs[Ezoombook]("working-ezb")
+  }
+
+  def getWorkingLayer:Option[EzoomLayer] = {
+    Cache.getAs[EzoomLayer]("working-layer")
+  }
+
   def saveEzoomBook(ezb:Ezoombook){
     AppDB.cdal.saveEzoomBook(ezb)
     Cache.set("ezb:"+ezb.ezoombook_id,ezb)
   }
 
   def saveLayer(ezl:EzoomLayer){
-    Cache.set("ezl:"+ezl, ezl)
-    setWorkingLayer(ezl)
     AppDB.cdal.saveLayer(ezl).map{ezb =>
+      Cache.set("ezl:"+ezl.ezoomlayer_id, ezl)
       Cache.set("ezb:"+ezb.ezoombook_id,ezb)
-      setWorkingEzb(ezb)
     }
   }
 
@@ -81,9 +87,19 @@ object BookDO{
     }
   }
 
-  def getEzoomLayer(ezlId:UUID):Option[EzoomLayer] = {
-    Cache.getOrElse("ezl:"+ezlId, 0){
+  def getEzoomLayer(ezlId:UUID, reloadCache:Boolean = false):Option[EzoomLayer] = {
+    if(reloadCache){
       AppDB.cdal.getLayer(ezlId)
+    }else{
+      Cache.getOrElse("ezl:"+ezlId, 0){
+        AppDB.cdal.getLayer(ezlId)
+      }
+    }
+  }
+
+  def deleteEzoomLayer(ezbId:UUID, layerLevel:Int){
+    if(AppDB.cdal.deleteLayer(ezbId, layerLevel)){
+      Cache.set("ezb:"+ezbId, AppDB.cdal.getEzoomBook(ezbId), 0)
     }
   }
 
