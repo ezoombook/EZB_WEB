@@ -312,7 +312,8 @@ object EzoomLayer extends UUIDjsParser{
               partContrib.part_id, books.dal.Status.workInProgress, false, partTitle, None, List(partContrib))
         case contrib::rest =>
           contrib match{
-            case part:EzlPart if part.part_id == partId => (acumList :+ EzlPart.addPartContrib(part, partContrib)) ++ rest
+            case part:EzlPart if part.part_id.exists(_ == partId) =>
+              (acumList :+ EzlPart.addPartContrib(part, partContrib)) ++ rest
             case _ => updateContribList(rest, contrib :: acumList)
           }
       }
