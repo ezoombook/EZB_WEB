@@ -182,17 +182,22 @@
 <div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId">
     <div class="row-fluid part_div">
         <div class="span6 title_box">
-            @bookOpt.map{book =>
-                @select(part("part_id"),
-                    options= book.bookParts.foldLeft(Seq[(String,String)]()){
-                        case (lst,BookPart(id,Some(title))) => lst :+ (id,title)
-                        case (lst, _) => lst
-                    },
-                    '_label -> "",
-                    'class -> "part_title")
-            }
-            @hidden(part("part_title"), 'class -> "part_id")
             @hidden(part("contrib_type"))
+            @part("part_id").value.map{partId =>
+                @hidden(part("part_id"))
+                @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
+            }.getOrElse{
+                @bookOpt.map{book =>
+                    @select(part("part_id"),
+                        options= book.bookParts.foldLeft(Seq[(String,String)]()){
+                            case (lst,BookPart(id,Some(title))) => lst :+ (id,title)
+                            case (lst, _) => lst
+                        },
+                        '_label -> "",
+                        'class -> "part_title")
+                }
+                @hidden(part("part_title"), 'class -> "part_id")
+            }
         </div>
         <div class="span1 btn-group">
             <button class="btn" data-toggle="dropdown" href="#" >New<span class="caret"></span></button>
@@ -276,6 +281,7 @@
 }
 
 @main("Ezoombook Edition", scripts){
+
 <style>
 .field_set{
     border:2px solid blue;

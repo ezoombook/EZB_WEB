@@ -81,7 +81,7 @@
         @context.activeLayer.map{ezl =>
         <li>
             <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString, true)">
-                <i class="icon-arrow-left"></i>Go back to eZoomLayer...
+                <i class="icon-arrow-left"></i> Go back to eZoomLayer...
             </a>
         </li>
         }.getOrElse{
@@ -90,19 +90,12 @@
         <li class="divider"></li>
         <li>Go to chapter:</li>
         @book.bookParts.map{bookPart =>
-            <li><a href="@routes.EzoomBooks.readLayer(book.bookId.toString, bookPart.partId)">@bookPart.title.getOrElse("-")</a></li>
+            <li><a href="@routes.EzoomBooks.readLayer(book.bookId.toString, bookPart.partId)">@bookPart.title.getOrElse("- Subsection")</a></li>
         }
     </ul>
 </div>
 <h1>@book.bookTitle</h1>
 
-<div id="pop" style="display:none">
-    <ul role="menu">
-        <li><a href="#" onClick='saveQuote()'>Save quote</a></li>
-        <li>Insert summary</li>
-        <li>Cancel</li>
-    </ul>
-</div>
 <div id="quote-saved-msg" style="display:none">
     <div class="upmsg-selectable-inner">
         <a class="btn close" data-dismiss="alert">&times;</a>

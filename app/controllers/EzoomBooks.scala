@@ -254,6 +254,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
+  //TODO rename to simply book
   def readBook(id:String) = Action{implicit request =>
     BookDO.getBook(id).map{book =>
       val  ezb = Ezoombook (UUID.randomUUID, UUID.fromString(id) ,context.user.get.id.toString, books.dal.Status.workInProgress,"",false) 
@@ -305,9 +306,32 @@ object EzoomBooks extends Controller with ContextProvider{
      }
   }
 
-  def readEzb(ezbId:String) = Action {implicit request =>
-    val ezbuuid = UUID.fromString(ezbId)
-    Ok(views.html.read())
+  def setReadingEzb(ezbId:String) = Action {implicit request =>
+    BookDO.getEzoomBook(UUID.fromString(ezbId)).flatMap{ezb =>
+      BookDO.getBook(ezb.book_id.toString).map{book =>
+        BookDO.setWorkingEzb(ezb)
+        Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(0).partId))
+      }
+    }.getOrElse{
+      NotFound("Oops! We couldn't find the eZoomBook you are looking for")
+    }
+  }
+
+  def readEzb(bookId:String,partId:String) = Action {implicit request =>
+    BookDO.getBook(bookId).flatMap{book =>
+      BookDO.getWorkingEzb.map{ezb =>
+        val partIndex = book.bookParts.indexWhere(_.partId == partId)
+        Ok(views.html.read(book,
+          ezb, partIndex,
+          ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
+            BookDO.getEzoomLayer(UUID.fromString(layer._2)).
+              map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
+          },
+          play.api.templates.Html(new String(BookDO.getBookResource(book.bookId, partId)))))
+      }
+    }.getOrElse{
+      NotFound("Oops! We couldn't find the eZoomBook you are looking for")
+    }
   }
 
 //  def bookPart(bookId:String,partId:String) = Action{implicit request =>
@@ -333,6 +357,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
+  //TODO Rename to readBook
   def readLayer(bookId:String,partId:String) = Action{implicit request =>
     BookDO.getBook(bookId).map{book =>
       val partIndex = book.bookParts.indexWhere(_.partId == partId)
