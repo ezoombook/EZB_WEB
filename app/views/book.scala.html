@@ -49,7 +49,7 @@
     <tr>
         @for(g<-listezbooks){
         <tr>
-            <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td>
+            <td><a href='@routes.EzoomBooks.setReadingEzb(g.ezoombook_id.toString)'>@g.ezoombook_title</a></td>
             <td>@g.ezoombook_owner</td>
             <td>@g.ezoombook_layers.size</td>
             <td>@for(i <- 1 to 5){<i class=" icon-star"></i>}</td>
