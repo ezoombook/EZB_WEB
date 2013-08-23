@@ -1,4 +1,4 @@
-@(book:Book,partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html)(implicit context:Context)
+@(book:Book,partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html,bookStyles:Html)(implicit context:Context)
 
 @import helper._
 
@@ -64,7 +64,7 @@
 }
 }
 
-@main(book.bookTitle, script){
+@main(book.bookTitle, script, styles = bookStyles){
 <style>
 #pop{
     background-color:   #fff;

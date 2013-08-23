@@ -402,11 +402,7 @@ label{
                 <dl>
                     <dt>Title:</dt><dd>@book.bookTitle</dd>
                     <dt>Author(s):</dt><dd>@book.bookAuthors.mkString(",")</dd>
-                    @ezlForm.value.map{ezl =>
-                        <dt><a href="/bookread/@book.bookId/0">Navigate this book... </a> </dt><dd></dd>
-                    }.getOrElse{
-                        <dt><a href="/bookread/@book.bookId/0">Navigate this book... </a> </dt><dd></dd>
-                    }
+                    <dt><a href="@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(0).partId)">Navigate this book... </a> </dt><dd></dd>
                 </dl>
             </div>
             }.getOrElse{<div>Please specify a book!</div>}

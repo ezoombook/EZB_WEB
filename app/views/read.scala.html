@@ -1,4 +1,4 @@
-@(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer], partContent:Html)(implicit session:Session, context:Context)
+@(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer], partContent:Html, bookStyles:Html)(implicit session:Session, context:Context)
 
 @displayLayerContrib(contrib:Contrib) = {
     @contrib match{
@@ -44,7 +44,7 @@
         }
 }
 
-@main("Read"){
+@main("Read", styles=bookStyles){
 <style>
     .ex{
         padding:15px;

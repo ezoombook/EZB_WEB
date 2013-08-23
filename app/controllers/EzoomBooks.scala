@@ -20,6 +20,7 @@ import Forms._
 import play.api.libs.json.Json
 import play.api.libs.json.Reads
 import org.apache.commons.io.IOUtils
+import scala.xml.XML
 
 /**
  * Created with IntelliJ IDEA.
@@ -321,13 +322,15 @@ object EzoomBooks extends Controller with ContextProvider{
     BookDO.getBook(bookId).flatMap{book =>
       BookDO.getWorkingEzb.map{ezb =>
         val partIndex = book.bookParts.indexWhere(_.partId == partId)
+        val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
         Ok(views.html.read(book,
           ezb, partIndex,
           ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
             BookDO.getEzoomLayer(UUID.fromString(layer._2)).
               map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
           },
-          play.api.templates.Html(new String(BookDO.getBookResource(book.bookId, partId)))))
+          play.api.templates.Html(bodyContent),
+          play.api.templates.Html(styles)))
       }
     }.getOrElse{
       NotFound("Oops! We couldn't find the eZoomBook you are looking for")
@@ -357,7 +360,6 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  //TODO Rename to readBook
   def readLayer(bookId:String,partId:String) = Action{implicit request =>
     BookDO.getBook(bookId).map{book =>
       val partIndex = book.bookParts.indexWhere(_.partId == partId)
@@ -367,8 +369,12 @@ object EzoomBooks extends Controller with ContextProvider{
             for(pc <- part.part_contribs if pc.contrib_type == "contrib.Quote") yield {pc.range.getOrElse("")}
         }
       }.getOrElse{ List[String]() }
+
+      val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
+
       Ok(views.html.bookread(book,partIndex,partId, quoteRanges,
-        play.api.templates.Html(new String(BookDO.getBookResource(book.bookId, partId)))))
+        play.api.templates.Html(bodyContent),
+        play.api.templates.Html(styles)))
     }.getOrElse{
       NotFound("Oops! We couldn't find the chapter you are looking for")
     }
