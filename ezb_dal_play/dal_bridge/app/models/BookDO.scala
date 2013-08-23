@@ -3,6 +3,7 @@ package models
 import books.dal._
 import books.util._
 import project.dal.{EzbProject,TeamMember}
+import utils.xml.Helper._
 
 import java.util.UUID
 import java.io.{InputStream, FileInputStream, ByteArrayInputStream, File}
@@ -156,6 +157,43 @@ object BookDO{
 
   def getBookResource(bookId:UUID,resPath:String):Array[Byte] = {
     Cache.getOrElse(bookId+":"+resPath)(AppDB.cdal.getBookResource(bookId,resPath))
+  }
+
+  /**
+   * Returns the styles and content of a book part excluding the header and body components
+   * @param bookId
+   * @param resPath
+   * @return The tuple (styles, bodyContent)
+   */
+  def getPartContentAndStyle(bookId:UUID,resPath:String):(String,String) = {
+    import xml.XML
+    import java.io.ByteArrayInputStream
+
+    val contentRaw = getBookResource(bookId, resPath)
+    val content = xml.parsing.XhtmlParser(io.Source.fromBytes(contentRaw))
+
+    //Transform paths
+    val newContent = transform(content.head){
+      case node:scala.xml.Elem =>
+        node.copy(attributes = mapMetaData(node.attributes){
+          case g @ GenAttr(_, key, value, _) if key == "src" =>
+            g.copy(value = scala.xml.Text(relative2absolute(value.mkString)))
+          case other => other
+        })
+      case other => other
+    }
+    //Get body
+    val bodyContent = xml.NodeSeq.fromSeq((newContent \ "body").head.child).mkString
+    //Get styles
+    val styles = (newContent \\ "link").mkString
+    //-- end of TODO
+
+    (styles, bodyContent)
+  }
+
+  //Transform a path begining with "../" into a path begining with "/"
+  private def relative2absolute(path:String):String = {
+    path.replaceAllLiterally    ("../", "")
   }
 
   /**
