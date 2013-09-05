@@ -1,12 +1,13 @@
-@(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session, context:Context)
+@(bookForm:Form[Book])(implicit session:Session, context:Context)
 
 @import helper._
+@import utils.bookFieldHelper._
 @import ezbhelper._
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
 $(document).ready(function(){
-    $('#btnAddAuth').click(function () {
+    $('#addauthor').click(function () {
         cloner('authors');
     });
     $('#btnAddLang').click(function () {
@@ -21,6 +22,17 @@ $(document).ready(function(){
     $('#btnAddTag').click(function () {
         cloner('tags');
     });
+
+    $('#fileSubmit').attr('disabled',true);
+    $('#fileInput').change(function(){
+        if($(this).val().length != 0){
+            $('#fileSubmit').attr('disabled',false);
+        }
+    });
+
+    @if(bookForm.value.isEmpty){
+        $('#uploadAlert').modal('show');
+    }
 });
 
 function toggle(divtag){
@@ -62,72 +74,119 @@ function toggle(divtag){
   right: 75%;
   left: 5%;
 }
+
+input.titlebox{
+    width : 99%;
+}
+
+textarea.descbox{
+    width : 99%;
+}
+
+div.buttons{
+    padding-bottom: 5pt;
+}
+
+a.addlink{
+    font-size: small;
+}
 </style>
 
-<fieldset class="leftpannel">
-
-    @bookForm.value.map{b =>
-        <h4>@b.bookTitle</h4>
-    }.getOrElse{
-        @form(routes.EzoomBooks.loadBook, 'enctype -> "multipart/form-data"){
-            <input type="file" name="book">
-            <p>
-                 <input type="submit">
-            </p>
-        }
+<!-- Modal for uploading a file -->
+<div class="modal hide fade" tabindex="-1" role="dialog" id="uploadAlert" aria-labelledby="uploadFileHeader" aria-hidden="true">
+    @form(routes.EzoomBooks.loadBook, 'enctype -> "multipart/form-data"){
+        <div class="modal-header">
+            <h3 id="uploadFileHeader">ePub Upload</h3>
+        </div>
+        <div class="modal-body">
+            <p> In order to create a new book you have to upload the corresponding epub file.</p>
+            <div>
+                <label for="fileInput"> Please choose a file: </label>
+                <input type="file" name="book" id="fileInput">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="@routes.EzoomBooks.listbooks()" class="btn">Cancel</a>
+            <input type="submit" class="btn bnt-primary" value="Upload File" id="fileSubmit">
+        </div>
     }
+</div>  <!-- Modal End -->
 
-    @if(bookForm.hasErrors){
+<div class="row">
+    <div class="span12">
+        <h2>Book metadata edition</h2>
+        @if(bookForm.hasErrors){
         <div class="alert alert-error">
             <a class="close" data-dismiss="alert">x</a>
             It seems there are some errors in your request... please verify that all fields are completed.
         </div>
-    }
-    @form(routes.EzoomBooks.saveBook){
-	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
-        <img src='@routes.EzoomBooks.cachedBookCover' style='width: 300px;'>
-        @hidden(bookForm("book_id"))
-        @repeat(bookForm("authors")){f =>
-            <div id="authors0" style="margin-bottom:4px;" class="authors">
-            <h4>@inputText(f,'_label->"author")</h4>
-            </div>
         }
-        <input type="button" id="btnAddAuth" value="Add another author" >
-        
-      </fieldset>
-      <fieldset class="midlepannel">
-        @repeat(bookForm("languages")){f =>
-            <div id="languages0" class="languages">
-                <h4>@inputText(f,'_label->"languages")</h4>
-            </div>
-        }
-        <input type="button" id="btnAddLang" value="Add another language" >
+    </div>
+</div>
+@form(routes.EzoomBooks.saveBook){
+@hidden(bookForm("book_id"))
+<div class="row buttons">
+    <div class="span2 offset9 btn-group">
+        <input type="submit" value="Save Book" class="btn">
+        <a class="btn" href="@routes.EzoomBooks.listbooks">Cancel</a>
+    </div>
+</div>
+<div class="row">
+    <!-- Left Pannel -->
+    <div class="span7">
+        @inputText(bookForm("title"),'_label->"Title", 'span->"6", 'label_span->"1", 'class->"titlebox")
 
-        @repeat(bookForm("publishers")){f =>
-            <div id="publishers0" class="publishers">
-                <h4>@inputText(f,'_label->"publishers")</h4>
-            </div>
+        <div class="row">
+            <div class="span1"><label for="authors">Author(s)</label></div>
+            <div class="span6"><a href="#" class="addlink" id="addauthor">Add an author</a></div>
+        </div>
+        @repeat(bookForm("authors")){f =>
+            @inputText(f,'_label->"", 'span->"6", 'label_span->"1", 'row_class -> "authors")
         }
-        <input type="button" id="btnAddPublshr" value="Add another publisher" >
+
+        @textarea(bookForm("summary"), '_label->"Description", 'span->"6", 'label_span->"1", 'class->"descbox")
+
+        <div class="row">
+            <div class="span2"><label for="publishers">Publisher(s)</label></div>
+            <div class="span5"><a href="#" class="addlink" id="btnAddPublshr">Add a publisher</a></div>
+        </div>
+        @repeat(bookForm("publishers")){f =>
+            @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "publishers")
+        }
+
+        <div class="row">
+            <div class="span2"><label for="published_dates">Published date(s)</label></div>
+            <div class="span5"><a href="#" class="addlink" id="btnAddPubDate">Add a published date</a></div>
+        </div>
 
         @repeat(bookForm("published_dates")){f =>
-            <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
+            @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "published_dates")
         }
-        <input type="button" id="btnAddPubDate" value="Add another published date" >
-</fieldset>
-<fieldset class="rightpannel">
-        @repeat(bookForm("tags")){f =>
-            <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
-        }
-        <input type="button" id="btnAddTag" value="Add another tag" >
 
-        <h4>@textarea(bookForm("summary"))</h4>
-        @bookForm.value.map{b =>
-            <input type="submit" value="Go!">
-        }.getOrElse{
-            <p>You must upload a epub file</p>
+        <div class="row">
+            <div class="span2"><label for="languages">Language(s)</label></div>
+            <div class="span5"><a href="#" class="addlink" id="btnAddLang">Add a language</a></div>
+        </div>
+        @repeat(bookForm("languages")){f =>
+            @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "languages")
         }
-        </fieldset>
-    }
+
+        <div class="row">
+            <div class="span1"><label for="tags">Tags</label></div>
+            <div class="span6"><a href="#" class="addlink" id="btnAddTag">Add a tag</a></div>
+        </div>
+        @repeat(bookForm("tags")){f =>
+            @inputText(f,'_label->"", 'span->"6", 'label_span->"1", 'row_class -> "tags")
+        }
+
+    </div>
+    <!-- Right Pannel -->
+    <div class="span5">
+        <img src='@routes.EzoomBooks.cachedBookCover' style='width: 300px;'>
+        <p><a href="/">Change cover image</a></p>
+    </div>
+</div>
+}
+
 }
 
