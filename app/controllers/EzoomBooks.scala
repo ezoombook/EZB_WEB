@@ -42,7 +42,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * @return
    */
   def newBook = Action {implicit request =>
-    Ok(views.html.bookedit(List[(String, Long)](),bookForm))
+    Ok(views.html.bookedit(bookForm))
   }
 
   /**
@@ -59,11 +59,11 @@ object EzoomBooks extends Controller with ContextProvider{
       request.body.asBytes().map(BookDO.newBook(_))
     }).map{epub =>
       Cache.set("ebook", epub, 0)
-      Ok(views.html.bookedit(List[(String,Long)](), bookForm.fill(epub)))
+      Ok(views.html.bookedit(bookForm.fill(epub)))
     }.getOrElse{
       //With error message
       println("[ERROR] Could not load file")
-      Ok(views.html.bookedit(List[(String,Long)](),
+      Ok(views.html.bookedit(
         bookForm.withGlobalError("An error occurred while trying to load the file.")))
     }
   }
@@ -75,7 +75,7 @@ object EzoomBooks extends Controller with ContextProvider{
     bookForm.bindFromRequest.fold(
       errors => {
         println("[ERROR] Found errors in bookForm: " + errors)
-        BadRequest(views.html.bookedit(List[(String,Long)](), errors))
+        BadRequest(views.html.bookedit(errors))
       },
       book => {
         withUser{user =>
@@ -89,7 +89,7 @@ object EzoomBooks extends Controller with ContextProvider{
             UserDO.newUserBook(user.id, newbook.bookId)
             Redirect(routes.EzoomBooks.readBook(newbook.bookId.toString))
           }.getOrElse(
-            Ok(views.html.bookedit(UserDO.listBooks(user.id),
+            Ok(views.html.bookedit(
               bookForm.withGlobalError("An error occurred while trying to save the file.")))
           )
         }
@@ -104,7 +104,7 @@ object EzoomBooks extends Controller with ContextProvider{
   def saveEditedBook = Action{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
-        BadRequest(views.html.bookedit(List[(String,Long)](), errors))
+        BadRequest(views.html.bookedit(errors))
       },
       book => {
         BookDO.saveBook(book)
@@ -228,23 +228,20 @@ object EzoomBooks extends Controller with ContextProvider{
   def loadEzoomLayer(ezbId:String) = Action(parse.multipartFormData){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
-        val ezlform = ezoomlayerForm.bind(
-          Map("ezoombook_id" -> ezb.ezoombook_id.toString,
-            "ezoomlayer_id" -> UUID.randomUUID.toString,
-            "ezoomlayer_owner" -> user.id.toString)
-        )
-
+        val ezlform = ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id)
         request.body.file("ezlfile").map{filePart =>
           val lines = scala.io.Source.fromFile(filePart.ref.file).getLines.toSeq
           books.util.Transformer(lines) match{
             case Right(layerData) =>
               val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
               val filledForm = ezlform.bind(layerData)
+
               Ok(views.html.ezoomlayeredit(ezb, filledForm, BookDO.getBook(ezb.book_id.toString)))
             case Left(error) =>
               println("[ERROR] " + error)
               Ok(views.html.ezoomlayeredit(ezb,
-                ezlform.withGlobalError("An error occurred while trying to load the file. " + error), BookDO.getBook(ezb.book_id.toString)))
+                ezlform.withGlobalError("An error occurred while trying to load the file. " + error),
+                  BookDO.getBook(ezb.book_id.toString)))
           }
         }.getOrElse{
           println("[ERROR] oops!")
