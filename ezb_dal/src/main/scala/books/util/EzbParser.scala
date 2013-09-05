@@ -286,9 +286,10 @@ class BlockParser extends Parsers{
 
   def contrib = partBlock | summaryBlock
 
-  def partBlock:Parser[String] = partTitle ~ (partContrib*) ^^ {
+  def partBlock:Parser[String] = partTitle ~ ((emptyLine*) ~> (partContrib*)) ^^ {
     case title ~ rst =>
-      s"""{"contrib_type" : "contrib.Part", "part_title" : \"$title\",
+      s"""{"contrib_type" : "contrib.Part",
+           "part_title" : \"$title\",
            "part_contribs" : [${rst.mkString(",")}] }"""
   }
 

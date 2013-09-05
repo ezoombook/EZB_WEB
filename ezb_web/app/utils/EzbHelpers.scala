@@ -17,3 +17,9 @@ object EzbHelpers {
 object navHelpers {
   implicit val myfields = FieldConstructor(navTemplate.f)
 }
+
+object bookFieldHelper{
+  implicit val bookfields = FieldConstructor(ezbhelper.bookFieldTemplate.f)
+
+}
+

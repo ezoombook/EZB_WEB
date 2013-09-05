@@ -33,7 +33,7 @@ object EpubLoader{
 	      /* Date   */ meta.getDates().map(_.toString).toList,
 	      /* Tags   */ meta.getSubjects().toList,
 	      /* Summry */ meta.getDescriptions.getOrElse(0, ""),
-	      /* Cover  */ epub.getCoverImage().getData(),
+	      /* Cover  */ toOpt(epub.getCoverImage()).map(_.getData()).getOrElse(Array[Byte]()),
 	      /* Parts  */ parts)    
   }      
 
@@ -55,11 +55,17 @@ object EpubLoader{
     } 
   }
 
+  private def toOpt(res:Resource):Option[Resource] = {
+    if (res == null)
+      None
+    else
+      Some(res)
+  }
 }
 
 object Testin extends App{
   val epubReader = new EpubReader()
-  val bookFile = "/Users/mayleen/Downloads/Thomas Hardy - Desperate Remedies.epub"
+  val bookFile = "/Users/mayleen/Downloads/Le comte de monte christo.epub"
   val epub = epubReader.readEpub(new ZipFile(bookFile))
   val meta = epub.getMetadata()
 
@@ -68,7 +74,10 @@ object Testin extends App{
   val toc = (for(r <- epub.getTableOfContents.getTocReferences) yield{
     r.getCompleteHref -> r.getTitle
   }).toMap
+  println("Toc:")
+  println(toc.mkString("\n"))
 
+  println("epub.getContents = ")
   for(c <- epub.getContents){
     val title = toc.getOrElse(c.getHref, c.getHref)
 
