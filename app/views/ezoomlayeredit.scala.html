@@ -188,13 +188,15 @@
                 @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
             }.getOrElse{
                 @bookOpt.map{book =>
+                    <div>
                     @select(part("part_id"),
-                        options= book.bookParts.foldLeft(Seq[(String,String)]()){
-                            case (lst,BookPart(id,Some(title))) => lst :+ (id,title)
-                            case (lst, _) => lst
-                        },
+                        options = book.bookParts.map{
+                            case BookPart(id, Some(title)) => (id, title)
+                            case BookPart(id, _) => (id, "- Subsection")
+                        } :+ ("","Add Custom Section"),
                         '_label -> "",
                         'class -> "part_title")
+                    </div>
                 }
                 @hidden(part("part_title"), 'class -> "part_id")
             }
@@ -338,6 +340,17 @@ label{
     //border-top: 1px solid #EEE;
     border-bottom: 1px solid #EEE;
 }
+//Editable dropdown list
+.select-editable {
+    position:relative; background-color:white; border:solid grey 1px;  width:120px; height:18px;
+}
+.select-editable select {
+    position:absolute; top:0px; left:0px; font-size:14px; border:none; width:120px; margin:0;
+}
+.select-editable input {
+    position:absolute; top:0px; left:0px; width:100px; padding:1px; font-size:12px; border:none;
+}
+.select-editable select:focus, .select-editable input:focus { outline:none; }
 </style>
 
 <!-- Invisible part div (used as template) -->
@@ -377,7 +390,7 @@ label{
             <h3 id="deleteAlertHeader">No Active eZoomLayer Found</h3>
         </div>
     }
-</div>
+</div> <!-- Modal End -->
 
     <div class="row">
         <div class="span12">
