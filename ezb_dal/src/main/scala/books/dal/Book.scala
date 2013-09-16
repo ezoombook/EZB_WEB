@@ -299,4 +299,19 @@ trait BookComponent{
       false
     }
   }
+
+  def deleteEzb(ezbId:UUID)(implicit couchclient:CouchbaseClient):Boolean = {
+    //First delete layers
+    getEzoomBook(ezbId).map{ezb =>
+      //First delete layers
+      ezb.ezoombook_layers.values.map(couchclient.delete(_).get().booleanValue()).
+        fold(true)(_ && _) &&
+      //Then delete ezb
+      couchclient.delete("ezb:"+ezbId.toString).get().booleanValue()
+
+    }.getOrElse{
+      println(s"[ERROR] Could not find eZoomBook with id $ezbId")
+      false
+    }
+  }
 }

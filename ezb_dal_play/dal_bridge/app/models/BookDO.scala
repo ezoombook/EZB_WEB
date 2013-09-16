@@ -104,6 +104,10 @@ object BookDO{
     }
   }
 
+  def deleteEzoomBook(ezbId:UUID){
+    AppDB.cdal.deleteEzb(ezbId)
+  }
+
   def listBooks():List[Book] = {
     AppDB.cdal.listBooks()
   }
@@ -165,10 +169,12 @@ object BookDO{
    * @param resPath
    * @return The tuple (styles, bodyContent)
    */
-  def getPartContentAndStyle(bookId:UUID,resPath:String):(String,String) = {
+  def getPartContentAndStyle(bookId:UUID,partPath:String):(String,String) = {
     import xml.XML
     import java.io.ByteArrayInputStream
 
+    //Actual resource path
+    val resPath = partPath.split('#')(0)
     val contentRaw = getBookResource(bookId, resPath)
     val content = xml.parsing.XhtmlParser(io.Source.fromBytes(contentRaw))
 

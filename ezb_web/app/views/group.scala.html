@@ -48,6 +48,7 @@ function overlay() {
 <div class="row-fluid">
     <div class="span3">
         <h2> Projects </h2>
+        <p><a>Create a project</a></p>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -63,6 +64,7 @@ function overlay() {
             </tbody>
         </table>
 
+@** <!--
         <h2> New Project</h2>
         @form(routes.Collaboration.saveProject){
             @hidden(projectForm("project_id"))
@@ -73,6 +75,7 @@ function overlay() {
             @inputText(projectForm("ezoombook_id"))
             <input type="submit" value="Create a project">
         }
+--> **@
     </div>
     <div class="span6">
         <h2>Message Board</h2>
