@@ -276,7 +276,10 @@ object EzoomBooks extends Controller with ContextProvider{
 
   def cachedBookCover = Action{implicit request =>
     getCachedBook.map{cb =>
-      Ok(cb.bookCover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
+      if(!cb.bookCover.isEmpty)
+        Ok(cb.bookCover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
+      else
+        Redirect(routes.Assets.at("/images/bookcover.png"))
     }.getOrElse{
       Redirect(routes.Assets.at("/images/bookcover.png"))
     }
@@ -429,6 +432,11 @@ object EzoomBooks extends Controller with ContextProvider{
   def ezoomLayerDelete(ezbId:String, layerLevel:Int) = Action{implicit request =>
     BookDO.deleteEzoomLayer(UUID.fromString(ezbId), layerLevel)
     Redirect(routes.EzoomBooks.ezoomBookEdit(ezbId))
+  }
+
+  def ezoomBookDelete(ezbId:String) = Action{implicit request =>
+    BookDO.deleteEzoomBook(UUID.fromString(ezbId))
+    Redirect(routes.Application.home)
   }
 
   def withEzoomBook(ezbId:String)(block:(Ezoombook) => Result):Result = {

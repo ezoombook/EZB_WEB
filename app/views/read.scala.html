@@ -34,10 +34,12 @@
             case "contrib.Quote" => {
             <div class="row">
                 <div class="span1 offset1">
-                    <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
+                    <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
                 </div>
-                <div class="span8">
-                    @contrib.contrib_content
+                <div class="span8" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
+                    <a class="quote-text" >
+                        <i>@contrib.contrib_content</i>
+                    </a>
                 </div>
             </div>
             }
@@ -55,6 +57,8 @@
     iframe{
 
     }
+    a.quote-text {color:#000;}
+    a.quote-text:hover {color:#08C;}
 </style>
 
 <div id="fb-root"></div>
