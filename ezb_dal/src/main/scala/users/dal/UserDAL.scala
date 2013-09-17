@@ -32,6 +32,11 @@ class UserDAL(override val profile: ExtendedProfile) extends UserComponent with 
     GroupMembers.createIfNotDefined (tableMap)
   }
 
+  def alterTable(table:Table[_])(implicit session: Session){
+    table.ddl.drop
+    table.ddl.create
+  }
+
   private def makeTableMap(implicit dbsess: Session) : Map[String, MTable] = {
     val tableList = MTable.getTables.list()
     val tableMap = tableList.map{t => (t.name.name, t)}.toMap;
@@ -43,8 +48,9 @@ class UserDAL(override val profile: ExtendedProfile) extends UserComponent with 
   private class DDLTableInvoker(tableName:String, ddl: DDL){
     def createIfNotDefined(tableMap:Map[String, MTable])(implicit session:Session){
       if(!(tableMap isDefinedAt tableName))
-	ddl.create
+	      ddl.create
     }    
-  } 
+  }
+
 }
 

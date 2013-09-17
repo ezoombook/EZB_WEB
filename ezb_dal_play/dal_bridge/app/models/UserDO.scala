@@ -1,6 +1,6 @@
 package models
 
-import users.dal.{User, Group}
+import users.dal.{User, Group, Preferences}
 
 import java.util.UUID
 
@@ -55,7 +55,7 @@ object UserDO{
   def setUserMaxHistory(userId:UUID, maxItems:Int){
     AppDB.database.withSession{
       implicit session:Session =>
-	AppDB.dal.UserPreferences.insert(userId, maxItems)
+	      AppDB.dal.UserPreferences.setMaxHistory(userId, maxItems)
     }
   }
 
@@ -126,5 +126,26 @@ object UserDO{
 
   def getGroupMemberRole:Seq[(String,String)] = {
     AppDB.dal.Roles.values.map{v => (v.toString, v.toString.capitalize)}.toSeq
+  }
+
+  def getUserPreferences(uid:UUID):Option[Preferences] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+        AppDB.dal.UserPreferences.getUserPreferences(uid)
+    }
+  }
+
+  def getUserLanguage(uid:UUID):String = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+        AppDB.dal.UserPreferences.getLanguage(uid).getOrElse("en")
+    }
+  }
+
+  def setUserLanguage(uid:UUID, lang:String){
+    AppDB.database.withSession{
+      implicit session:Session =>
+        AppDB.dal.UserPreferences.setLanguage(uid, lang)
+    }
   }
 }

@@ -26,8 +26,14 @@ object Global extends DalSettings with DBeable{
     database.withSession {
       implicit session: Session =>
         dal.create
-	println("[INFO] Database Created!")
+	      println("[INFO] Database Created!")
     }
+
+    //TODO Find a way to automatically update table definitions
+//    database.withSession{
+//      implicit session: Session =>
+//        dal.alterTable(dal.UserPreferences)
+//    }
   }
   
   override def onStop(app: Application) {

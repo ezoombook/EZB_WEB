@@ -19,6 +19,8 @@ case class User(id: UUID, name: String, email: String, password: String){
   val hashedPassword = Hasher.hash(password)
 }
 
+case class Preferences(uid:UUID, maxHistory:Int, language:String)
+
 /**
  * A component to manage the Users and UserBooks tables. 
  */ 
@@ -130,15 +132,34 @@ trait UserComponent {
    * Unitially we only have the number of items in the history,
    * but new preference items can be added later
    */
-  object UserPreferences extends Table[(UUID, Int)]("users_preferences"){
+  object UserPreferences extends Table[(Preferences)]("users_preferences"){
     def userId = column[UUID]("user_id", O.PrimaryKey, O.DBType("UUID"))
     def maxHistory = column[Int]("preferences_max_history")
-    def * = userId ~ maxHistory
+    def language = column[String]("preferences_language")
+    def * = userId ~ maxHistory ~ language <> (Preferences, Preferences.unapply _)
 
     def user = foreignKey("fk_user", userId, Users)(_.id)
 
     def getMaxHistoryItems(user_id:UUID)(implicit session:Session):Option[Int] = {
       Query(UserPreferences).filter(_.userId === user_id.bind).map(_.maxHistory).firstOption 
+    }
+
+    def setMaxHistory(user_id:UUID, max_history:Int)(implicit session:Session){
+      val query = UserPreferences.filter(u => u.userId === user_id.bind).map(_.maxHistory)
+      query.update(max_history)
+    }
+
+    def getUserPreferences(user_id:UUID)(implicit session:Session):Option[Preferences] = {
+      Query(UserPreferences).filter(_.userId === user_id.bind).firstOption
+    }
+
+    def getLanguage(user_id:UUID)(implicit session:Session):Option[String] = {
+      Query(UserPreferences).filter(u => u.userId === user_id.bind).map(_.language).firstOption
+    }
+
+    def setLanguage(user_id:UUID, lang:String)(implicit session:Session){
+      val query = UserPreferences.filter(u => u.userId === user_id.bind).map(_.language)
+      query.update(lang)
     }
   }
 }
