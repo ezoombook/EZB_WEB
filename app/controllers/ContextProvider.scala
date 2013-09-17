@@ -1,6 +1,6 @@
 package controllers
 
-import users.dal.User
+import users.dal._
 import books.dal.{Ezoombook,EzoomLayer}
 import models.Context
 
@@ -32,11 +32,18 @@ trait ContextProvider extends Controller{
       )
     )
 
+    val prefs = user.flatMap(u =>
+      request.session.get("maxHistory").flatMap(maxHistory =>
+        request.session.get("language").map(language =>
+          Preferences(u.id, maxHistory.toInt, language)
+      )
+    ))
+
     val ezb = Cache.getAs[Ezoombook]("working-ezb")
 
     val layer = Cache.getAs[EzoomLayer]("working-layer")
 
-    Context(user, ezb, layer)
+    Context(user, prefs, ezb, layer)
   }
 
   def withUser[A](block: (User) => Result)(implicit request:Request[A]):Result = {

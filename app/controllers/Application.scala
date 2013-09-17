@@ -29,6 +29,8 @@ import java.util.Properties._
 
 object Application extends Controller with ContextProvider {
 
+  protected val HOME_URL = "/"
+
   val userForm = Form(
     mapping(
       "username" -> text,
@@ -69,6 +71,8 @@ object Application extends Controller with ContextProvider {
     )
 
   )
+
+  val localeForm = Form("locale" -> nonEmptyText)
 
   def faq = Action {
     implicit request =>
@@ -159,10 +163,15 @@ object Application extends Controller with ContextProvider {
             UserDO.getUser(up._1).map {
               user =>
                 println("[INFO] Loged-in as user " + user.name)
+                // Get preferences
+                val prefs = UserDO.getUserPreferences(user.id)
+
                 Redirect(routes.Application.home).withSession(
                   "userId" -> user.id.toString,
                   "userName" -> user.name,
-                  "userMail" -> user.email
+                  "userMail" -> user.email,
+                  "maxHistory" -> prefs.map(_.maxHistory.toString).getOrElse("10"),
+                  "language" -> prefs.map(_.language).getOrElse("")
                 )
             }.getOrElse {
               println("[ERROR] Could not find user " + up._1)
@@ -258,16 +267,16 @@ object Application extends Controller with ContextProvider {
       passwordForm.bindFromRequest.fold(
         errors => {
           println("bad:" + errors)
-          BadRequest(views.html.parameter(errors, ""))
+          BadRequest(views.html.parameter(errors, localeForm, ""))
         },
         (passwordform) => {
           if (passwordform._1 == passwordform._2 && passwordform._1 != "") {
             UserDO.changePassword(context.user.get.id, passwordform._2)
-            Ok(views.html.parameter(passwordForm, "sucess"))
+            Ok(views.html.parameter(passwordForm, localeForm, "sucess"))
           } else {
             var error = "Mismatch password"
 
-            Ok(views.html.parameter(passwordForm, error))
+            Ok(views.html.parameter(passwordForm, localeForm, error))
           }
         })
   }
@@ -371,8 +380,28 @@ object Application extends Controller with ContextProvider {
       Redirect(routes.Application.login).withNewSession
   }
 
-  def parameter = Action {
-    implicit request =>
-      Ok(views.html.parameter(passwordForm, ""))
+  def parameter = Action { implicit request =>
+    withUser{user =>
+      val lang = context.preferences.map(_.language).getOrElse("")
+      Ok(views.html.parameter(passwordForm, localeForm.bind(Map("locale" -> lang)), ""))
+    }
+  }
+
+  /**
+   * Changes the user predefined language
+   */
+  def changeLang = Action{implicit request =>
+    val referer = request.headers.get(REFERER).getOrElse(HOME_URL)
+    localeForm.bindFromRequest.fold(
+      erros => {
+        BadRequest(referer)
+      },
+      locale => {
+        println("[INFO] Language changed to " + locale)
+        Redirect(referer).withLang(play.api.i18n.Lang(locale)).withSession(
+          session + ("language" -> locale)
+        )
+      }
+    )
   }
 }

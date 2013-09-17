@@ -1,111 +1,119 @@
-@(passwordForm: Form[(String,String)], error : String)(implicit session:Session, context:Context)
+@(passwordForm: Form[(String,String)], langForm: Form[String], error : String)(implicit session:Session, context:Context)
 
 @import helper._
+@import ezbhelper._
+@import utils.EzbHelpers._
 @import utils.MD5Util
 
 @main("Parameter"){
 <style>
 
 
-.rightpannel{
-  position: absolute;
-  top:120px;
-   right:2%;
-  left: 51%;
-}
+    .rightpannel{
+    position: absolute;
+    top:120px;
+    right:2%;
+    left: 51%;
+    }
 
-.leftpannel{
-  position: absolute;
-  top:100px;
-   left:5%;
-  right: 51%;
-}
+    .leftpannel{
+    position: absolute;
+    top:100px;
+    left:5%;
+    right: 51%;
+    }
 </style>
 
-  <h1>Parameter</h1>
+<h1>Parameter</h1>
 
 
-    <div class="leftpannel">
-<fieldset>
-</br>
-<h4>Change language</h4>
+<div class="leftpannel">
+    <fieldset>
+        </br>
+        <h4>Select your prefered language</h4>
 
-			<div class="btn-group"> <a class="btn btn btn-info dropdown-toggle" data-toggle="dropdown" href="#" ><i class="icon-flag"></i> <span class="caret"></span> </a>
-  <ul class="dropdown-menu">
-    <li><a href="#"> English</a></li>
-    <li><a href="#"> French</a></li>
-    <li><a href="#"> Spanish</a></li>
-      <li><a href="#"> Deutsch</a></li>
-  </ul>
+            <!--<div class="btn-group"><a class="btn btn btn-info dropdown-toggle" data-toggle="dropdown" href="#"><i-->
+                    <!--class="icon-flag"></i> <span class="caret"></span> </a>-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--<li><a href="#">English</a></li>-->
+                    <!--<li><a href="#"> French</a></li>-->
+                    <!--<li><a href="#"> Spanish</a></li>-->
+                    <!--<li><a href="#"> Deutsch</a></li>-->
+                <!--</ul>-->
+            <!--</div>-->
+        @form(routes.Application.changeLang){
+            <div>
+                @select(langForm("locale"), options = Seq("fr" -> "French", "en" -> "English"), '_label -> "")
+            </div>
+            <div>
+                <input type="submit" value="Change">
+            </div>
+        }
+        </br>
+        </br>
+        </br>
+        </br>
+        <a><h5>I don't want to receive newsletter anymore.</h5></a>
+        </br></br></br>
+        @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
+        <img src="https://www.gravatar.com/avatar/@icon?s=40&amp;d=identicon">
+        }&nbsp;&nbsp;&nbsp;<a href="http://en.gravatar.com/emails/">Change your avatar<a>
+    </fieldset>
 </div>
-</br>
-</br>
-</br>
-</br>
-<a><h5>I don't want to receive newsletter anymore.</h5></a>
-		</br></br></br>
-         @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
-            <img src="https://www.gravatar.com/avatar/@icon?s=40&amp;d=identicon" >
-         }&nbsp;&nbsp;&nbsp;<a href="http://en.gravatar.com/emails/">Change your avatar<a>
-   </fieldset>
-    </div>
-  
-  <div class="rightpannel">
-<fieldset>
-    @if(error != ""){
-               
-           
-    <div class="alert alert-info">
-<button type="button" class="close" data-dismiss="alert">x</button>
- @error
-</div>
- }else{}
-</br>
 
-<h4>Change Personnal information</h4>
-</br>
+<div class="rightpannel">
+    <fieldset>
+        @if(error != ""){
 
 
+        <div class="alert alert-info">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            @error
+        </div>
+        }else{}
+        </br>
 
-<p>Change your password</p>
+        <h4>Change Personnal information</h4>
+        </br>
 
-</br>
-<div>
+
+        <p>Change your password</p>
+
+        </br>
+        <div>
             @form(routes.Application.changepass) {
-                @inputPassword(passwordForm("password1"), '_label -> <p>enter your new password</p>)
-                @inputPassword(passwordForm("password2"), '_label -> <p>enter your new password again</p>)
-                <input type="submit"  value="submit">
+            @inputPassword(passwordForm("password1"), '_label -> <p>enter your new password</p>)
+            @inputPassword(passwordForm("password2"), '_label -> <p>enter your new password again</p>)
+            <input type="submit" value="submit">
             }
         </div>
-</br>
-</br>
+        </br>
+        </br>
 
-<div class="modal hide" id="infos">
-  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-    <h3>Strange choice</h3>
-  </div>
-  <div class="modal-body">
- 
-     
-      
+        <div class="modal hide" id="infos">
+            <div class="modal-header"><a class="close" data-dismiss="modal">x</a>
 
-    <p> <h2>Sir, are you sure that arghh nooo.....&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbspfatal error</h2>
-     
-   
-     
-   
-  </div>
-  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Fermer</a> </div>
+                <h3>Strange choice</h3>
+            </div>
+            <div class="modal-body">
+
+
+                <p>
+
+                <h2>Sir, are you sure that arghh nooo.....&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbspfatal
+                    error</h2>
+
+
+            </div>
+            <div class="modal-footer"><a class="btn btn-info" data-dismiss="modal">Fermer</a></div>
+        </div>
+        <a class="btn btn-primary" data-toggle="modal" href="#infos">Delete my account</a>
+        </br>
+        </br>
+        </br>
+
+    </fieldset>
 </div>
-<a class="btn btn-primary" data-toggle="modal" href="#infos" >Delete my account</a>
-</br>
-</br>
-</br>
 
-   </fieldset> 
-    </div>
-  
-  
-  
-  
-  }
+
+}
