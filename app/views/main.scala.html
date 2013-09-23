@@ -3,6 +3,12 @@
 @import utils.EzbHelpers._
 @import ezbhelper._
 
+@language(code:String) = {
+    @defining(Map("fr"->"Français (French)", "en-US"->"English US", "en"->"English", "es"->"Español (Spanish)")){lmap =>
+        @lmap.getOrElse(code, "English")
+    }
+}
+
 <!DOCTYPE html>
 
 <html>
@@ -30,13 +36,23 @@
                     <div class="nav-collapse collapse">
                         <ul class="nav">
 
-                            <li><a href="/listbooks">Books</a></li>
+                            <li><a href="/listbooks">@Messages("topmenu.books")</a></li>
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help! <b class="caret"></b></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">@Messages("topmenu.help")<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="/tutorial">Tutorial</a></li>
-                                    <li><a href="/faq">FAQ</a></li>
-                                    <li><a href="/contact">Contact Us</a></li>
+                                    <li><a href="/tutorial">@Messages("topmenu.help.tutorial")</a></li>
+                                    <li><a href="/faq">@Messages("topmenu.help.faq")</a></li>
+                                    <li><a href="/contact">@Messages("topmenu.help.contact")</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    @context.preferences.map(p => language(p.language)).getOrElse("English")
+                                    <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    @context.supportedLanguages.map{l =>
+                                        <li><a href="@routes.Application.setLang(l.code)">@language(l.code)</a></li>
+                                    }
                                 </ul>
                             </li>
                         </ul>

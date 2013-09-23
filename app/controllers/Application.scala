@@ -404,4 +404,15 @@ object Application extends Controller with ContextProvider {
       }
     )
   }
+
+  /**
+   * Changes session language
+   */
+  def setLang(langCode:String) = Action{implicit request =>
+    val referer = request.headers.get(REFERER).getOrElse(HOME_URL)
+    println("[INFO] Language changed to " + langCode)
+    Redirect(referer).withLang(play.api.i18n.Lang(langCode)).withSession(
+      session + ("language" -> langCode)
+    )
+  }
 }
