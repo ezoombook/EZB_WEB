@@ -29,6 +29,7 @@ GET		/parameter			controllers.Application.parameter
 
 # Change language
 POST    /changelang         controllers.Application.changeLang
+GET     /lang/:lcode        controllers.Application.setLang(lcode:String)
 
 # Community
 GET	    /groups			    controllers.Community.groups

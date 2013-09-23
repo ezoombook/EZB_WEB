@@ -37,7 +37,7 @@
 </script>
 }
 
-@main("Welcome to your Workspace", scripts){
+@main(Messages("workspace.title"), scripts){
 
 <center><h1>@session.get("userName")'s Workspace</h1></center>
 
@@ -64,21 +64,21 @@
 <div class="span9">
 
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-edit"></i>&nbsp;Contribution</a></li>
-        <li><a href="#tab2" data-toggle="tab"><i class="icon-globe"></i>&nbsp;Community</a></li>
-        <li><a href="#tab3" data-toggle="tab"><i class="icon-book"></i>&nbsp;Books</a></li>
+        <li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-edit"></i>&nbsp;@Messages("workspace.tab.contribution.title")</a></li>
+        <li><a href="#tab2" data-toggle="tab"><i class="icon-globe"></i>&nbsp;@Messages("workspace.tab.community.title")</a></li>
+        <li><a href="#tab3" data-toggle="tab"><i class="icon-book"></i>&nbsp;@Messages("workspace.tab.books.title")</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="tab1">  <!-- Projects Tab -->
-            <h2>Your Projects</h2>
+            <h2>@Messages("workspace.projects.h2")</h2>
 
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Project</th>
+                    <th>@Messages("workspace.projects.project.th")</th>
 
                     <th>eZoomBook</th>
-                    <th>Creation Date</th>
+                    <th>@Messages("workspace.projects.creationdate.th")</th>
                 </tr>
                 @for(g<-listproj) {
 
@@ -99,12 +99,12 @@
                 </tbody>
             </table>
             </br>
-            <h2>Your eZoomBooks</h2>
+            <h2>@Messages("workspace.ezoombooks.h2")</h2>
 
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Name</th>
+                    <th>@Messages("workspace.ezoombooks.name.th")</th>
 
                     <th></th>
                 </tr>
@@ -112,8 +112,9 @@
                 <tr>
                     <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td>
                     <td>
-                        <a href="/ezlayer/edit/@g.ezoombook_id" class="btn" =>Edit</a>
-                        <a href="@routes.EzoomBooks.ezoomBookDelete(g.ezoombook_id.toString)" class="btn" =>Delete</a>
+                        <a href="/ezlayer/edit/@g.ezoombook_id" class="btn">@Messages("workspace.ezoombooks.edit.button")</a>
+                        <a href="@routes.EzoomBooks.ezoomBookDelete(g.ezoombook_id.toString)" class="btn">
+                            @Messages("workspace.ezoombooks.delete.button")</a>
                     </td>
                 </tr>
                 }
@@ -122,14 +123,14 @@
 
         </div>
         <div class="tab-pane" id="tab2"> <!-- Friends Tab -->
-            <h2>My friends</h2>
-            <p><a>Add a friend</a></p>
+            <h2>@Messages("workspace.friends.h2")</h2>
+            <p><a>@Messages("workspace.friends.add.link")</a></p>
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Name</th>
-                    <th>Groups</th>
-                    <th>Favorite books</th>
+                    <th>@Messages("workspace.friends.name.th")</th>
+                    <th>@Messages("workspace.friends.group.th")</th>
+                    <th>@Messages("workspace.friends.favbook.th")</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -175,35 +176,26 @@
             </br>
 --> **@
 
-            <h2>Your groups</h2>
+            <h2>@Messages("workspace.groups.h2")</h2>
 
-            <p><a>Add a group</a></p>
+            <p><a>@Messages("workspace.groups.add.link")</a></p>
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Title</th>
-                    <th>You own</th>
-                    <th></th>
+                    <th>@Messages("workspace.groups.title.th")</th>
+                    <th>@Messages("workspace.groups.youwon.th")</th>
                 </tr>
                 @for(g<-userGroups){
                 <tr>
-                    <td>@g.name</td>
+                    <td><a href="@routes.Community.group(g.id.toString())">@g.name</a></td>
                     <td>X</td>
-                    <td>
-                        @form(routes.Community.group(g.id.toString())){
-                        <input type="submit" value="choose this group"></td>
-                    }
                 </tr>
                 }
 
                 @for(g<-colabGroups){
                 <tr>
-                    <td>@g.name</td>
+                    <td><a href="@routes.Community.group(g.id.toString())">@g.name</a></td>
                     <td></td>
-                    <td>
-                        @form(routes.Community.group(g.id.toString())){
-                        <input type="submit" value="choose this group"></td>
-                    }
                 </tr>
                 }
                 </tbody>
@@ -211,42 +203,42 @@
         </div>
         <div class="tab-pane" id="tab3"> <!-- Books Tab -->
 
-            <h2>Your Books</h2>
+            <h2>@Messages("workspace.books.h2")</h2>
 
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Name</th>
+                    <th>@Messages("workspace.books.name.th")</th>
                     <th></th>
                 </tr>
                 @for(g<-listmyb){
                 <tr>
                     <td><a href="/books/@g.bookId">@g.bookTitle</a></td>
-                    <td><a href="/bookreedit/@g.bookId" class="btn" =>Edit</a></td>
+                    <td><a href="/bookreedit/@g.bookId" class="btn" >@Messages("workspace.books.edit.button")</a></td>
 
                 </tr>
                 }
                 </tbody>
             </table>
 
-            <h2>Your Reading Lists</h2>
+            <h2>@Messages("workspace.books.readinglist.h2")</h2>
 
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Books</th>
+                    <th>@Messages("workspace.books.readinglist.title.th")</th>
                     <th></th>
                 </tr>
 
                 </tbody>
             </table>
 
-            <h2>Your Favorite Books</h2>
+            <h2>@Messages("workspace.books.favorites.h2")</h2>
 
             <table class="table table-striped">
                 <tbody>
                 <tr>
-                    <th>Book</th>
+                    <th>@Messages("workspace.books.favorites.title.th")</th>
                     <th></th>
                 </tr>
 

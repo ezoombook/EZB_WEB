@@ -43,7 +43,7 @@ trait ContextProvider extends Controller{
 
     val layer = Cache.getAs[EzoomLayer]("working-layer")
 
-    Context(user, prefs, ezb, layer)
+    Context(user, prefs, request.acceptLanguages, ezb, layer)
   }
 
   def withUser[A](block: (User) => Result)(implicit request:Request[A]):Result = {

@@ -1,1 +1,69 @@
 ezoombook.presentation=This is an innovative platform where you will be able to participate in a revolutionary reading experiment. eZoomBook is going to enhance the way you obtain, analyze, use, and share information.
+
+topmenu.tooltip.workspace=Your workspace
+topmenu.tooltip.conf=Configure your account
+topmenu.tooltip.logout=Log out
+topmenu.books=Books
+topmenu.help=Help!
+topmenu.help.tutorial=Tutorial
+topmenu.help.faq=FAQ
+topmenu.help.contact=Contact Us
+
+index.learnmore.btn=Learn more
+index.createaccount.btn=Create an account
+index.forum.btn=Forum
+index.topbooks.h2=Top Books:
+index.topbooks.title.th=Title
+index.findbook.h2=Find a Book
+index.findbook.placeholder=Enter key-word
+index.findbook.search.button=Search
+index.findbook.advancedsearch.button=Advanced search
+
+listbooks.addbook.link=Add a book
+listbooks.edit.button=Edit
+
+book.author.dt=Author
+book.publisher.dt=Publisher
+book.publisheddate.dt=Published Date
+book.summary.h2=Summary:
+book.ezoombooks.h2=Available eZoomBooks
+book.createezb.button=Create eZoomBook
+book.ezoombooks.title.th=Title
+book.ezoombooks.author.th=eZoomBook author
+book.ezoombooks.levels.th=Available levels
+book.ezoombooks.popularity.th= Popularity
+book.ezoombooks.edit.button=Edit
+book.ezoombooks.favorite.button=Add to favorites
+book.ezoombooks.readlist.button=Add to reading list
+
+workspace.title=Welcome to your workspace
+workspace.tab.contribution.title=Contribution
+workspace.tab.community.title=Community
+workspace.tab.books.title=Books
+
+workspace.projects.h2=Your Projects
+workspace.projects.project.th=Project
+workspace.projects.creationdate.th=Creation Date
+workspace.ezoombooks.h2=Your eZoomBooks
+workspace.ezoombooks.name.th=Name
+workspace.ezoombooks.edit.button=Edit
+workspace.ezoombooks.delete.button=Delete
+
+workspace.friends.h2=Your Friends
+workspace.friends.add.link=Add a friend
+workspace.friends.name.th=Name
+workspace.friends.group.th=Groups
+workspace.friends.favbook.th=Favorite books
+workspace.groups.h2=Your Groups
+workspace.groups.add.link=Add a group
+workspace.groups.title.th=Title
+workspace.groups.youwon.th=You own
+
+workspace.books.h2=Your Books
+workspace.books.name.th=Name
+workspace.books.edit.button=Edit
+workspace.books.readinglist.h2=Your Reading Lists
+workspace.books.readinglist.title.th=Title
+workspace.books.favorites.h2=Your Favorite Books
+workspace.books.favorites.title.th=Title
+

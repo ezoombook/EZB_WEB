@@ -6,7 +6,7 @@
 @main("read a book"){
 <div class="row">
     <h1>Books</h1>
-    <a href="/books/new" class="bulle">Add a book</a>
+    <a href="/books/new" class="bulle">@Messages("listbooks.addbook.link")</a>
 </div>
 
 @bookList.grouped(4).map{blist=>
@@ -20,7 +20,7 @@
                 <tr><td>@book.bookAuthors</td></tr>
                 <tr><td>@book.bookPublishedDates</td></tr>
                 <tr><td>@book.bookTags</td></tr>
-                <tr><td><a href="/bookreedit/@book.bookId" class="btn" >Edit</a></td></tr>
+                <tr><td><a href="/bookreedit/@book.bookId" class="btn" >@Messages("listbooks.edit.button")</a></td></tr>
                 </tbody>
             </table>
         </div>
