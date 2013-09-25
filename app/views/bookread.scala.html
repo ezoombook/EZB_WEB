@@ -1,9 +1,9 @@
-@(book:Book,partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html,bookStyles:Html)(implicit context:Context)
+@(book:Book,activeLayer:Option[EzoomLayer],partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html,bookStyles:Html)(implicit context:Context)
 
 @import helper._
 
 @script = {
-@context.activeLayer.map{ezl =>
+@activeLayer.map{ezl =>
 <script src="@routes.Assets.at("javascripts/masha.js")" ></script>
 <script type="text/javascript">//<![CDATA[
     function saveQuote(e){
@@ -78,7 +78,7 @@
 <div class="btn-group">
     <a href="#" data-toggle="dropdown"><i class="icon-th-list"></i></a>
     <ul class="dropdown-menu">
-        @context.activeLayer.map{ezl =>
+        @activeLayer.map{ezl =>
         <li>
             <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString, true)">
                 <i class="icon-arrow-left"></i> Go back to eZoomLayer...

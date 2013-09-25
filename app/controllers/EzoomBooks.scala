@@ -158,7 +158,7 @@ object EzoomBooks extends Controller with ContextProvider{
       withEzoomBook(ezbId){ezb =>
         ezoomlayerForm(ezb.ezoombook_id,UUID.randomUUID,user.id).bindFromRequest.fold(
           errors => {
-            BadRequest(views.html.ezoomlayeredit(ezb, errors,BookDO.getBook(ezb.book_id.toString)))
+            BadRequest(views.html.ezoomlayeredit(ezb, None, errors,BookDO.getBook(ezb.book_id.toString)))
           },
           ezl => {
             BookDO.saveLayer(ezl)
@@ -182,7 +182,7 @@ object EzoomBooks extends Controller with ContextProvider{
           "user:"+user.id, books.dal.Status.workInProgress, false, List[String](), List[Contrib]())
         BookDO.setWorkingLayer(newEzlayer)
         val ezlform = ezoomlayerForm.fill(newEzlayer)
-        Ok(views.html.ezoomlayeredit(ezb, ezoomlayerForm,BookDO.getBook(ezb.book_id.toString)))
+        Ok(views.html.ezoomlayeredit(ezb, Some(newEzlayer), ezoomlayerForm,BookDO.getBook(ezb.book_id.toString)))
       }
     }
   }
@@ -194,9 +194,10 @@ object EzoomBooks extends Controller with ContextProvider{
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         BookDO.getEzoomLayer(UUID.fromString(ezlId), refresh).map{ezl =>
-          BookDO.setWorkingLayer(ezl)
           val ezlform = ezoomlayerForm.fill(ezl)
-          Ok(views.html.ezoomlayeredit(ezb, ezlform,BookDO.getBook(ezb.book_id.toString)))
+          Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform,BookDO.getBook(ezb.book_id.toString))).withSession(
+            session + ("working-layer" -> ezl.ezoomlayer_id.toString)
+          )
         }.getOrElse{
           NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
         }
@@ -213,7 +214,7 @@ object EzoomBooks extends Controller with ContextProvider{
       BookDO.getWorkingLayer.flatMap{ezl =>
         BookDO.getWorkingEzb.map{ezb =>
           val ezlform = ezoomlayerForm.fill(ezl)
-          Ok(views.html.ezoomlayeredit(ezb, ezlform, BookDO.getBook(ezb.book_id.toString)))
+          Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString)))
         }
       }.getOrElse{
         NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
@@ -236,16 +237,18 @@ object EzoomBooks extends Controller with ContextProvider{
               val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
               val filledForm = ezlform.bind(layerData)
 
-              Ok(views.html.ezoomlayeredit(ezb, filledForm, BookDO.getBook(ezb.book_id.toString)))
+              Ok(views.html.ezoomlayeredit(ezb, None, filledForm, BookDO.getBook(ezb.book_id.toString)))
             case Left(error) =>
               println("[ERROR] " + error)
               Ok(views.html.ezoomlayeredit(ezb,
+                None,
                 ezlform.withGlobalError("An error occurred while trying to load the file. " + error),
                   BookDO.getBook(ezb.book_id.toString)))
           }
         }.getOrElse{
           println("[ERROR] oops!")
           Ok(views.html.ezoomlayeredit(ezb,
+            None,
             ezlform.withGlobalError("An error occurred while trying to load the file."), BookDO.getBook(ezb.book_id.toString)))
         }
       }
@@ -310,30 +313,34 @@ object EzoomBooks extends Controller with ContextProvider{
   def setReadingEzb(ezbId:String) = Action {implicit request =>
     BookDO.getEzoomBook(UUID.fromString(ezbId)).flatMap{ezb =>
       BookDO.getBook(ezb.book_id.toString).map{book =>
-        BookDO.setWorkingEzb(ezb)
-        Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(0).partId))
+        Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(0).partId)).withSession(
+          session + ("working-ezb" -> ezb.ezoombook_id.toString)
+        )
       }
     }.getOrElse{
+      println("[WEB-ERROR] Could not load eZoomBook: " + ezbId)
       NotFound("Oops! We couldn't find the eZoomBook you are looking for")
     }
   }
 
   def readEzb(bookId:String,partId:String) = Action {implicit request =>
     BookDO.getBook(bookId).flatMap{book =>
-      BookDO.getWorkingEzb.map{ezb =>
-        val partIndex = book.bookParts.indexWhere(_.partId == partId)
-        val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
-        Ok(views.html.read(book,
-          ezb, partIndex,
-          ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
-            BookDO.getEzoomLayer(UUID.fromString(layer._2)).
-              map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
-          },
-          play.api.templates.Html(bodyContent),
-          play.api.templates.Html(styles)))
+      context.activeEzb.flatMap{ezbId =>
+        BookDO.getEzoomBook(ezbId).map{ezb =>
+          val partIndex = book.bookParts.indexWhere(_.partId == partId)
+          val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
+          Ok(views.html.read(book,
+            ezb, partIndex,
+            ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
+              BookDO.getEzoomLayer(UUID.fromString(layer._2)).
+                map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
+            },
+            play.api.templates.Html(bodyContent),
+            play.api.templates.Html(styles)))
+        }
       }
     }.getOrElse{
-      NotFound("Oops! We couldn't find the eZoomBook you are looking for")
+      NotFound("Oops! We couldn't find the resource you are looking for")
     }
   }
 
@@ -347,23 +354,29 @@ object EzoomBooks extends Controller with ContextProvider{
 //  }
 
   def bookResource(bookId:String, file:String) = Action{implicit request =>
-    val mtype = file.split('.').lastOption match{
-      case Some(ext) => play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY)
-      case _ => play.api.http.MimeTypes.BINARY
-    }
-    val res = BookDO.getBookResource(UUID.fromString(bookId),file)
-
-    if (res.size > 0){
-      Ok(res).as(mtype)
+    if (file.contains(".html")){
+      Redirect(routes.EzoomBooks.readEzb(bookId, file))
     }else{
-      Redirect(routes.Assets.at("/images/bookcover.png"))
+      val mtype = file.split('.').lastOption match{
+        case Some(ext) => play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY)
+        case _ => play.api.http.MimeTypes.BINARY
+      }
+      val res = BookDO.getBookResource(UUID.fromString(bookId),file)
+
+      if (res.size > 0){
+        Ok(res).as(mtype)
+      }else{
+        Redirect(routes.Assets.at("/images/bookcover.png"))
+      }
     }
   }
 
   def readLayer(bookId:String,partId:String) = Action{implicit request =>
     BookDO.getBook(bookId).map{book =>
       val partIndex = book.bookParts.indexWhere(_.partId == partId)
-      val quoteRanges:List[String] = BookDO.getWorkingLayer.flatMap{ezl =>
+      val ezoomlayeropt = context.activeLayer.flatMap(BookDO.getEzoomLayer(_))
+
+      val quoteRanges:List[String] = ezoomlayeropt.flatMap{ezl =>
         ezl.ezoomlayer_contribs.find(_.part_id == Some(partId)).map{
           case part:EzlPart =>
             for(pc <- part.part_contribs if pc.contrib_type == "contrib.Quote") yield {pc.range.getOrElse("")}
@@ -372,7 +385,8 @@ object EzoomBooks extends Controller with ContextProvider{
 
       val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
 
-      Ok(views.html.bookread(book,partIndex,partId, quoteRanges,
+      Ok(views.html.bookread(book,ezoomlayeropt,
+        partIndex,partId, quoteRanges,
         play.api.templates.Html(bodyContent),
         play.api.templates.Html(styles)))
     }.getOrElse{

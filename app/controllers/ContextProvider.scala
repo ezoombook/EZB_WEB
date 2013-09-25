@@ -39,9 +39,9 @@ trait ContextProvider extends Controller{
       )
     ))
 
-    val ezb = Cache.getAs[Ezoombook]("working-ezb")
+    val ezb = request.session.get("working-ezb").map(UUID.fromString(_))
 
-    val layer = Cache.getAs[EzoomLayer]("working-layer")
+    val layer = request.session.get("working-layer").map(UUID.fromString(_))
 
     Context(user, prefs, request.acceptLanguages, ezb, layer)
   }
