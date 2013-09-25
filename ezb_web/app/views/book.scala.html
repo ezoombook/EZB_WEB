@@ -48,6 +48,7 @@
     </tr>
     <tr>
         @for(g<-listezbooks){
+        <!-- TODO Display user name instead of code -->
         <tr>
             <td><a href='@routes.EzoomBooks.setReadingEzb(g.ezoombook_id.toString)'>@g.ezoombook_title</a></td>
             <td>@g.ezoombook_owner</td>

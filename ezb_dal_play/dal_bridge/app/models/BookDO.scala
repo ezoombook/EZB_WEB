@@ -41,11 +41,11 @@ object BookDO{
 //  }
 
   def setWorkingEzb(ezb:Ezoombook){
-    Cache.set("working-ezb", ezb, 0)
+    Cache.set("working-ezb", ezb.ezoombook_id, 0)
   }
 
   def setWorkingLayer(ezl:EzoomLayer){
-    Cache.set("working-layer", ezl, 0)
+    Cache.set("working-layer", ezl.ezoomlayer_id, 0)
   }
 
   def getWorkingEzb:Option[Ezoombook] = {
@@ -83,9 +83,7 @@ object BookDO{
    * @return
    */
   def getEzoomBook(ezbId:UUID):Option[Ezoombook] = {
-    Cache.getOrElse("ezb:"+ezbId, 0){
       AppDB.cdal.getEzoomBook(ezbId)
-    }
   }
 
   def getEzoomLayer(ezlId:UUID, reloadCache:Boolean = false):Option[EzoomLayer] = {
@@ -160,7 +158,7 @@ object BookDO{
   }
 
   def getBookResource(bookId:UUID,resPath:String):Array[Byte] = {
-    Cache.getOrElse(bookId+":"+resPath)(AppDB.cdal.getBookResource(bookId,resPath))
+    AppDB.cdal.getBookResource(bookId,resPath)
   }
 
   /**
@@ -176,25 +174,29 @@ object BookDO{
     //Actual resource path
     val resPath = partPath.split('#')(0)
     val contentRaw = getBookResource(bookId, resPath)
-    val content = xml.parsing.XhtmlParser(io.Source.fromBytes(contentRaw))
+    if (contentRaw.isEmpty){
+      println("[ERROR] Resource " + partPath + " not found!")
+      ("","")
+    }else{
+      val content = xml.parsing.XhtmlParser(io.Source.fromBytes(contentRaw))
+      //Transform paths
+      val newContent = transform(content.head){
+        case node:scala.xml.Elem =>
+          node.copy(attributes = mapMetaData(node.attributes){
+            case g @ GenAttr(_, key, value, _) if (key == "src" || key == "href") =>
+              g.copy(value = scala.xml.Text("/bookres/"+bookId+"/"+relative2absolute(value.mkString)))
+            case other => other
+          })
+        case other => other
+      }
+      //Get body
+      val bodyContent = xml.NodeSeq.fromSeq((newContent \ "body").head.child).mkString
+      //Get styles
+      val styles = (newContent \\ "link").mkString
+      //-- end of TODO
 
-    //Transform paths
-    val newContent = transform(content.head){
-      case node:scala.xml.Elem =>
-        node.copy(attributes = mapMetaData(node.attributes){
-          case g @ GenAttr(_, key, value, _) if key == "src" =>
-            g.copy(value = scala.xml.Text(relative2absolute(value.mkString)))
-          case other => other
-        })
-      case other => other
+      (styles, bodyContent)
     }
-    //Get body
-    val bodyContent = xml.NodeSeq.fromSeq((newContent \ "body").head.child).mkString
-    //Get styles
-    val styles = (newContent \\ "link").mkString
-    //-- end of TODO
-
-    (styles, bodyContent)
   }
 
   //Transform a path begining with "../" into a path begining with "/"

@@ -5,6 +5,8 @@ import books.dal.{Ezoombook,EzoomLayer}
 
 import play.api.i18n.Lang
 
+import java.util.UUID
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
@@ -15,7 +17,7 @@ import play.api.i18n.Lang
 case class Context (user: Option[User],
                     preferences: Option[Preferences],
                     supportedLanguages:Seq[Lang],
-                    activeEzb:Option[Ezoombook], /* TODO change to ref instead (remove from cache) */
-                    activeLayer:Option[EzoomLayer]) /* TODO change to ref idem */
+                    activeEzb:Option[UUID],
+                    activeLayer:Option[UUID])
 
 
