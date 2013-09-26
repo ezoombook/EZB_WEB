@@ -358,7 +358,7 @@ object EzoomBooks extends Controller with ContextProvider{
       Redirect(routes.EzoomBooks.readEzb(bookId, file))
     }else{
       val mtype = file.split('.').lastOption match{
-        case Some(ext) => play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY)
+        case Some(ext)  => play.api.libs.MimeTypes.forExtension(ext).getOrElse(play.api.http.MimeTypes.BINARY)
         case _ => play.api.http.MimeTypes.BINARY
       }
       val res = BookDO.getBookResource(UUID.fromString(bookId),file)
