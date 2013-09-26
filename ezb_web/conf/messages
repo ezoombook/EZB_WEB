@@ -67,3 +67,13 @@ workspace.books.readinglist.title.th=Title
 workspace.books.favorites.h2=Your Favorite Books
 workspace.books.favorites.title.th=Title
 
+read.readoptions.showall.button=Show all
+read.readoptions.showquotes.button=Show only quotes
+read.readoptions.showsummaries.button=Show only summaries
+read.leveltabs.original=Original
+read.leveltabs.highlydetailed=Higly Detailed
+read.leveltabs.fairlydetailed=Fairly Detailed
+read.leveltabs.fairlyabridge=Fairly Abridged
+read.leveltabs.highlyabridge=Highly Abridged
+read.toc.dropdown=Contents
+read.toc.subsection=Subsection

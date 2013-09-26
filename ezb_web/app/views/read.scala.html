@@ -25,14 +25,14 @@
 @displayAtomic(contrib:AtomicContrib, indent:Int) = {
         @contrib.contrib_type match{
             case "contrib.Summary" => {
-                <div class="row">
+                <div class="row summary collapse in">
                     <div class="span@(10-indent)">
                         @contrib.contrib_content
                     </div>
                 </div>
             }
             case "contrib.Quote" => {
-            <div class="row">
+            <div class="row quote collapse in">
                 <div class="span1 offset1">
                     <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
                 </div>
@@ -46,7 +46,29 @@
         }
 }
 
-@main("Read", styles=bookStyles){
+@script={
+<script type="text/javascript">//<![CDATA[
+    $(document).ready(function(){
+        $('#showall').click(function(){
+            $('.summary').collapse('show');
+            $('.quote').collapse('show');
+        });
+        $('#hidequotes').click(function(){
+            console.log('hidding quotes...');
+            $('.quote').collapse('hide');
+            $('.summary').collapse('show');
+        });
+        $('#hidesummaries').click(function(){
+            console.log('hidding summaries');
+            $('.summary').collapse('hide');
+            $('.quote').collapse('show');
+        });
+    });
+//]]>
+</script>
+}
+
+@main("Read", styles=bookStyles, scripts=script){
 <style>
     .ex{
         padding:15px;
@@ -59,6 +81,13 @@
     }
     a.quote-text {color:#000;}
     a.quote-text:hover {color:#08C;}
+
+    div.summary{
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border-top: 1px solid #E5E5E5;
+    }
+
 </style>
 
 <div id="fb-root"></div>
@@ -76,9 +105,12 @@
 <div  class="row">
     <div class="span12">
         <div class="btn-group" data-toggle="buttons-radio">
-            <a class="btn btn-primary" href="#">Show all</a>
-            <a class="btn btn-primary" href="#">Show only quotes</a>
-            <a class="btn btn-primary" href="#">Show only summaries</a>
+            <a id="showall" class="btn btn-primary" href="#">
+                @Messages("read.readoptions.showall.button")</a>
+            <a id="hidesummaries" class="btn btn-primary" href="#"> <!-- data-toggle="collapse" data-target=".summary"-->
+                @Messages("read.readoptions.showquotes.button")</a>
+            <a id="hidequotes" class="btn btn-primary" href="#"> <!-- data-toggle="collapse" data-target=".quote" -->
+                @Messages("read.readoptions.showsummaries.button")</a>
         </div>
     </div>
 </div>
@@ -86,21 +118,24 @@
 <div class="row  reader">
     <div class="tabbable span12">
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#tab0" data-toggle="tab">Original</a></li>
+            <li class="active"><a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a></li>
             @ezb.ezoombook_layers.map{layer =>
-            @defining(Map("1"->"Higly Detailed", "2"->"Fairly Detailed", "3"->"Fairly Abridged", "4"->"Highly Abridged")){lmap =>
-            <li><a href="#tab@layer._1" data-toggle="tab">@lmap.getOrElse(layer._1, "undef")</a></li>
+            @defining(Map("1"->Messages("read.leveltabs.highlydetailed"),
+                "2"->Messages("read.leveltabs.fairlydetailed"),
+                "3"->Messages("read.leveltabs.fairlyabridge"),
+                "4"->Messages("read.leveltabs.highlyabridge"))){lmap =>
+            <li><a href="#tab@layer._1" data-toggle="tab">@lmap.getOrElse(layer._1, "-")</a></li>
             }
             }
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab0"><!-- Complete book -->
                 <div class="btn-group">
-                    <a class="btn btn btn-info dropdown-toggle" data-toggle="dropdown" href="#"><i>Contents</i>
+                    <a class="btn btn btn-info dropdown-toggle" data-toggle="dropdown" href="#"><i>@Messages("read.toc.dropdown")</i>
                         <span class="caret"></span> </a>
                     <ul class="dropdown-menu">
                         @book.bookParts.map{bookPart =>
-                        <li><a href="#">@bookPart.title.getOrElse("- Subsection")</a></li>
+                        <li><a href="#">@bookPart.title.getOrElse("- " + Messages("read.toc.subsection"))</a></li>
                         }
                     </ul>
                 </div>
@@ -108,7 +143,8 @@
                 <div class="row">
                     <div class="span1">
                         @if(partIndex > 0){
-                        <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex-1).partId)'><i class="icon-chevron-left"></i></a>
+                        <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex-1).partId)'>
+                            <i class="icon-chevron-left"></i></a>
                         }
                     </div>
                     <div class="span10" id="reader">
@@ -116,7 +152,8 @@
                     </div>
                     <div class="span1">
                         @if(partIndex < book.bookParts.size-1){
-                         <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex+1).partId)'><i class="icon-chevron-right"></i></a>
+                         <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex+1).partId)'>
+                             <i class="icon-chevron-right"></i></a>
                         }
                     </div>
                 </div> <!-- Reader End -->
