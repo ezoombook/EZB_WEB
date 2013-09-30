@@ -226,6 +226,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * Loads an ezoomlayer from a marked down file and displays it
    * in the ezoomlayer edition form
    */
+  //TODO Correct repeated contribution_id on atomic contrib
   def loadEzoomLayer(ezbId:String) = Action(parse.multipartFormData){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>

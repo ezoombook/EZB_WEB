@@ -37,7 +37,7 @@
                     <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
                 </div>
                 <div class="span8" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
-                    <a class="quote-text" >
+                    <a class="quote-text" id="@contrib.contrib_id">
                         <i>@contrib.contrib_content</i>
                     </a>
                 </div>
@@ -45,23 +45,48 @@
             }
         }
 }
-
 @script={
+<script src="/assets/javascripts/jquery.highlight.js" type="text/javascript"></script>
 <script type="text/javascript">//<![CDATA[
     $(document).ready(function(){
+        function zoomOut(e){
+            var quote = $(this).text();
+            var quoteId = $(this).attr('data-origin');
+            console.log('Zoom Out! ' + quoteId);
+
+            $("body p").unhighlight({ element: 'a', className: 'zoom-out' });
+            $('#level-tabs li:eq(1) a').tab('show');
+            $('#'+quoteId).attr('tabindex',-1).focus();
+        }
+
         $('#showall').click(function(){
             $('.summary').collapse('show');
             $('.quote').collapse('show');
         });
         $('#hidequotes').click(function(){
-            console.log('hidding quotes...');
             $('.quote').collapse('hide');
             $('.summary').collapse('show');
         });
         $('#hidesummaries').click(function(){
-            console.log('hidding summaries');
             $('.summary').collapse('hide');
             $('.quote').collapse('show');
+        });
+        $('.quote-text').click(function(e){
+            var selected = $(this).children('i').text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
+            var quoteId = $(this).attr('id');
+
+            console.log('showing a quote...');
+            for (var i = 0; i < selected.length; i++) {
+                selected[i] = selected[i].trim();
+                console.log('"'+selected[i]+'"');
+            }
+            console.log('id = ' + $(this).attr('id'))
+
+            $('#level-tabs a:first').tab('show');
+            $('body p').highlight(selected, {element: 'a', className: 'zoom-out'});
+            $('a.zoom-out').attr('data-origin',quoteId);
+            $('a.zoom-out').attr('tabindex',-1).focus();
+            $('a.zoom-out').click(zoomOut);
         });
     });
 //]]>
@@ -82,12 +107,20 @@
     a.quote-text {color:#000;}
     a.quote-text:hover {color:#08C;}
 
+    a.zoom-out {color:#000; background-color: #FF8;}
+    a.zoom-out:hover {
+        color:#08C;
+        cursor: url(@routes.Assets.at("images/magnify.cur")), auto
+    }
+
     div.summary{
         padding-top: 5px;
         padding-bottom: 5px;
         border-top: 1px solid #E5E5E5;
     }
-
+    .highlight{
+        background-color: #FF8;
+    }
 </style>
 
 <div id="fb-root"></div>
@@ -117,7 +150,7 @@
 
 <div class="row  reader">
     <div class="tabbable span12">
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs" id="level-tabs">
             <li class="active"><a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a></li>
             @ezb.ezoombook_layers.map{layer =>
             @defining(Map("1"->Messages("read.leveltabs.highlydetailed"),
