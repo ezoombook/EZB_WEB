@@ -20,8 +20,13 @@ import net.spy.memcached.CASValue
  * Time: 15:23
  * To change this template use File | Settings | File Templates.
  */
-case class EzbProject(projectId:UUID, projectName:String, projectOwnerId:UUID, projectCreationDate:Long,
-                      groupId:UUID, ezoombookId:UUID, projectTeam:List[TeamMember]){
+case class EzbProject(projectId:UUID,
+                      projectName:String,
+                      projectOwnerId:UUID,
+                      projectCreationDate:Long,
+                      groupId:UUID,
+                      ezoombookId:UUID,
+                      projectTeam:List[TeamMember]){
 }
 
 case class TeamMember(userId:UUID, assignedPart:String, assignedLayer:UUID)

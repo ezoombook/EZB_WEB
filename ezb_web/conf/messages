@@ -9,6 +9,8 @@ topmenu.help.tutorial=Tutorial
 topmenu.help.faq=FAQ
 topmenu.help.contact=Contact Us
 
+application.close.button=Close
+
 index.learnmore.btn=Learn more
 index.createaccount.btn=Create an account
 index.forum.btn=Forum
@@ -77,3 +79,23 @@ read.leveltabs.fairlyabridge=Fairly Abridged
 read.leveltabs.highlyabridge=Highly Abridged
 read.toc.dropdown=Contents
 read.toc.subsection=Subsection
+
+group.administrate.button=Administrate
+group.addmember.button=Add a member
+group.addmember.h3=Add a member
+group.addmember.membermail=Member e-mail
+group.addmember.role=Member role
+group.memberform.error=There was an error with your request:
+group.memberfrom.error.usernotfound=Cannot find the user with mail {0}.
+group.newproject.button=Create a project
+group.newproject.h3=New Project
+group.newproject.projectname=Name of the project
+group.newproject.ezoombook=Chose an existing eZoomBook
+group.newproject.newezbcheck=Create a new eZoomBook
+group.projects.h2=Projects
+group.projects.title.th=Title
+
+ezbbooklist.header=Create a new eZoomBook
+ezbbooklist.choosebook.h2=Please choose a book
+ezbbooklist.newezb.h3=New eZoomBook
+

@@ -16,9 +16,9 @@ import Play.current
 import play.api._
 import play.api.mvc._
 import play.api.data._
+import play.api.i18n.Messages
 import Forms._
 import java.util.UUID
-import project.dal.{TeamMember, EzbProject}
 
 
 /**
@@ -82,17 +82,17 @@ object Community extends Controller with ContextProvider{
    */
   def group(gid:String) = Action{ implicit request =>
     val groupId = UUID.fromString(gid)
-    context.user.map{user =>
+    withUser{user =>
       cachedGroup(gid).map{group =>
-        val members = cachedGroupMembers(gid)
+        val members = UserDO.getGroupMembers(groupId)
         Ok(views.html.group(group.id.toString, group.name, members,
           BookDO.getGroupProjects(groupId),
-          memberForm, Collaboration.projectForm.fill(emptyProject(user.id,groupId))))
+          memberForm,
+          BookDO.getUserEzoombooks(user.id),
+          Collaboration.projectForm(user.id, groupId)))
       }.getOrElse(
         NotFound("Oops, the group you're looking for does not exists :(")
       )
-    }.getOrElse{
-      Unauthorized("Oops, you are not connected")
     }
   }
 
@@ -105,21 +105,25 @@ object Community extends Controller with ContextProvider{
       memberForm.bindFromRequest.fold(
         errors => cachedGroup(gid).map{group =>
           println("[ERROR] Errors found while trying to create group member : " + errors)
-          BadRequest(views.html.group(gid, group.name, cachedGroupMembers(gid),
+          BadRequest(views.html.group(gid, group.name,
+            UserDO.getGroupMembers(groupId),
             BookDO.getGroupProjects(groupId),
-            errors, Collaboration.projectForm.fill(emptyProject(user.id,groupId))))
+            errors,
+            BookDO.getUserEzoombooks(user.id),
+            Collaboration.projectForm.fill(emptyProject(user.id,groupId))))
         }.get,
         member => {
           UserDO.getUserId(member._1).map{userId =>
             UserDO.newGroupMember(groupId, userId, member._2)
-            Cache.set("groupMembers:"+groupId, null)
             Redirect(routes.Community.group(gid))
           }.getOrElse{
             cachedGroup(gid).map{group =>
-              val members = cachedGroupMembers(gid)
-              BadRequest(views.html.group(gid, group.name, members,
+              BadRequest(views.html.group(gid, group.name,
+                UserDO.getGroupMembers(groupId),
                 BookDO.getGroupProjects(groupId),
-                memberForm.withGlobalError("Cannot find the user with mail " + member._1), Collaboration.projectForm))
+                memberForm.withGlobalError(Messages("group.memberfrom.error.usernotfound",member._1)),
+                BookDO.getUserEzoombooks(user.id),
+                Collaboration.projectForm))
             }.get
           }
         }
