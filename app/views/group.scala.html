@@ -1,58 +1,127 @@
-    @(groupId:String, groupName:String, members:List[(User,AppDB.dal.Roles.Value)],
+@(groupId:String, groupName:String,
+    members:List[(User,AppDB.dal.Roles.Value)],
     projects:List[EzbProject],
-    memberForm:Form[(String,String)], projectForm:Form[EzbProject])(implicit session:Session, context:Context)
+    memberForm:Form[(String,String)],
+    userEzoomBooks:List[Ezoombook],
+    projectForm:Form[EzbProject])(implicit session:Session, context:Context)
 
 @import helper._
 @import ezbhelper._
-@import helper.twitterBootstrap._
+@import utils.EzbHelpers._
 
 @scripts = {
 <script type="text/javascript"> //<![CDATA[
-    var users = ["Bob","Ann","Joe","Gabriel","Daniel","Sofia","Camila"];
-    $('.typeahead').typeahead({source: users});
+var users = ["Bob","Ann","Joe","Gabriel","Daniel","Sofia","Camila"];
+$('.typeahead').typeahead({source: users});
 
 function overlay() {
 	el = document.getElementById("overlay");
 	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 }
+
+    $('#@projectForm("new_ezb").id').change(function(e){
+        if(!$(this).is(':checked')){
+            $('#@projectForm("ezoombook_id").id').attr('disabled',false);
+            $('#ezbselect').removeClass("hide");
+        }else{
+            $('#@projectForm("ezoombook_id").id').attr('disabled',true);
+            $('#ezbselect').addClass("hide");
+        }
+    });
 //]]>
 </script>
 }
 
 @main("Group "+groupName, scripts){
+<style>
+    label[for=new_ezb]{
+//        float: right;
+    }
+
+</style>
 
 <!-- Add Group Member Modal Window -->
 <div class="modal hide" id="infos">
   <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-    <h3>Add Member</h3>
+    <h3>@Messages("group.addmember.h3")</h3>
   </div>
   <div class="modal-body">
-    <p> <h2>Add Member:</h2>
      @form(routes.Community.newGroupMember(groupId)){
-        @inputText(memberForm("member_email"), Symbol("data-provide") -> "typehead", Symbol("data-items") -> 5, Symbol("data-source") -> "?")
-        @select(memberForm("role"), UserDO.getGroupMemberRole)
+        @inputText(memberForm("member_email"),
+            Symbol("data-provider") -> "typehead",
+            Symbol("data-items") -> 5,
+            Symbol("data-source") -> "?",
+            '_label -> Messages("group.addmember.membermail"))
+        @select(memberForm("role"), UserDO.getGroupMemberRole, '_label -> Messages("group.addmember.role"))
         <input type="submit" value="Add">
      }
   </div>
-  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Close</a> </div>
+  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a> </div>
 </div><!--/ .modal -->
+
+<!-- New Project Modal Window -->
+<div class="modal hide" id="new_project">
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">x</a>
+        <h3>@Messages("group.newproject.h3")</h3>
+    </div>
+    <div class="modal-body">
+        @form(routes.Collaboration.saveProject){
+            @hidden(projectForm("project_id"))
+            @hidden(projectForm("project_owner"))
+            @hidden(projectForm("project_creation"))
+            @hidden(projectForm("group_id"))
+            <div>
+            @inputText(projectForm("project_name"),
+                '_label->Messages("group.newproject.projectname"))
+            </div>
+            <div>
+                @checkbox(projectForm("new_ezb"),
+                '_label->Messages("group.newproject.newezbcheck"),
+                'checked->projectForm("new_ezb").value.map(_ == true).getOrElse(false))
+            </div>
+            <div id="ezbselect" class="hide">
+            @select(projectForm("ezoombook_id"),
+                userEzoomBooks.map(ezb => ezb.ezoombook_id.toString -> ezb.ezoombook_title).toSeq,
+                '_label->Messages("group.newproject.ezoombook"),
+                'disabled->true)
+            </div>
+            <div>
+                <input type="submit" value="Create a project">
+            </div>
+        }
+    </div>
+    <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a> </div>
+</div>
+
+@if(memberForm.hasErrors){
+    <div class="alert">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <p>@Messages("group.memberform.error")</p>
+        <ul>
+            @memberForm.errors.map{err =>
+                <li>@err.message</li>
+            }
+        </ul>
+    </div>
+}
 
 <div class="row-fluid">
     <div class="span12">
         <h1>@groupName Group</h1>
-        <a class="btn btn-primary" data-toggle="modal" href="#infos" >Add a member</a>
-        <a class="btn btn-primary"  href="/groupadmin/@groupId" >Administrate</a>
+        <a class="btn btn-primary" data-toggle="modal" href="#infos" >@Messages("group.addmember.button")</a>
+        <a class="btn btn-primary"  href="@routes.Community.groupadmin(groupId)">@Messages("group.administrate.button")</a>
     </div>
 </div>
 
 <div class="row-fluid">
     <div class="span3">
-        <h2> Projects </h2>
-        <p><a>Create a project</a></p>
+        <h2> @Messages("group.projects.h2") </h2>
+        <p><a data-toggle="modal" href="#new_project">@Messages("group.newproject.button")</a></p>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Title</th>
+                    <th>@Messages("group.projects.title.th")</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,24 +133,13 @@ function overlay() {
             </tbody>
         </table>
 
-@** <!--
-        <h2> New Project</h2>
-        @form(routes.Collaboration.saveProject){
-            @hidden(projectForm("project_id"))
-            @hidden(projectForm("project_owner"))
-            @hidden(projectForm("project_creation"))
-            @hidden(projectForm("group_id"))
-            <h4>@inputText(projectForm("project_name"),'_label->"Name of the project")</h4>
-            @inputText(projectForm("ezoombook_id"))
-            <input type="submit" value="Create a project">
-        }
---> **@
     </div>
     <div class="span6">
         <h2>Message Board</h2>
         @defining(groupId.substring(0,8)){shortId =>
         <!-- Shoutbox Widget -->
-        <iframe WIDTH="100%" HEIGHT="810" title="Shoutbox" src="http://shoutbox.widget.me/window.html?uid=@shortId" frameborder="0" scrolling="auto">
+        <iframe WIDTH="100%" HEIGHT="810" title="Shoutbox"
+                src="http://shoutbox.widget.me/window.html?uid=@shortId" frameborder="0" scrolling="auto">
         </iframe>
         <script src="http://shoutbox.widget.me/v1.js" type="text/javascript"></script>
         <!-- End -->
