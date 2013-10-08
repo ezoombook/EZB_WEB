@@ -112,9 +112,15 @@
                 <tr>
                     <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td>
                     <td>
-                        <a href="/ezlayer/edit/@g.ezoombook_id" class="btn">@Messages("workspace.ezoombooks.edit.button")</a>
-                        <a href="@routes.EzoomBooks.ezoomBookDelete(g.ezoombook_id.toString)" class="btn">
-                            @Messages("workspace.ezoombooks.delete.button")</a>
+                        <div class="btn-group">
+                            <a href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
+                               class="btn" title='@Messages("book.ezoombooks.edit.button")'>
+                                <i class="icon-pencil"></i></a>
+                            <a href="@routes.EzoomBooks.ezoomBookDelete(g.ezoombook_id.toString)"
+                               class="btn" title="@Messages("workspace.ezoombooks.delete.button")">
+                                <i class="icon-remove"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 }
@@ -140,41 +146,6 @@
                 </tr>
                 </tbody>
             </table>
-
-@** <!--
-            <h4>@inputText(groupForm(""))</h4>
-            <dl>
-                <li onClick="toggle('seeuser')"><h3>Add a friend
-
-                </h3></li>
-
-                <div id="seeuser" style="display:none">
-                    <table class="table table-striped">
-                        <tbody>
-                        <tr>
-                            <th>Name</th>
-                            <th>Groups</th>
-                            <th>Favorite books</th>
-                            <th></th>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-
-            </dl>
-
-            <h1 style="float:left">Create a group</h1>
-            </br></br></br></br>
-
-            @form(routes.Community.newGroup){
-            <h4>@inputText(groupForm("groupName"),'_label->"Name of the group")</h4>
-
-            @hidden(groupForm("ownerId"), 'value -> session.get("userId"))
-            <input type="submit" value="Create a group">
-            }
-            </br>
---> **@
 
             <h2>@Messages("workspace.groups.h2")</h2>
 

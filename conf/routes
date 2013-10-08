@@ -5,17 +5,17 @@
 # Home page
 GET     /                   controllers.Application.index
 
-GET	    /home			    controllers.Application.home
-GET	/truehome				controllers.Application.truehome
+GET     /home		    controllers.Application.home
+GET     /truehome           controllers.Application.truehome
 
-#GET	    /users			    controllers.Application.users
+#GET	/users          controllers.Application.users
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
-GET	    /login			    controllers.Application.login
+GET     /login			    controllers.Application.login
 
 #logout
-GET		/logout				controllers.Application.userLogout
+GET	/logout				controllers.Application.userLogout
 
 #Password Reset
 GET     /changepassword     controllers.Application.changePassword
@@ -32,17 +32,17 @@ POST    /changelang         controllers.Application.changeLang
 GET     /lang/:lcode        controllers.Application.setLang(lcode:String)
 
 # Community
-GET	    /groups			    controllers.Community.groups
+GET     /groups                 controllers.Community.groups
 POST	/groups		        controllers.Community.newGroup
-GET	    /group/:id		    controllers.Community.group(id:String)
+GET     /group/:id              controllers.Community.group(id:String)
 GET     /groupadmin/:id		controllers.Community.groupadmin(id:String)
 
-POST	/groupmember/:id	controllers.Community.newGroupMember(id:String)
+POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 
 # Projects
-GET     /project/new        controllers.Collaboration.newPoject
 GET     /project/edit/:id   controllers.Collaboration.editProject(id:String)
 POST    /project/save       controllers.Collaboration.saveProject
+POST    /project/saveezb/:pid    controllers.Collaboration.saveProjectEzb(pid)
 GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
 POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
 
@@ -52,12 +52,12 @@ POST	/books			    controllers.EzoomBooks.saveBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 GET     /books/new          controllers.EzoomBooks.newBook
 
-GET	    /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
+GET     /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
 POST    /bookreedit/save    controllers.EzoomBooks.saveEditedBook
 
 GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
-GET	    /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
-GET	    /cachedcover    	controllers.EzoomBooks.cachedBookCover
+GET     /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
+GET     /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
 # Book reading with levels
 GET     /book/read/:ezbid          controllers.EzoomBooks.readBook(ezbid:String)
@@ -79,11 +79,11 @@ GET     /contact            controllers.Application.contact
 POST    /contactadmin     controllers.Application.contactadmin
 
 #EZOOMBOOK
-GET    /ezb/edit/:id       controllers.EzoomBooks.ezoomBookEdit(id:String)
-POST    /ezb/save/:bookid   controllers.EzoomBooks.saveEzoomBook(bookid:String)
+GET     /ezb/edit/:id               controllers.EzoomBooks.ezoomBookEdit(id:String)
+POST    /ezb/save/:bookid           controllers.EzoomBooks.saveEzoomBook(bookid:String)
 GET     /ezb/delete/:ezbid          controllers.EzoomBooks.ezoomBookDelete(ezbid)
 
-#GET    /ezlayer/form/:id          controllers.EzoomBooks.newEzoomlayer(id:String)
+#GET    /ezlayer/form/:id           controllers.EzoomBooks.newEzoomlayer(id:String)
 POST    /ezlayer/load/:bid          controllers.EzoomBooks.loadEzoomLayer(bid:String)
 POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:String)
 GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
