@@ -203,6 +203,13 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
       }
   }
 
+  def deleteProject(projId:String) = Action { implicit request =>
+    withUser{ user =>
+      BookDO.deleteProject(UUID.fromString(projId))
+      Redirect(routes.Application.home)
+    }
+  }
+
   /**
    * Gets a group from the cache if it is there.
    * Otherwise it gets it from the database and store it in the cache

@@ -62,19 +62,7 @@ object Community extends Controller with ContextProvider{
    * Displays the groups owned by a user
    */
   def groups = Action{ implicit request =>
-    session.get("userId").map(UUID.fromString(_)).map{uid =>
-       val listproj = BookDO.getOwnedProjects(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
-       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
-       list :+ (proj,ezb) 
-     }.getOrElse{list}}
-     val listpro = BookDO.getProjectsByMember(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
-       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
-       list :+ (proj,ezb) 
-     }.getOrElse{list}}
-      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
-    }.getOrElse(
-      Unauthorized("Oops, you are not connected")
-    )
+    Redirect(routes.Application.home)
   }
 
   /**
@@ -135,27 +123,8 @@ object Community extends Controller with ContextProvider{
     //((name, ownerId)=>Group(UUID.randomUUID, name, ownerId))
     //((group:Group)=>(group.name, group.ownerId))
    def newGroup = Action{ implicit request =>
-    session.get("userId").map(UUID.fromString(_)).map{uid =>
-      val listproj = BookDO.getOwnedProjects(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
-       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
-       list :+ (proj,ezb) 
-     }.getOrElse{list}}
-     val listpro = BookDO.getProjectsByMember(uid).foldLeft(List[(EzbProject,Ezoombook)]()){(list,proj) =>
-       BookDO.getEzoomBook(proj.ezoombookId).map{ezb =>
-       list :+ (proj,ezb) 
-     }.getOrElse{list}}
-      groupForm.bindFromRequest.fold(
-      errors => 
-        BadRequest(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
-      ,
-      (group)=>{UserDO.newGroup(group._1, uid)
-      Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(uid), BookDO.getUserBooks(uid), UserDO.userOwnedGroups(uid), UserDO.userIsMemberGroups(uid),groupForm))
-      }
-    )}
-    .getOrElse(
-      Unauthorized("Oops, you are not connected")
-    )
-  }
+     Redirect(routes.Application.home)
+   }
 
   /**
    * Gets a group from the cache if it is there.
