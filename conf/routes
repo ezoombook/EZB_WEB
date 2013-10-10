@@ -45,6 +45,7 @@ POST    /project/save       controllers.Collaboration.saveProject
 POST    /project/saveezb/:pid    controllers.Collaboration.saveProjectEzb(pid)
 GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
 POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
+POST	/project/delete/:id controllers.Collaboration.deleteProject(id)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
@@ -81,7 +82,7 @@ POST    /contactadmin     controllers.Application.contactadmin
 #EZOOMBOOK
 GET     /ezb/edit/:id               controllers.EzoomBooks.ezoomBookEdit(id:String)
 POST    /ezb/save/:bookid           controllers.EzoomBooks.saveEzoomBook(bookid:String)
-GET     /ezb/delete/:ezbid          controllers.EzoomBooks.ezoomBookDelete(ezbid)
+POST    /ezb/delete/:ezbid          controllers.EzoomBooks.ezoomBookDelete(ezbid)
 
 #GET    /ezlayer/form/:id           controllers.EzoomBooks.newEzoomlayer(id:String)
 POST    /ezlayer/load/:bid          controllers.EzoomBooks.loadEzoomLayer(bid:String)

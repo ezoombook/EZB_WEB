@@ -10,6 +10,8 @@ topmenu.help.faq=FAQ
 topmenu.help.contact=Contact Us
 
 application.close.button=Close
+application.cancel.button=Cancel
+application.delete.button=Delete
 
 index.learnmore.btn=Learn more
 index.createaccount.btn=Create an account
@@ -68,6 +70,10 @@ workspace.books.readinglist.h2=Your Reading Lists
 workspace.books.readinglist.title.th=Title
 workspace.books.favorites.h2=Your Favorite Books
 workspace.books.favorites.title.th=Title
+workspace.deleteproject.h3=Delete Project Confirmation 
+workspace.deleteproject.alert=You are about to delete a project. Are you sure you want to continue?
+workspace.deleteEZB.h3=Delete eZoomBook Confirmation 
+workspace.deleteEZB.alert=You are about to delete an eZoomBook. Are you sure you want to continue?
 
 read.readoptions.showall.button=Show all
 read.readoptions.showquotes.button=Show only quotes
