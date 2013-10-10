@@ -336,31 +336,24 @@ object Application extends Controller with ContextProvider {
 
   def home = Action {
     implicit request =>
-      context.user.map {
-        u =>
-          val listproj = BookDO.getOwnedProjects(u.id).foldLeft(List[(EzbProject, Ezoombook)]()) {
-            (list, proj) =>
-              BookDO.getEzoomBook(proj.ezoombookId).map {
-                ezb =>
-                  list :+(proj, ezb)
-              }.getOrElse {
-                list
-              }
-          }
-          val listpro = BookDO.getProjectsByMember(u.id).foldLeft(List[(EzbProject, Ezoombook)]()) {
-            (list, proj) =>
-              BookDO.getEzoomBook(proj.ezoombookId).map {
-                ezb =>
-                  list :+(proj, ezb)
-              }.getOrElse {
-                list
-              }
-          }
-          Ok(views.html.workspace(listproj, listpro, BookDO.getUserEzoombooks(u.id), BookDO.getUserBooks(u.id), UserDO.userOwnedGroups(u.id), UserDO.userIsMemberGroups(u.id), groupForm))
-      }.getOrElse(
-        Unauthorized("Oops, you are not connected")
-      )
+      withUser {user =>
+	  val projectlist = BookDO.getOwnedProjects(user.id).union(BookDO.getProjectsByMember(user.id)).map{ proj =>
+	    BookDO.getEzoomBook(proj.ezoombookId).map{ ezb =>
+	      ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId, 
+			    proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
+	    }.getOrElse{
+              ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId, 
+			    proj.projectCreationDate, None, "")
+	    }
+	  }
 
+          Ok(views.html.workspace( 
+            projectlist, 
+            BookDO.getUserEzoombooks(user.id), 
+            BookDO.getUserBooks(user.id), 
+            UserDO.userOwnedGroups(user.id), 
+            UserDO.userIsMemberGroups(user.id), groupForm))
+      }
   }
 
   /**

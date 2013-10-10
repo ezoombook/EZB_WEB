@@ -153,6 +153,10 @@ object BookDO{
     }
   }
 
+  def deleteProject(projId:UUID){
+    AppDB.cdal.deleteProject(projId)
+  }
+
   def getBookCover(bookId:UUID):Array[Byte] = {
     AppDB.cdal.getBookCover(bookId)
   }

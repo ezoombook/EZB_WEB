@@ -1,6 +1,8 @@
 package books.dal
 
 import books.util.{UUIDjsParser, EpubLoader}
+import util.EzbImplicits._
+
 import play.api.libs.json._
 import play.api.libs.functional._
 
@@ -187,15 +189,17 @@ trait BookComponent{
 
     //Retrieve the array containing the ezoombooks
     result.foldLeft(List[Ezoombook]()){(lst,row) =>
-      val js = row.getDocument().asInstanceOf[String]
-      Json.parse(js).validate[Ezoombook].fold(
-        err => {
-          println(s"[ERROR] Invalid Json document with book_id  = ${bookId.toString}. Expected: EzoomBook")
-          println("[ERROR] " + err)
-          lst
-        },
-        ezb => ezb +: lst
-      )
+      row.getDocument().map{doc =>
+        val js = Json.parse(doc.asInstanceOf[String])
+        js.validate[Ezoombook].fold(
+          err => {
+            println(s"[ERROR] Invalid Json document with book_id  = ${bookId.toString}. Expected: EzoomBook")
+            println("[ERROR] " + err)
+            lst
+          },
+          ezb => ezb +: lst
+        )
+      }.getOrElse(lst)
     }.toList
   }
 
@@ -206,15 +210,17 @@ trait BookComponent{
     val view = couchclient.getView("ezb", "by_owner")
     val query = (new Query()).setIncludeDocs(true).setKey(uId.toString)
     couchclient.query(view,query).foldLeft(List[Ezoombook]()){(lst,row) =>
-      val js = row.getDocument().asInstanceOf[String]
-      Json.parse(js).validate[Ezoombook].fold(
-        err => {
-          println(s"[ERROR] Invalid Json document with ower_id = ${uId.toString}. Expected: EzoomBook")
-          println("[ERROR] " + err)
-          lst
-        },
-        ezb => ezb +: lst
-      )
+      row.getDocument().map{doc =>
+        val js = Json.parse(doc.asInstanceOf[String])
+        js.validate[Ezoombook].fold(
+          err => {
+            println(s"[ERROR] Invalid Json document with ower_id = ${uId.toString}. Expected: EzoomBook")
+            println("[ERROR] " + err)
+            lst
+          },
+          ezb => ezb +: lst
+        )
+      }.getOrElse(lst)
     }.toList
   }
 

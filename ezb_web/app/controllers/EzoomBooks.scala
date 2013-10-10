@@ -450,8 +450,11 @@ object EzoomBooks extends Controller with ContextProvider{
   }
 
   def ezoomBookDelete(ezbId:String) = Action{implicit request =>
-    BookDO.deleteEzoomBook(UUID.fromString(ezbId))
-    Redirect(routes.Application.home)
+    withUser{user =>
+      //TODO Validate that user has the right to delete ezb
+      BookDO.deleteEzoomBook(UUID.fromString(ezbId))
+      Redirect(routes.Application.home)
+    }
   }
 
   def withEzoomBook(ezbId:String)(block:(Ezoombook) => Result):Result = {

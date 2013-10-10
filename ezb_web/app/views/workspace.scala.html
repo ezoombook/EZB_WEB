@@ -1,4 +1,4 @@
-@(listproj:List[(EzbProject,Ezoombook)], listpro:List[(EzbProject,Ezoombook)], listezb:List[Ezoombook], listmyb:List[Book], userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
+@(projlist:List[ListedProject], listezb:List[Ezoombook], listmyb:List[Book], userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
 
 @import utils.EzbHelpers._
 @import helper._
@@ -9,21 +9,17 @@
 @scripts = {
 <script type="text/javascript">//<![CDATA[
     $(document).ready(function(){
-    $('#btnAddAuth').click(function () {
-    cloner('authors');
-    });
-    $('#btnAddLang').click(function () {
-    cloner('languages');
-    });
-    $('#btnAddPublshr').click(function () {
-    cloner('publishers');
-    });
-    $('#btnAddPubDate').click(function () {
-    cloner('published_dates');
-    });
-    $('#btnAddTag').click(function () {
-    cloner('tags');
-    });
+
+      $('#deleteProjectButton').click(function(){
+        var projId = $(this).attr('data-projId');
+        $('#deleteProjectForm').attr('action','/project/delete/'+projId);
+      });
+
+      $('.ezbDeleteButton').click(function(){
+        var ezbId = $(this).attr('data-ezbId');
+        $('#deleteEZBForm').attr('action','/ezb/delete/'+ezbId);
+      });
+
     });
 
     function toggle(divtag){
@@ -38,6 +34,44 @@
 }
 
 @main(Messages("workspace.title"), scripts){
+<!-- Delete project modal alert -->
+<div id="projectDeleteAlert" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="deleteAlertHeader" aria-hidden="true">
+     <form method ="post" id="deleteProjectForm">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <h3 id="deleteAlertHeader">@Messages("workspace.deleteproject.h3")</h3>
+        </div>
+        <div class="modal-body">
+            <p>@Messages("workspace.deleteproject.alert")</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal"
+	  aria-hidden="true">@Messages("application.cancel.button")</button>
+            <input type="submit" class="btn bnt-primary"
+                    value='@Messages("application.delete.button")'>
+        </div>
+     </form>
+</div> <!-- Modal End -->
+
+<!-- Delete eZoomBook modal alert -->
+<div id="ezbDeleteAlert" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="ezbDeleteAlertHeader" aria-hidden="true">
+     <form method ="post" id="deleteEZBForm">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <h3 id="ezbDeleteAlertHeader">@Messages("workspace.deleteEZB.h3")</h3>
+        </div>
+        <div class="modal-body">
+            <p>@Messages("workspace.deleteEZB.alert")</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">@Messages("application.cancel.button")</button>
+            <input type="submit" class="btn bnt-primary"
+                    value='@Messages("application.delete.button")'>
+        </div>
+     </form>
+</div> <!-- Modal End -->
 
 <center><h1>@session.get("userName")'s Workspace</h1></center>
 
@@ -69,58 +103,63 @@
         <li><a href="#tab3" data-toggle="tab"><i class="icon-book"></i>&nbsp;@Messages("workspace.tab.books.title")</a></li>
     </ul>
     <div class="tab-content">
-        <div class="tab-pane active" id="tab1">  <!-- Projects Tab -->
+        <div class="tab-pane active" id="tab1">  <!-- Projects -->
             <h2>@Messages("workspace.projects.h2")</h2>
 
-            <table class="table table-striped">
-                <tbody>
-                <tr>
+            <table class="table table-striped">                
+                <thead>
                     <th>@Messages("workspace.projects.project.th")</th>
 
                     <th>eZoomBook</th>
                     <th>@Messages("workspace.projects.creationdate.th")</th>
-                </tr>
-                @for(g<-listproj) {
-
+		            <th></th>
+                </thead>
+		        <tbody>
+                @projlist.map {proj =>
                 <tr>
-                    <td>@g._1.projectName</td>
-                    <td>@g._2.ezoombook_title</td>
-                    <td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
-                </tr>
-                }
-                @for(g<-listpro) {
-
-                <tr>
-                    <td>@g._1.projectName</td>
-                    <td>@g._2.ezoombook_title</td>
-                    <td>@dateFormat(g._1.projectCreationDate, "dd-MM-yyyy")</td>
+                    <td><a href='@routes.Collaboration.projectAdmin(proj.projId.toString)'>@proj.projName</a></td>
+                    <td>@proj.ezbTitle</td>
+                    <td>@dateFormat(proj.projectCreationDate,
+                    "dd-MM-yyyy")</td>
+		             <td>
+                      <a class="btn"
+                        href="#projectDeleteAlert"
+                        title='@Messages("workspace.ezoombooks.delete.button")'
+                        id="deleteProjectButton"
+                        data-toggle="modal"
+                        data-projId="@proj.projId.toString">
+                                 <i class="icon-remove"></i>
+                      </a>
+        		    </td>
                 </tr>
                 }
                 </tbody>
             </table>
-            </br>
-            <h2>@Messages("workspace.ezoombooks.h2")</h2>
+            
+            <h2>@Messages("workspace.ezoombooks.h2")</h2> <!-- eZoomBooks -->
 
             <table class="table table-striped">
-                <tbody>
-                <tr>
+                <thead>
                     <th>@Messages("workspace.ezoombooks.name.th")</th>
-
                     <th></th>
-                </tr>
+                </thead>
+                <tbody>
                 @for(g<-listezb){
                 <tr>
                     <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td>
                     <td>
-                        <div class="btn-group">
-                            <a href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
-                               class="btn" title='@Messages("book.ezoombooks.edit.button")'>
-                                <i class="icon-pencil"></i></a>
-                            <a href="@routes.EzoomBooks.ezoomBookDelete(g.ezoombook_id.toString)"
-                               class="btn" title="@Messages("workspace.ezoombooks.delete.button")">
-                                <i class="icon-remove"></i>
-                            </a>
-                        </div>
+                        <a id="ezbEditButton"
+                           href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
+                           class="btn" title='@Messages("book.ezoombooks.edit.button")'>
+                            <i class="icon-pencil"></i>
+                        </a>
+                        <a class="btn ezbDeleteButton"
+                          href="#ezbDeleteAlert"
+                          title='@Messages("workspace.ezoombooks.delete.button")'
+                          data-ezbId="@g.ezoombook_id.toString"
+                          data-toggle="modal">
+                            <i class="icon-remove"></i>
+                        </a>
                     </td>
                 </tr>
                 }

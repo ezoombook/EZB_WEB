@@ -3,6 +3,7 @@ package project.dal
 import books.dal.Book
 import users.dal.User
 import books.util.UUIDjsParser
+import util.EzbImplicits._
 
 import scala.collection.JavaConversions._
 import play.api.libs.json._
@@ -79,14 +80,16 @@ trait EzbProjectComponent{
 
   private def parseProjectResult(resp:ViewResponse):List[EzbProject] = {
     resp.foldLeft(List[EzbProject]()){(lst,row) =>
-      val js = Json.parse(row.getDocument().asInstanceOf[String])
-      js.validate[EzbProject].fold(
-        err => {
-          println("[ERROR] Found invalid Json document " + err)
-          lst
-        },
-        ezbProj => ezbProj +: lst
-      )
+      row.getDocument().map{ doc =>
+          val js = Json.parse(doc.asInstanceOf[String])
+          js.validate[EzbProject].fold(
+              err => {
+                println("[ERROR] Found invalid Json document " + err)
+                lst
+              },
+              ezbProj => ezbProj +: lst
+          )
+      }.getOrElse(lst)     
     }.toList
   }
 
@@ -122,9 +125,10 @@ trait EzbProjectComponent{
 //  def removeMember(memId:UUID)(implicit couchclient:CouchbaseClient){
 //
 //  }
-//
-//  def deleteProject(pId:UUID)(implicit couchclient:CouchbaseClient){
-//
-//  }
+
+  def deleteProject(pId:UUID)(implicit couchclient:CouchbaseClient) = {
+    couchclient.delete(projectKey(pId)).get().booleanValue()
+  }
+
 }
 
