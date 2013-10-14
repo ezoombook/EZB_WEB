@@ -260,7 +260,7 @@
 }
 
 @levelMap(body: (Map[String,String]) => Html ) = {
-    @defining(Map("1"->"Higly Detailed", "2"->"Fairly Detailed", "3"->"Fairly Abridged", "4"->"Highly Abridged")){lmap =>
+    @defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
         @body(lmap)
     }
 }

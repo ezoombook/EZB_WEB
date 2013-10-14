@@ -43,6 +43,7 @@ POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 GET     /project/edit/:id   controllers.Collaboration.editProject(id:String)
 POST    /project/save       controllers.Collaboration.saveProject
 POST    /project/saveezb/:pid    controllers.Collaboration.saveProjectEzb(pid)
+POST    /project/setezb/:pid     controllers.Collaboration.setProjectEzb(pid)
 GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
 POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
 POST	/project/delete/:id controllers.Collaboration.deleteProject(id)
