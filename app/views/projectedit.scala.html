@@ -15,7 +15,6 @@
             @inputText(projectForm("project_name"))
             @select(projectForm("group_id"), options = for(g <- groups)yield(g.id.toString -> g.name), '_label -> "Group")
             @inputText(projectForm("ezoombook_id"))
-
 @**
             <h2>Project Team: </h2>
             <fieldset id="project_team_fs">

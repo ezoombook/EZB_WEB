@@ -73,6 +73,25 @@
      </form>
 </div> <!-- Modal End -->
 
+<!-- Create group modal -->
+<div id="groupFormModal" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="groupFormHeader" aria-hidden="true">
+    @form(action=routes.Community.newGroup){
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <h3 id="groupFormHeader">@Messages("workspace.creategroup.modal.h3")</h3>
+        </div>
+        <div class="modal-body">
+            @inputText(groupForm("groupName"), '_label -> Messages("workspace.creategroup.modal.groupname"))
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">@Messages("application.cancel.button")</button>
+            <input type="submit" class="btn bnt-primary"
+                   value='@Messages("workspace.creategroup.modal.button")'>
+        </div>
+    }
+</div> <!-- Modal End -->
+
 <center><h1>@session.get("userName")'s Workspace</h1></center>
 
 <div class="row">
@@ -122,14 +141,18 @@
                     <td>@dateFormat(proj.projectCreationDate,
                     "dd-MM-yyyy")</td>
 		             <td>
-                      <a class="btn"
-                        href="#projectDeleteAlert"
-                        title='@Messages("workspace.ezoombooks.delete.button")'
-                        id="deleteProjectButton"
-                        data-toggle="modal"
-                        data-projId="@proj.projId.toString">
-                                 <i class="icon-remove"></i>
-                      </a>
+                     @context.user.map{
+                         case user if(proj.projOwner == user.id) => {
+                              <a class="btn"
+                                href="#projectDeleteAlert"
+                                title='@Messages("workspace.ezoombooks.delete.button")'
+                                id="deleteProjectButton"
+                                data-toggle="modal"
+                                data-projId="@proj.projId.toString">
+                                         <i class="icon-remove"></i>
+                              </a>
+                         }
+                     }.getOrElse(Html(""))
         		    </td>
                 </tr>
                 }
@@ -186,9 +209,9 @@
                 </tbody>
             </table>
 
-            <h2>@Messages("workspace.groups.h2")</h2>
+            <h2>@Messages("workspace.groups.h2")</h2> <!-- Groups -->
 
-            <p><a>@Messages("workspace.groups.add.link")</a></p>
+            <p><a data-toggle="modal" href="#groupFormModal">@Messages("workspace.groups.add.link")</a></p>
             <table class="table table-striped">
                 <tbody>
                 <tr>
