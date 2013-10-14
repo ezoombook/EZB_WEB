@@ -56,7 +56,7 @@ object Community extends Controller with ContextProvider{
    */
   private def emptyProject(ownerId:UUID,groupId:UUID) =
     EzbProject(UUID.randomUUID, "", ownerId, (new java.util.Date()).getTime,
-      groupId, UUID.randomUUID, List[TeamMember]())
+      groupId, None, List[TeamMember]())
 
   /**
    * Displays the groups owned by a user
@@ -123,7 +123,18 @@ object Community extends Controller with ContextProvider{
     //((name, ownerId)=>Group(UUID.randomUUID, name, ownerId))
     //((group:Group)=>(group.name, group.ownerId))
    def newGroup = Action{ implicit request =>
-     Redirect(routes.Application.home)
+      withUser{ user =>
+        Form[String]("groupName" -> text).bindFromRequest.fold(
+          err => {
+            println("[ERRO] Could not create group. Errors in form: " + err)
+            Redirect(routes.Application.home)
+          },
+          groupName => {
+            UserDO.newGroup(groupName, user.id)
+            Redirect(routes.Application.home)
+          }
+        )
+      }
    }
 
   /**

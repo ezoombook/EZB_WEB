@@ -336,22 +336,25 @@ object Application extends Controller with ContextProvider {
 
   def home = Action {
     implicit request =>
-      withUser {user =>
-	  val projectlist = BookDO.getOwnedProjects(user.id).union(BookDO.getProjectsByMember(user.id)).map{ proj =>
-	    BookDO.getEzoomBook(proj.ezoombookId).map{ ezb =>
-	      ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId, 
-			    proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
-	    }.getOrElse{
-              ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId, 
-			    proj.projectCreationDate, None, "")
-	    }
-	  }
+      withUser {
+        user =>
+          val projectlist = BookDO.getOwnedProjects(user.id).union(BookDO.getProjectsByMember(user.id)).map {
+            proj =>
+              proj.ezoombookId.flatMap(BookDO.getEzoomBook(_)).map {
+                ezb =>
+                  ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
+                    proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
+              }.getOrElse {
+                ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
+                  proj.projectCreationDate, None, "")
+              }
+          }
 
-          Ok(views.html.workspace( 
-            projectlist, 
-            BookDO.getUserEzoombooks(user.id), 
-            BookDO.getUserBooks(user.id), 
-            UserDO.userOwnedGroups(user.id), 
+          Ok(views.html.workspace(
+            projectlist,
+            BookDO.getUserEzoombooks(user.id),
+            BookDO.getUserBooks(user.id),
+            UserDO.userOwnedGroups(user.id),
             UserDO.userIsMemberGroups(user.id), groupForm))
       }
   }
@@ -373,39 +376,43 @@ object Application extends Controller with ContextProvider {
       Redirect(routes.Application.login).withNewSession
   }
 
-  def parameter = Action { implicit request =>
-    withUser{user =>
-      val lang = context.preferences.map(_.language).getOrElse("")
-      Ok(views.html.parameter(passwordForm, localeForm.bind(Map("locale" -> lang)), ""))
-    }
+  def parameter = Action {
+    implicit request =>
+      withUser {
+        user =>
+          val lang = context.preferences.map(_.language).getOrElse("")
+          Ok(views.html.parameter(passwordForm, localeForm.bind(Map("locale" -> lang)), ""))
+      }
   }
 
   /**
    * Changes the user predefined language
    */
-  def changeLang = Action{implicit request =>
-    val referer = request.headers.get(REFERER).getOrElse(HOME_URL)
-    localeForm.bindFromRequest.fold(
-      erros => {
-        BadRequest(referer)
-      },
-      locale => {
-        println("[INFO] Language changed to " + locale)
-        Redirect(referer).withLang(play.api.i18n.Lang(locale)).withSession(
-          session + ("language" -> locale)
-        )
-      }
-    )
+  def changeLang = Action {
+    implicit request =>
+      val referer = request.headers.get(REFERER).getOrElse(HOME_URL)
+      localeForm.bindFromRequest.fold(
+        erros => {
+          BadRequest(referer)
+        },
+        locale => {
+          println("[INFO] Language changed to " + locale)
+          Redirect(referer).withLang(play.api.i18n.Lang(locale)).withSession(
+            session + ("language" -> locale)
+          )
+        }
+      )
   }
 
   /**
    * Changes session language
    */
-  def setLang(langCode:String) = Action{implicit request =>
-    val referer = request.headers.get(REFERER).getOrElse(HOME_URL)
-    println("[INFO] Language changed to " + langCode)
-    Redirect(referer).withLang(play.api.i18n.Lang(langCode)).withSession(
-      session + ("language" -> langCode)
-    )
+  def setLang(langCode: String) = Action {
+    implicit request =>
+      val referer = request.headers.get(REFERER).getOrElse(HOME_URL)
+      println("[INFO] Language changed to " + langCode)
+      Redirect(referer).withLang(play.api.i18n.Lang(langCode)).withSession(
+        session + ("language" -> langCode)
+      )
   }
 }

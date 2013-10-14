@@ -26,11 +26,11 @@ case class EzbProject(projectId:UUID,
                       projectOwnerId:UUID,
                       projectCreationDate:Long,
                       groupId:UUID,
-                      ezoombookId:UUID,
+                      ezoombookId:Option[UUID],
                       projectTeam:List[TeamMember]){
 }
 
-case class TeamMember(userId:UUID, assignedPart:String, assignedLayer:UUID)
+case class TeamMember(userId:UUID, assignedPart:String, assignedLayer:String)
 
 object EzbProject extends UUIDjsParser{
   implicit val mfmt = Json.format[TeamMember]

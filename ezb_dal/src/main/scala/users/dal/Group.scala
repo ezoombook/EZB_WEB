@@ -35,7 +35,9 @@ trait GroupComponent{
     def owner = foreignKey("fk_group_owner", ownerId, Users)(_.id)
 
     def add(group_name:String, owner_id:UUID)(implicit session:Session) = {
-      Groups.insert(new Group(UUID.randomUUID(), group_name, owner_id))
+      val newGroupId = UUID.randomUUID()
+      Groups.insert(new Group(newGroupId, group_name, owner_id))
+      GroupMembers.addMember(newGroupId, owner_id, Roles.owner.toString)
     }
 
     /**

@@ -1,4 +1,8 @@
- @(project:EzbProject, members:List[User], ezbook:Option[Ezoombook], memberForm:Form[TeamMember])(implicit context:Context)
+ @(project:EzbProject, members:List[User],
+   ezbook:Option[Ezoombook],
+   memberForm:Form[TeamMember],
+   bookparts:List[BookPart] = List[BookPart](),
+   ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
 @import helper._
 @import utils.EzbHelpers._
@@ -9,7 +13,13 @@
     @ezbook.map{ezb =>
         @ezb.ezoombook_title
     }.getOrElse{
-        <i>No eZoomBook defined for this project. Please define an eZoomBook</i>
+        <p>
+        <i>@Messages("ezbproject.missing.ezb.message")</i>
+        </p>
+        <p>
+            <a class="btn" data-toggle="modal" href="#ezblist">@Messages("ezbproject.addezb.link")</a>
+            <a class="btn" data-toggle="modal" href="#">@Messages("ezbproject.newezb.link")</a>
+        </p>
     }
 }
 
@@ -32,67 +42,112 @@
 //]]>
 </script>
 }
+
+@levelMap(body: (Map[String,String]) => Html ) = {
+ @defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
+     @body(lmap)
+ }
+}
+
 @main("Project", scripts){
+
+<!-- Select eZoomBook Modal -->
+<div class="modal hide" id="ezblist">
+    @form(routes.Collaboration.setProjectEzb(project.projectId.toString)){
+    <div class="modal-header">
+        <h3>@Messages("ezbproject.ezbmodal.chooseezb")</h3>
+    </div>
+    <div class="modal-body">
+        @ezbList.map{ezb =>
+            <div>
+                <input type="radio" value="@ezb.ezoombook_id" id="ezbId" name="ezbId"> @ezb.ezoombook_title
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <input type="submit" class="btn" value='@Messages("ezbproject.ezbmodal.setezb.button")'>
+        <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
+    </div>
+    }
+</div>
 
 <!-- Add Group Member Modal Window -->
 <div class="modal hide" id="infos">
+    @form(routes.Collaboration.newProjectMember(project.projectId.toString)){
      <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-         <h3>Add Member</h3>
+         <h3>@Messages("ezbproject.addmember.modal.h3")</h3>
      </div>
      <div class="modal-body">
          <p>
-
-             @form(routes.Collaboration.newProjectMember(project.projectId.toString)){
-                @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
-                            '_label -> "Select a team member")
-                @select(memberForm("assigned_part"), List("1" ->"level 1", "2" ->"level 2", "3" ->"level 3"), '_label -> "Assigned Layer")
+            @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
+                        '_label -> Messages("ezbproject.addmember.form.selectmember"))
+            @levelMap{lmap =>
                 @select(memberForm("assigned_layer"),
-                    List("cea1d30a-96f1-49de-9410-77d245f785b7" -> "Section 1",
-                        "2f1934f7-c36a-45b6-829c-10fcae98efe0" -> "Section 2",
-                        "edc9d06f-50d6-4bf7-80fe-968606acc341" -> "Section 3"), '_label -> "Assigned Part")
-                <input type="submit" value="Add">
-             }
+                    options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+                    '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+            }
+            @select(memberForm("assigned_part"),
+              bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+              '_label -> Messages("ezbproject.addmember.form.assignedpart"))
 
      </div>
-     <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">Fermer</a> </div>
+     <div class="modal-footer">
+         <input type="submit" class="btn" value='@Messages("ezbproject.addmember.modal.submit")'>
+         <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
+     </div>
+    }
 </div><!--/ .modal -->
 
 
-<div class="row-fluid">
+<div class="row-fluid"> <!-- Page Header -->
     <div class="span12">
         <h1>Project @project.projectName</h1>
         <dl>
-            <dt>Created: </dt> <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
-            <dt>Working on: </dt> <dd>@displayEzb</dd>
+            <dt>@Messages("ezbproject.created.dt"): </dt> <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
+            <dt>@Messages("ezbproject.group.dt"):</dt>
+                <dd>@UserDO.getGroupById(project.groupId).map{group =>
+                        <a href="@routes.Community.group(group.id.toString)">@group.name</a>
+                    }.getOrElse("")</dd>
+            <dt>@Messages("ezbproject.workingon.dt"): </dt> <dd>@displayEzb</dd>
         </dl>
     </div>
 </div>
 <div class="row-fluid">
-    <div class="span3">
-        <h3>Team</h3>
+    <div class="span3"> <!-- Left Pannel -->
+        <h3>@Messages("ezbproject.team.h3")</h3>
 
-        <a class="btn btn-primary" data-toggle="modal" href="#infos" >Add a member</a>
+        <a class="btn btn-primary" data-toggle="modal" href="#infos" >@Messages("ezbproject.addmember.button")</a>
 
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Name</th><th>Working on</th>
+                    <th>@Messages("ezbproject.member.name.th")</th>
+                    <th>@Messages("ezbproject.member.workingon.th")</th>
                 </tr>
             </thead>
             <tbody>
-                @members.map{member =>
+                @project.projectTeam.map{member =>
                 <tr>
-                    <td>@member.name</td>
-                    <td>Chapter XX @** @member.assignedPart **@ </td>
+                    <td>@members.find(_.id == member.userId).map(_.name).getOrElse("<span class='error'>Undefined</span>")</td>
+                    <td>
+                        <p>
+                        @bookparts.find(_.partId == member.assignedPart).map(_.title).getOrElse("<span class='error'>Undefined</span>")
+                        </p>
+                        <p>
+                        @Messages("ezbproject.member.workinglevel"): @levelMap{lmap =>
+                          @lmap(member.assignedLayer)
+                        }
+                        </p>
+                    </td>
                 </tr>
                 }
             </tbody>
         </table>
     </div>
-    <div class="span6">
-        @displayEzb
+    <div class="span6"> <!-- Center Pannel -->
+
     </div>
-    <div class="span3">
+    <div class="span3"> <!-- Right Pannel -->
         <!-- Shoutbox Widget -->
         @defining(project.projectId.toString.substring(0,8)){shortId =>
             <iframe WIDTH="100%" HEIGHT="690" title="Shoutbox" src="http://shoutbox.widget.me/window.html?uid=@shortId"
