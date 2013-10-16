@@ -1,0 +1,5 @@
+@(content: User => Html)(implicit context:Context)
+
+@context.user.map{user =>
+    @content(user)
+}.getOrElse(Html(""))

@@ -46,6 +46,7 @@ POST    /project/saveezb/:pid    controllers.Collaboration.saveProjectEzb(pid)
 POST    /project/setezb/:pid     controllers.Collaboration.setProjectEzb(pid)
 GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
 POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
+POST    /projectmember/update/:pid    controllers.Collaboration.editProjectMember(pid)
 POST	/project/delete/:id controllers.Collaboration.deleteProject(id)
 
 # Books
