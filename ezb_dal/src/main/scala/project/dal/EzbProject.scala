@@ -14,6 +14,7 @@ import com.couchbase.client.CouchbaseClient
 import com.couchbase.client.protocol.views.{ViewResponse,Query}
 import net.spy.memcached.CASValue
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
@@ -33,12 +34,25 @@ case class EzbProject(projectId:UUID,
 case class TeamMember(userId:UUID, assignedPart:String, assignedLayer:String)
 
 object EzbProject extends UUIDjsParser{
+  import scalaz._
+
   implicit val mfmt = Json.format[TeamMember]
 
   implicit val fmt = Json.format[EzbProject]
+
+  val membersL:Lens[EzbProject,List[TeamMember]] = Lens.lensu(
+    (ezbproject, newMembers) => ezbproject.copy(projectTeam = newMembers),
+    _.projectTeam
+  )
+
+  def updateMember(proj:EzbProject, updatedMember:TeamMember):EzbProject = {
+    val i = proj.projectTeam.indexWhere(_.userId == updatedMember.userId)
+    membersL.set(proj, proj.projectTeam.updated(i, updatedMember))
+  }
 }
 
 trait EzbProjectComponent{
+
   private def projectKey(pid:UUID):String = "project:"+pid
 
   def saveProject(ezbProject:EzbProject)(implicit couchclient:CouchbaseClient){
@@ -110,10 +124,32 @@ trait EzbProjectComponent{
             None
           },
           proj => {
-            val newEzbProj = EzbProject(projId,proj.projectName,proj.projectOwnerId,proj.projectCreationDate,
-              proj.groupId,proj.ezoombookId,proj.projectTeam :+ newMember)
+            val newEzbProj = EzbProject.membersL.set(proj, proj.projectTeam :+ newMember)
             couchclient.cas(key, cas.getCas, Json.toJson(newEzbProj).toString)
             Some(newEzbProj)
+          }
+        )
+      case _ =>
+        println(s"[DAL-ERROR] Could not retrieve project $projId")
+        None
+    }
+  }
+
+  def updateProjectMember(projId:UUID, member:TeamMember)
+                         (implicit couchclient:CouchbaseClient):Option[EzbProject] = {
+    val key = projectKey(projId)
+    couchclient.getAndLock(key, 15) match{
+      case cas:CASValue[_] =>
+        val js = cas.getValue().map(_.asInstanceOf[String]).getOrElse("")
+        Json.parse(js).validate[EzbProject].fold(
+          err => {
+            println("[ERROR] Found invalid Json document for ezbProject " + err)
+            None
+          },
+          proj => {
+            val modifiedEzbProject = EzbProject.updateMember(proj, member)
+            couchclient.cas(key, cas.getCas, Json.toJson(modifiedEzbProject).toString)
+            Some(modifiedEzbProject)
           }
         )
       case _ =>

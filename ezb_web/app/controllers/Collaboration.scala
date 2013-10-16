@@ -224,6 +224,29 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
       }
   }
 
+  def editProjectMember(projId:String) = Action {implicit request =>
+    val pid=UUID.fromString(projId)
+    withUser{ user =>
+      Form(memberMapping).bindFromRequest.fold(
+        err => {
+          println("[ERROR] Found errors on form Form(memberMapping): " + err)
+          Redirect(routes.Collaboration.projectAdmin(projId))
+        },
+        member => {
+          BookDO.updateProjectMember(pid, member)
+          Redirect(routes.Collaboration.projectAdmin(projId))
+        }
+      )
+    }
+  }
+
+//  def workOnAssigment(projId:String) = Action {implicit request =>
+//    withUser{user =>
+//      val pid = UUID.fromString(projId)
+//      BookDO.
+//    }
+//  }
+
   def deleteProject(projId: String) = Action {
     implicit request =>
       withUser {

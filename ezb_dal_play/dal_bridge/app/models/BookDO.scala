@@ -153,6 +153,10 @@ object BookDO{
     }
   }
 
+  def updateProjectMember(projId:UUID, member:TeamMember):Option[EzbProject] = {
+    AppDB.cdal.updateProjectMember(projId,member)
+  }
+
   def deleteProject(projId:UUID){
     AppDB.cdal.deleteProject(projId)
   }
