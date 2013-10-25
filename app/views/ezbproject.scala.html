@@ -2,6 +2,7 @@
    members:List[User],
    ezbook:Option[Ezoombook],
    memberForm:Form[TeamMember],
+   comments:List[Comment],
    bookparts:List[BookPart] = List[BookPart](),
    ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
@@ -9,6 +10,7 @@
 @import utils.EzbHelpers._
 @import ezbhelper._
 @import utils.DateFormatter._
+ @import utils.MD5Util
 
 @displayEzb = {
     @ezbook.map{ezb =>
@@ -16,12 +18,16 @@
             @project.projectTeam.find(_.userId == user.id).map{member =>
                 @ezb.ezoombook_layers.get(member.assignedLayer).map{layer =>
                     <a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer,false)">
+                        @ezb.ezoombook_title
+                    </a>
                 }.getOrElse{
-                    <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
+                    @form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
+                        member.assignedLayer,
+                        "group:"+project.groupId)){
+                        @ezb.ezoombook_title
+                        <input type="submit" class="btn" value="Create layer >>">
+                    }
                 }
-                @ezb.ezoombook_title
-                </a>
-
             }
 
          }
@@ -34,6 +40,25 @@
             <a class="btn" data-toggle="modal" href="#">@Messages("ezbproject.newezb.link")</a>
         </p>
     }
+}
+
+ @diqus_script = {
+ <script type="text/javascript">
+     /* * * CONFIGURATION VARIABLES * * */
+     var disqus_shortname = 'ezoombook'; // Required
+     var disqus_identifier = '@project.projectId';
+     var disqus_title = 'Message Board';
+     //var disqus_url = 'www.ezoombook.com/bookread/2329f284';
+
+     /* * * DON'T EDIT BELOW THIS LINE * * */
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+ </script>
+ <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+ <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 }
 
 @scripts = {
@@ -50,6 +75,21 @@
         $('.changeAssignmentBtn').click(function (){
           var memberId = $(this).attr('data-memberid');
           $('#modifMemberForm #user_id').val(memberId);
+        });
+
+        $('.showContribDetail').click(function(){
+            var layerId = $(this).attr('data-layer');
+            var contribId = $(this).attr('data-contrib');
+            $.ajax({
+                url:"/collab/contrib/"+layerId+"/"+contribId,
+                type:"GET",
+                dataType:"json"
+            }).done(function(msg){
+                $('#contribDetailModal .modal-body p.contrib-content')
+                    .replaceWith('<p class="contrib-content">'+msg.contrib_content+'</p>');
+                $('#contribDetailModal .modal-body span.contrib-type')
+                    .replaceWith('<span class="contrib-type">'+msg.contrib_type+'<span>');
+            });
         });
     });
 
@@ -69,10 +109,27 @@
 
 @main("Project", scripts){
 
+<style>
+    .comment-author,contrib-author{
+        font-weight: 600;
+        color: #08C;
+    }
+    .comment-timeago{
+        font-weight: 500;
+        font-size: 95%;
+        color: rgba(30, 55, 70, 0.4);
+    }
+    .comment-on{
+        font-style: normal;
+        font-weight: 400;
+        color: #42474A;
+    }
+</style>
+
 <!-- Select eZoomBook Modal -->
 <div class="modal hide" id="ezblist">
     @form(routes.Collaboration.setProjectEzb(project.projectId.toString)){
-    <div class="modal-header">
+    <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
         <h3>@Messages("ezbproject.ezbmodal.chooseezb")</h3>
     </div>
     <div class="modal-body">
@@ -139,7 +196,21 @@
         <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
     </div>
     }
-</div>
+</div><!--/ .modal -->
+
+<!-- Contribution details modal -->
+<div class="modal hide" id="contribDetailModal">
+     <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
+         <h3>@Messages("ezbproject.contribdetail.h3")</h3>
+     </div>
+     <div class="modal-body">
+         <h4>@Messages("ezbproject.contrbidetail.contribtype.h4"): <span class="contrib-type"></span></h4>
+        <p class="contrib-content"></p>
+     </div>
+     <div class="modal-footer">
+         <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
+     </div>
+ </div><!--/ .modal -->
 
 <div class="row-fluid"> <!-- Project Header -->
     <div class="span12">
@@ -156,9 +227,13 @@
 </div>
 <div class="row-fluid">
     <div class="span7"> <!-- Left Pannel -->
-        <p>
-            <a class="btn btn-primary" data-toggle="modal" href="#infos" >@Messages("ezbproject.addmember.button")</a>
-        </p>
+        @withUser{user =>
+            @if(user.id == project.projectOwnerId){
+            <p>
+                <a class="btn btn-primary" data-toggle="modal" href="#infos" >@Messages("ezbproject.addmember.button")</a>
+            </p>
+            }
+        }
 
         <h3>@Messages("ezbproject.team.h3")</h3>
         <table class="table table-striped">
@@ -179,7 +254,11 @@
                 <tr>
                     <td>@members.find(_.id == member.userId).map(_.name).getOrElse("<span class='error'>Undefined</span>")</td>
                     <td>
-                        @bookparts.find(_.partId == member.assignedPart).map(_.title).getOrElse("<span class='error'>Undefined</span>")
+                        @bookparts.find(_.partId == member.assignedPart).map{part =>
+                            <a href='@routes.EzoomBooks.setReadingEzb(ezbook.map(_.ezoombook_id.toString).getOrElse(""),part.partId,member.assignedLayer)'>
+                                @part.title
+                            </a>
+                        }.getOrElse("<span class='error'>Undefined</span>")
                     </td>
                     <td>
                         @levelMap{lmap =>
@@ -204,14 +283,47 @@
     </div>
     <div class="span5"> <!-- Right Pannel -->
         <h3>@Messages("ezbproject.messages.board.h3")</h3>
-        <!-- Shoutbox Widget -->
-        @defining(project.projectId.toString.substring(0,8)){shortId =>
-            <iframe WIDTH="100%" HEIGHT="690" title="Shoutbox" src="http://shoutbox.widget.me/window.html?uid=@shortId"
-                    frameborder="0" scrolling="auto">
-            </iframe>
+        @comments.map{comment =>
+            @members.find(_.id == comment.commentAuthor).map{mem1 =>
+                @members.find(_.id == comment.contribAuthor).map{mem2 =>
+                    <div class="comment row">
+                        <div class="avatar span1">
+                            @defining(MD5Util.md5Hex(mem2.email)){icon =>
+                                <img src="https://www.gravatar.com/avatar/@icon?s=92&amp;d=identicon">
+                            }
+                        </div>
+                        <div class="comment-content span10">
+                            <div class="comment-header">
+                                <span class="comment-author">@mem1.name
+                                <span class="comment-on">@Messages("ezbproject.comment.on")</span>
+                                <span class="contrib-author">
+                                    <a href="#contribDetailModal"
+                                       class="showContribDetail"
+                                       data-toggle="modal"
+                                       data-layer="@comment.layerId"
+                                       data-contrib="@comment.contribId"
+                                       data-part="@comment.partId">
+                                        @mem2.name's @comment.contribType
+                                    </a>
+                                </span>
+                                <span class="comment-timeago">
+                                    @comment.commentDate.toString
+                                </span>
+                            </div>
+                            <div class="comment-body">
+                                <p>
+                                    @comment.commentContent
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
         }
-        <script src="http://shoutbox.widget.me/v1.js" type="text/javascript">
-        </script><!-- End -->
+
+        <div id="disqus_thread"></div>
+        @diqus_script
+
     </div>
 </div>
 }

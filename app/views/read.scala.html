@@ -1,4 +1,11 @@
-@(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer], partContent:Html, bookStyles:Html)(implicit session:Session, context:Context)
+@(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer], partContent:Html, bookStyles:Html, activeLayer:String)(
+    implicit session:Session, context:Context)
+
+@import utils.EzbHelpers._
+@import helper._
+@import ezbhelper._
+@import utils.DateFormatter._
+@import AppForms.commentForm
 
 @displayLayerContrib(contrib:Contrib) = {
     @contrib match{
@@ -27,7 +34,21 @@
             case "contrib.Summary" => {
                 <div class="row summary collapse in">
                     <div class="span@(10-indent)">
+                        <span>
                         @contrib.contrib_content
+                        </span>
+                        <span>
+                            <a class="comment-btn"
+                               title='@Messages("read.contribution.comment.button.title")'
+                               href="#commentbox"
+                               data-toggle="modal"
+                               data-contrib-id="@contrib.contrib_id"
+                               data-contrib-auth="@contrib.user_id"
+                               data-contrib-type="summary"
+                               data-contrib-layer="@contrib.ezoomlayer_id">
+                                <i class="icon-comment"></i>
+                            </a>
+                        </span>
                     </div>
                 </div>
             }
@@ -36,10 +57,24 @@
                 <div class="span1 offset1">
                     <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
                 </div>
-                <div class="span8" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
+                <div class="span7" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
+                    <span>
                     <a class="quote-text" id="@contrib.contrib_id">
                         <i>@contrib.contrib_content</i>
                     </a>
+                    </span>
+                    <span>
+                        <a class="comment-btn"
+                                title='@Messages("read.contribution.comment.button.title")'
+                                href="#commentbox"
+                                data-toggle="modal"
+                                data-contrib-id="@contrib.contrib_id"
+                                data-contrib-auth="@contrib.user_id"
+                                data-contrib-type="quote"
+                                data-contrib-layer="@contrib.ezoomlayer_id">
+                            <i class="icon-comment"></i>
+                        </a>
+                    </span>
                 </div>
             </div>
             }
@@ -84,6 +119,17 @@
             $('a.zoom-out').attr('tabindex',-1).focus();
             $('a.zoom-out').click(zoomOut);
         });
+        $('.comment-btn').click(function(){
+            console.log('coucou!');
+            var contribId = $(this).attr('data-contrib-id');
+            var currDate = new Date();
+            console.log('today: ' + currDate.toString());
+            $('#commentContrib').val(contribId);
+            $('#contribAuthor').val($(this).attr('data-contrib-auth'));
+            $('#contribType').val($(this).attr('data-contrib-type'));
+            $('#commentLayer').val($(this).attr('data-contrib-layer'));
+            //$('#commentPart').val();
+        });
     });
 //]]>
 </script>
@@ -96,9 +142,6 @@
     }
     .reader{
         padding-top: 10px;
-    }
-    iframe{
-
     }
     a.quote-text {color:#000;}
     a.quote-text:hover {color:#08C;}
@@ -118,6 +161,28 @@
         background-color: #FF8;
     }
 </style>
+
+<!-- Comment Box Modal -->
+<div class="modal hide" id="commentbox">
+    @form(action = routes.Collaboration.saveComment){
+    <div class="modal-header">
+        <h3>@Messages("read.comment.modal.h3")</h3>
+    </div>
+    <div class="modal-body">
+        @hidden(commentForm("commentAuthor"), '_value -> context.user.map(_.id.toString).getOrElse(""))
+        @hidden(commentForm("commentEzb"), '_value -> ezb.ezoombook_id.toString)
+        @hidden(commentForm("commentContrib"))
+        @hidden(commentForm("contribAuthor"))
+        @hidden(commentForm("contribType"))
+        @hidden(commentForm("commentLayer"))
+        @textarea(commentForm("commentContent"), '_label -> "", 'style -> "width: 494px; height: 78px;")
+    </div>
+    <div class="modal-footer">
+        <input type="submit" class="btn" value='@Messages("read.comment.modal.save.btn")'>
+        <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
+    </div>
+    }
+</div><!--/ .modal -->
 
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
@@ -147,18 +212,23 @@
 <div class="row  reader">
     <div class="tabbable span12">
         <ul class="nav nav-tabs" id="level-tabs">
-            <li class="active"><a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a></li>
+            <li class='@if(activeLayer == "0"){active}else{}'>
+                <a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a>
+            </li>
             @ezb.ezoombook_layers.map{layer =>
-            @defining(Map("1"->Messages("read.leveltabs.highlydetailed"),
-                "2"->Messages("read.leveltabs.fairlydetailed"),
-                "3"->Messages("read.leveltabs.fairlyabridge"),
-                "4"->Messages("read.leveltabs.highlyabridge"))){lmap =>
-            <li><a href="#tab@layer._1" data-toggle="tab">@lmap.getOrElse(layer._1, "-")</a></li>
-            }
+                @defining(Map("1"->Messages("read.leveltabs.highlydetailed"),
+                    "2"->Messages("read.leveltabs.fairlydetailed"),
+                    "3"->Messages("read.leveltabs.fairlyabridge"),
+                    "4"->Messages("read.leveltabs.highlyabridge"))){lmap =>
+                    <li class='@if(activeLayer == layer._1){active}else{}'>
+                        <a href="#tab@layer._1" data-toggle="tab">
+                        @lmap.getOrElse(layer._1, "-")</a>
+                    </li>
+                }
             }
         </ul>
         <div class="tab-content">
-            <div class="tab-pane active" id="tab0"><!-- Complete book -->
+            <div class='tab-pane @if(activeLayer == "0"){active}else{}' id='tab0'><!-- Complete book -->
                 <div class="btn-group">
                     <a class="btn btn btn-info dropdown-toggle" data-toggle="dropdown" href="#"><i>@Messages("read.toc.dropdown")</i>
                         <span class="caret"></span> </a>
@@ -188,7 +258,7 @@
                 </div> <!-- Reader End -->
             </div>
             @ezb.ezoombook_layers.map{layer =>
-                <div class="tab-pane" id="tab@layer._1">
+                <div class="tab-pane @if(activeLayer == layer._1){active}else{}" id="tab@layer._1">
                     <div class="layer">
                         @layers(layer._1).ezoomlayer_contribs.map{contrib =>
                             @displayLayerContrib(contrib)

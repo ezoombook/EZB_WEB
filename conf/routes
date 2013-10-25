@@ -48,6 +48,8 @@ GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
 POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
 POST    /projectmember/update/:pid    controllers.Collaboration.editProjectMember(pid)
 POST	/project/delete/:id controllers.Collaboration.deleteProject(id)
+POST    /collab/comment     controllers.Collaboration.saveComment
+GET     /collab/contrib/:lid/:cid   controllers.EzoomBooks.getContribution(lid,cid)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
@@ -92,12 +94,12 @@ POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:St
 GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
 GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
 POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
+POST    /ezlayer/create/:bid/:lev/:ow     controllers.EzoomBooks.createEzoomLayer(bid,lev,ow)
 GET     /workingezlayer             controllers.EzoomBooks.workingEzoomLayer
 
-GET     /read/:ezbid                controllers.EzoomBooks.setReadingEzb(ezbid)
+GET     /read/:ezbid/:pid/:layer                controllers.EzoomBooks.setReadingEzb(ezbid,pid,layer)
 GET     /ezbread/:bid/:pid          controllers.EzoomBooks.readEzb(bid,pid)
 # Book resources
-# GET     /ezbread/:bid/*file            controllers.EzoomBooks.bookResource(bid:String,file)
 GET     /bookres/:bid/*file         controllers.EzoomBooks.bookResource(bid:String,file)
 
 #POST    /addezbtrl/:id              controllers.EzoomBooks.addezbtrl(id:String)
