@@ -6,7 +6,8 @@ import utils.FormHelpers
 import users.dal.Group
 import project.dal._
 import books.dal._
-import forms.EzbForms
+import ezb.comments._
+import forms.{EzbForms, AppForms}
 
 import play.api._
 import play.api.mvc._
@@ -170,6 +171,7 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
                 project.projectTeam.flatMap(m => UserDO.getUser(m.userId)),
                 ezbopt,
                 Form(memberMapping),
+                ezbopt.map(ezb => BookDO.getCommetsByEzb(ezb.ezoombook_id)).getOrElse(List[Comment]()),
                 bookParts,
                 if(project.ezoombookId.isEmpty){BookDO.getUserEzoombooks(user.id)} else {List[Ezoombook]()}))
           }.getOrElse {
@@ -240,13 +242,6 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
     }
   }
 
-//  def workOnAssigment(projId:String) = Action {implicit request =>
-//    withUser{user =>
-//      val pid = UUID.fromString(projId)
-//      BookDO.
-//    }
-//  }
-
   def deleteProject(projId: String) = Action {
     implicit request =>
       withUser {
@@ -254,6 +249,20 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
           BookDO.deleteProject(UUID.fromString(projId))
           Redirect(routes.Application.home)
       }
+  }
+
+  def saveComment = Action{implicit request =>
+    val referer = request.headers.get(REFERER).getOrElse(Application.HOME_URL)
+    AppForms.commentForm.bindFromRequest.fold(
+      err => {
+        println("[ERR] An error occurred while sending the comment: " + err.errors.map(e => e.key + " : " + e.message).mkString("\n"))
+        Redirect(referer)
+      },
+      comment => {
+        BookDO.saveComment(comment)
+        Redirect(referer)
+      }
+    )
   }
 
   /**

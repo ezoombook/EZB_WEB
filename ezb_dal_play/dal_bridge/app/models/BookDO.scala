@@ -2,6 +2,7 @@ package models
 
 import books.dal._
 import books.util._
+import ezb.comments._
 import project.dal.{EzbProject,TeamMember}
 import utils.xml.Helper._
 
@@ -242,5 +243,13 @@ object BookDO{
    */
   def getProjectsByMember(uid:UUID):List[EzbProject] = {
     AppDB.cdal.getProjectsByMember(uid)
+  }
+
+  def saveComment(comment:Comment) = {
+    AppDB.cdal.saveComment(comment)
+  }
+
+  def getCommetsByEzb(ezbId:UUID):List[Comment] = {
+    AppDB.cdal.commentsByEzb(ezbId)
   }
 }
