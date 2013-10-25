@@ -29,7 +29,7 @@ import java.util.Properties._
 
 object Application extends Controller with ContextProvider {
 
-  protected val HOME_URL = "/"
+  val HOME_URL = "/"
 
   val userForm = Form(
     mapping(
@@ -338,7 +338,7 @@ object Application extends Controller with ContextProvider {
     implicit request =>
       withUser {
         user =>
-          val projectlist = BookDO.getOwnedProjects(user.id).union(BookDO.getProjectsByMember(user.id)).map {
+          val projectlist = (BookDO.getOwnedProjects(user.id).toSet ++ BookDO.getProjectsByMember(user.id)).map {
             proj =>
               proj.ezoombookId.flatMap(BookDO.getEzoomBook(_)).map {
                 ezb =>
@@ -351,7 +351,7 @@ object Application extends Controller with ContextProvider {
           }
 
           Ok(views.html.workspace(
-            projectlist,
+            projectlist.toList,
             BookDO.getUserEzoombooks(user.id),
             BookDO.getUserBooks(user.id),
             UserDO.userOwnedGroups(user.id),
@@ -415,4 +415,5 @@ object Application extends Controller with ContextProvider {
         session + ("language" -> langCode)
       )
   }
+
 }

@@ -19,6 +19,7 @@ import play.api.data._
 import Forms._
 import play.api.libs.json.Json
 import play.api.libs.json.Reads
+import play.api.i18n.Messages
 import org.apache.commons.io.IOUtils
 import scala.xml.XML
 
@@ -188,6 +189,28 @@ object EzoomBooks extends Controller with ContextProvider{
   }
 
   /**
+   * Creates a new empty eZoomLayer with a given level,
+   * then redirects the user to the ezb edition page.
+   */
+  def createEzoomLayer(ezbId:String, layerLevel:String, owner:String) = Action{implicit request =>
+    withUser{user =>
+      val layerid = UUID.randomUUID()
+      val newEzLayer = EzoomLayer(
+        ezoomlayer_id = layerid,
+        ezoombook_id = UUID.fromString(ezbId),
+        ezoomlayer_level = layerLevel.toInt,
+        ezoomlayer_owner = owner,
+        ezoomlayer_status = books.dal.Status.workInProgress,
+        ezoomlayer_locked = false,
+        ezoomlayer_summaries = List[String](),
+        ezoomlayer_contribs = List[Contrib]()
+        )
+      BookDO.saveLayer(newEzLayer)
+      Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, layerid.toString,false))
+    }
+  }
+
+  /**
    * Displays the ezoomlayer edit form for an existing ezoomlayer
    */
   def ezoomLayerEdit(ezbId:String, ezlId:String, refresh:Boolean) = Action{implicit request =>
@@ -311,11 +334,12 @@ object EzoomBooks extends Controller with ContextProvider{
      }
   }
 
-  def setReadingEzb(ezbId:String) = Action {implicit request =>
+  def setReadingEzb(ezbId:String, part:String, layer:String) = Action {implicit request =>
     BookDO.getEzoomBook(UUID.fromString(ezbId)).flatMap{ezb =>
       BookDO.getBook(ezb.book_id.toString).map{book =>
-        Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(0).partId)).withSession(
-          session + ("working-ezb" -> ezb.ezoombook_id.toString)
+        val readPart = if (!part.isEmpty) part else book.bookParts(0).partId
+        Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,readPart)).withSession(
+          session + ("working-ezb" -> ezb.ezoombook_id.toString) + ("show-layer" -> layer)
         )
       }
     }.getOrElse{
@@ -330,6 +354,7 @@ object EzoomBooks extends Controller with ContextProvider{
         BookDO.getEzoomBook(ezbId).map{ezb =>
           val partIndex = book.bookParts.indexWhere(_.partId == partId)
           val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
+          val layer = session.get("show-layer").getOrElse("0")
           Ok(views.html.read(book,
             ezb, partIndex,
             ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
@@ -337,7 +362,8 @@ object EzoomBooks extends Controller with ContextProvider{
                 map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
             },
             play.api.templates.Html(bodyContent),
-            play.api.templates.Html(styles)))
+            play.api.templates.Html(styles),
+            layer))
         }
       }
     }.getOrElse{
@@ -454,6 +480,20 @@ object EzoomBooks extends Controller with ContextProvider{
       //TODO Validate that user has the right to delete ezb
       BookDO.deleteEzoomBook(UUID.fromString(ezbId))
       Redirect(routes.Application.home)
+    }
+  }
+
+  def getContribution(layerId:String, contribId:String) = Action{request =>
+    BookDO.getEzoomLayer(UUID.fromString(layerId)).flatMap{layer =>
+      layer.ezoomlayer_contribs.collectFirst{
+        case atomic:AtomicContrib if(atomic.contrib_id == contribId) => atomic
+        case part:EzlPart if(part.part_contribs.exists(_.contrib_id == contribId)) =>
+            part.part_contribs.find(_.contrib_id == contribId).get
+      }.map{contrib =>
+        Ok(Json.toJson(contrib.copy(contrib_type = Messages("application."+contrib.contrib_type))))
+      }
+    }.getOrElse{
+      NotFound(s"Contribution $layerId:$contribId not found")
     }
   }
 
