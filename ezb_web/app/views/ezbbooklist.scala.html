@@ -90,20 +90,22 @@
 </style>
 
 <div class="modal hide" id="ezbform"> <!-- Ezb creation modal -->
+@form(routes.Collaboration.saveProjectEzb(projectId)){
   <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
     <h3>@Messages("ezbbooklist.newezb.h3")</h3>
   </div>
   <div class="modal-body">
-    @form(routes.Collaboration.saveProjectEzb(projectId)){
       @hidden(ezoomBookForm("ezb_owner"))
       @hidden(ezoomBookForm("book_id"))
       @hidden(ezoomBookForm("ezb_id"))
       @inputText(ezoomBookForm("ezb_title"), '_label->"Title:")
-      <input type="submit" value='@Messages("book.createezb.button")'>
-    }
   </div>
-  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a> </div>
-</div>  
+  <div class="modal-footer">
+      <input class="btn btn-info" type="submit" value='@Messages("book.createezb.button")'>
+      <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
+  </div>
+}
+</div>
 
 <div class="row">
     <h1>@Messages("ezbbooklist.header")</h1>

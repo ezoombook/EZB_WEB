@@ -50,7 +50,11 @@
         @for(g<-listezbooks){
         <!-- TODO Display user name instead of code -->
         <tr>
-            <td><a href='@routes.EzoomBooks.setReadingEzb(g.ezoombook_id.toString,"","0")'>@g.ezoombook_title</a></td>
+            <td>
+                <a href='@routes.EzoomBooks.setReadingEzb(g.ezoombook_id.toString,book.bookParts(0).partId,"0")'>
+                    @g.ezoombook_title
+                </a>
+            </td>
             <td>@g.ezoombook_owner</td>
             <td>@g.ezoombook_layers.size</td>
             <td>@for(i <- 1 to 5){<i class=" icon-star"></i>}</td>

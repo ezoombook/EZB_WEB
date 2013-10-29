@@ -41,7 +41,7 @@ POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 
 # Projects
 GET     /project/edit/:id   controllers.Collaboration.editProject(id:String)
-POST    /project/save       controllers.Collaboration.saveProject
+POST    /project/save/:gid       controllers.Collaboration.saveProject(gid)
 POST    /project/saveezb/:pid    controllers.Collaboration.saveProjectEzb(pid)
 POST    /project/setezb/:pid     controllers.Collaboration.setProjectEzb(pid)
 GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
@@ -53,6 +53,7 @@ GET     /collab/contrib/:lid/:cid   controllers.EzoomBooks.getContribution(lid,c
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
+GET     /ezbbooklist/:ow/:pid      controllers.Collaboration.ezbProjectBookList(ow,pid)
 POST	/books			    controllers.EzoomBooks.saveBook
 POST	/books/load		    controllers.EzoomBooks.loadBook
 GET     /books/new          controllers.EzoomBooks.newBook

@@ -158,6 +158,36 @@ trait EzbProjectComponent{
     }
   }
 
+  /**
+   * Updates project's ezb and returns the new project
+   * @param projId
+   * @param projectEzb
+   * @param couchclient
+   * @return
+   */
+  def updateProjectEzb(projId:UUID, projectEzb:UUID)
+                      (implicit couchclient:CouchbaseClient):Option[EzbProject] = {
+    val key = projectKey(projId)
+    couchclient.getAndLock(key, 15) match{
+      case cas:CASValue[_] =>
+        val js = cas.getValue().map(_.asInstanceOf[String]).getOrElse("")
+        Json.parse(js).validate[EzbProject].fold(
+          err => {
+            println("[ERROR] Found invalid Json document for ezbProject " + err)
+            None
+          },
+          proj => {
+            val modifiedEzbProject = proj.copy(ezoombookId = Some(projectEzb))
+            couchclient.cas(key, cas.getCas, Json.toJson(modifiedEzbProject).toString)
+            Some(modifiedEzbProject)
+          }
+        )
+      case _ =>
+        println(s"[DAL-ERROR] Could not retrieve project $projId")
+        None
+    }
+  }
+
 //  def removeMember(memId:UUID)(implicit couchclient:CouchbaseClient){
 //
 //  }
