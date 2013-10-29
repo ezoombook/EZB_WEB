@@ -6,6 +6,8 @@ import play.api.data.{FormError,Mapping}
 import play.api.data.Forms._
 import play.api.data.format.Formats._
 
+import scala.util.{Try,Success,Failure}
+
 import java.util.UUID
 
 /**
@@ -27,12 +29,12 @@ trait FormHelpers {
 
   implicit def uuidForam:Formatter[UUID] = new Formatter[UUID]{
     def bind(key:String, data:Map[String,String]) =
-      data.get(key).flatMap{id =>
-        if (!id.isEmpty)
-          Some(UUID.fromString(id))
-        else
-          None
-      }.toRight(Seq(FormError(key, "error.required", Nil)))
+      data.get(key).map{
+        case id if(!id.isEmpty) => id
+      }.map(id => Try(UUID.fromString(id))).map{
+        case Success(uid) => Right(uid)
+        case Failure(err) => Left(Seq(FormError(key, "error.invalid.uuid", Nil)))
+      }.getOrElse(Left(Seq(FormError(key, "error.required", Nil))))
 
     def unbind(key:String, value: UUID):Map[String, String] = Map(key -> value.toString)
   }

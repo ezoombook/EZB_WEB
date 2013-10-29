@@ -28,8 +28,9 @@
                         <input type="submit" class="btn" value="Create layer >>">
                     }
                 }
+            }.getOrElse{
+                <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
             }
-
          }
     }.getOrElse{
         <p>
@@ -37,7 +38,9 @@
         </p>
         <p>
             <a class="btn" data-toggle="modal" href="#ezblist">@Messages("ezbproject.addezb.link")</a>
-            <a class="btn" data-toggle="modal" href="#">@Messages("ezbproject.newezb.link")</a>
+            <a class="btn" data-toggle="modal"
+               href="@routes.Collaboration.ezbProjectBookList(project.groupId.toString,project.projectId.toString)">
+                @Messages("ezbproject.newezb.link")</a>
         </p>
     }
 }
@@ -216,12 +219,14 @@
     <div class="span12">
         <h1>Project @project.projectName</h1>
         <dl>
-            <dt>@Messages("ezbproject.created.dt"): </dt> <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
+            <dt>@Messages("ezbproject.created.dt"): </dt>
+                <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
             <dt>@Messages("ezbproject.group.dt"):</dt>
                 <dd>@UserDO.getGroupById(project.groupId).map{group =>
                         <a href="@routes.Community.group(group.id.toString)">@group.name</a>
                     }.getOrElse("")</dd>
-            <dt>@Messages("ezbproject.workingon.dt"): </dt> <dd>@displayEzb</dd>
+            <dt>@Messages("ezbproject.workingon.dt"): </dt>
+                <dd>@displayEzb</dd>
         </dl>
     </div>
 </div>

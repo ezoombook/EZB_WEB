@@ -105,7 +105,7 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
    * Stores the created/edited project in the database
    * @return
    */
-  def saveProject = Action {
+  def saveProject(groupId:String) = Action {
     implicit request =>
       withUser {
         user =>
@@ -117,15 +117,8 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
             ezbProject => {
               BookDO.saveProject(ezbProject)
               if (projectForm.bindFromRequest.data.getOrElse("new_ezb", "false").toBoolean) {
-                val ezbform = EzbForms.ezoomBookForm.bind(Map(
-                  "ezb_id" -> ezbProject.ezoombookId.toString,
-                  "ezb_owner" -> user.id.toString,
-                  "ezb_status" -> books.dal.Status.workInProgress.toString,
-                  "ezb_title" -> "",
-                  "ezb_public" -> "false"
-                ))
-
-                Ok(views.html.ezbbooklist(BookDO.listBooks, ezbform, ezbProject.projectId.toString))
+                Redirect(routes.Collaboration.ezbProjectBookList(groupId,
+                  ezbProject.projectId.toString))
               } else {
                 Redirect(routes.Collaboration.projectAdmin(ezbProject.projectId.toString))
               }
@@ -134,17 +127,43 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
       }
   }
 
+  /**
+   * Display a list of books for creating a new eZoomBook for a project
+   * @param owner Owner of the EZB: normally, the group
+   * @param projectId Id of the project
+   */
+  def ezbProjectBookList(owner:String, projectId:String) = Action{implicit request =>
+    withUser{user =>
+      val ezbform = EzbForms.ezoomBookForm.bind(Map(
+        "ezb_id" -> UUID.randomUUID().toString,
+        "ezb_owner" -> owner,
+        "ezb_status" -> books.dal.Status.workInProgress.toString,
+        "ezb_title" -> "",
+        "ezb_public" -> "false"
+      ))
+
+      Ok(views.html.ezbbooklist(BookDO.listBooks, ezbform, projectId))
+    }
+  }
+
+  /**
+   * Creates a new eZoomBook for a project based on a form
+   * and updates the project
+   * @param projectId Id of the project
+   */
   def saveProjectEzb(projectId: String) = Action {
     implicit request =>
       withUser {
         user =>
           EzbForms.ezoomBookForm.bindFromRequest.fold(
             errors => {
-              println("[ERROR] Could not create eZoomBook for project " + projectId)
+              println("[ERROR] Could not create eZoomBook for project " + projectId +
+                errors.errors.map(err => err.key + " -> " + err.message).mkString("\n"))
               Redirect(routes.Collaboration.projectAdmin(projectId))
             },
             ezb => {
               BookDO.saveEzoomBook(ezb)
+              BookDO.updateProjectEzb(UUID.fromString(projectId), ezb.ezoombook_id)
               Redirect(routes.Collaboration.projectAdmin(projectId))
             }
           )
@@ -208,6 +227,12 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
       }
   }
 
+  /**
+   * Adds a new member to the project team,
+   * while assigning him a layer and/or a part to work on.
+   * @param projId
+   * @return
+   */
   def newProjectMember(projId: String) = Action {
     implicit request =>
       val pId = UUID.fromString(projId)
