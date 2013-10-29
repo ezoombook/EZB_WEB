@@ -7,7 +7,7 @@
 @main("Project Edition"){
         <h1>Project Edition</h1>
 
-        @form(routes.Collaboration.saveProject){
+        @form(routes.Collaboration.saveProject("")){
             @hidden(projectForm("project_id"))
             @hidden(projectForm("project_owner"))
             @hidden(projectForm("project_creation"))
