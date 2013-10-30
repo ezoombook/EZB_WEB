@@ -16,6 +16,7 @@ import Forms._
 import Play.current
 import java.util.UUID
 import play.api.cache.Cache
+import jp.t2v.lab.play2.auth.AuthElement
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +25,7 @@ import play.api.cache.Cache
  * Time: 20:08
  * To change this template use File | Settings | File Templates.
  */
-object Collaboration extends Controller with ContextProvider with FormHelpers {
+object Collaboration extends Controller with AuthElement with AuthConfigImpl with ContextProvider with FormHelpers {
 
   val memberMapping = mapping(
     "user_id" -> of[UUID],
@@ -195,7 +196,7 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
                 if(project.ezoombookId.isEmpty){BookDO.getUserEzoombooks(user.id)} else {List[Ezoombook]()}))
           }.getOrElse {
             println("[ERROR] Project " + projId + " not found")
-            Redirect(routes.Application.home)
+            Redirect(routes.Workspace.home)
           }
       }
   }
@@ -272,7 +273,7 @@ object Collaboration extends Controller with ContextProvider with FormHelpers {
       withUser {
         user =>
           BookDO.deleteProject(UUID.fromString(projId))
-          Redirect(routes.Application.home)
+          Redirect(routes.Workspace.home)
       }
   }
 

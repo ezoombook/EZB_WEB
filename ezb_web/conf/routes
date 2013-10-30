@@ -5,51 +5,48 @@
 # Home page
 GET     /                   controllers.Application.index
 
-GET     /home		    controllers.Application.home
-GET     /truehome           controllers.Application.truehome
+GET     /workspace		    controllers.Workspace.home
 
-#GET	/users          controllers.Application.users
+#GET	/users              controllers.Application.users
 POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
 GET     /login			    controllers.Application.login
 
 #logout
-GET	/logout				controllers.Application.userLogout
+GET	/logout				    controllers.Application.logout
 
 #Password Reset
-GET     /changepassword     controllers.Application.changePassword
-POST    /changepassword     controllers.Application.sendPasswordResetLink
-GET     /passwdreset/:t     controllers.Application.passwordReset(t:String)
-POST    /changepass         controllers.Application.changepass
-POST    /changepasswo         controllers.Application.changepasswo
+GET     /changepassword     controllers.Support.changePassword
+POST    /changepassword     controllers.Support.sendPasswordResetLink
+GET     /passwdreset/:t     controllers.Support.passwordReset(t:String)
+POST    /changepass         controllers.Support.changepass
+POST    /changepasswo       controllers.Support.changepasswo
 
 #Parameter
-GET		/parameter			controllers.Application.parameter
+GET		/parameter			controllers.Workspace.parameter
 
 # Change language
-POST    /changelang         controllers.Application.changeLang
+POST    /changelang         controllers.Workspace.changeLang
 GET     /lang/:lcode        controllers.Application.setLang(lcode:String)
 
 # Community
-GET     /groups                 controllers.Community.groups
-POST	/groups		        controllers.Community.newGroup
+POST	/groups		            controllers.Community.newGroup
 GET     /group/:id              controllers.Community.group(id:String)
-GET     /groupadmin/:id		controllers.Community.groupadmin(id:String)
-
+GET     /groupadmin/:id		    controllers.Community.groupadmin(id:String)
 POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 
 # Projects
-GET     /project/edit/:id   controllers.Collaboration.editProject(id:String)
-POST    /project/save/:gid       controllers.Collaboration.saveProject(gid)
-POST    /project/saveezb/:pid    controllers.Collaboration.saveProjectEzb(pid)
-POST    /project/setezb/:pid     controllers.Collaboration.setProjectEzb(pid)
-GET     /project/admin/:id  controllers.Collaboration.projectAdmin(id:String)
-POST    /projectmember/:id  controllers.Collaboration.newProjectMember(id:String)
-POST    /projectmember/update/:pid    controllers.Collaboration.editProjectMember(pid)
-POST	/project/delete/:id controllers.Collaboration.deleteProject(id)
-POST    /collab/comment     controllers.Collaboration.saveComment
-GET     /collab/contrib/:lid/:cid   controllers.EzoomBooks.getContribution(lid,cid)
+GET     /project/edit/:id               controllers.Collaboration.editProject(id:String)
+POST    /project/save/:gid              controllers.Collaboration.saveProject(gid)
+POST    /project/saveezb/:pid           controllers.Collaboration.saveProjectEzb(pid)
+POST    /project/setezb/:pid            controllers.Collaboration.setProjectEzb(pid)
+GET     /project/admin/:id              controllers.Collaboration.projectAdmin(id:String)
+POST    /projectmember/:id              controllers.Collaboration.newProjectMember(id:String)
+POST    /projectmember/update/:pid      controllers.Collaboration.editProjectMember(pid)
+POST	/project/delete/:id             controllers.Collaboration.deleteProject(id)
+POST    /collab/comment                 controllers.Collaboration.saveComment
+GET     /collab/contrib/:lid/:cid       controllers.EzoomBooks.getContribution(lid,cid)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
@@ -75,14 +72,14 @@ GET     /bookread/:bid/:index    controllers.EzoomBooks.readLayer(bid:String,ind
 GET     /bookread/:bid/*file    controllers.EzoomBooks.bookResource(bid:String,file)
 
 # Tutorial
-GET	    /tutorial           controllers.Application.tutorial
+GET	    /tutorial         controllers.Support.tutorial
 
 # FAQ
-GET	    /faq                controllers.Application.faq
+GET	    /faq              controllers.Support.faq
 
 # Contact
-GET     /contact            controllers.Application.contact
-POST    /contactadmin     controllers.Application.contactadmin
+GET     /contact          controllers.Support.contact
+POST    /contactadmin     controllers.Support.contactadmin
 
 #EZOOMBOOK
 GET     /ezb/edit/:id               controllers.EzoomBooks.ezoomBookEdit(id:String)
@@ -110,13 +107,12 @@ POST    /quote                      controllers.EzoomBooks.addQuote
 
 #error
 GET     /errorlogin                 controllers.Application.errorlogin
-GET     /generalerror                  controllers.Application.generalerror
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)
 
 #Advanced search
-GET	    /asearch            controllers.Application.asearch
+GET	    /asearch            controllers.Support.asearch
 
 # To create some data
 #GET  	/admin			    controllers.AdminApp.index
@@ -125,4 +121,4 @@ POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks
 
 #forum http://ezoombook.forumactif.org  login:admin pwd:azerty1&
-GET     /forum                         controllers.Application.forum
+GET     /forum                         controllers.Support.forum

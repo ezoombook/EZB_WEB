@@ -22,6 +22,7 @@ import play.api.libs.json.Reads
 import play.api.i18n.Messages
 import org.apache.commons.io.IOUtils
 import scala.xml.XML
+import jp.t2v.lab.play2.auth.AuthElement
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,7 +35,7 @@ import scala.xml.XML
 /**
  * Manage ezoombook related operations: book upload, ezoombook creation and edition, etc
  */
-object EzoomBooks extends Controller with ContextProvider{
+object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with ContextProvider{
 
   val loadFile = parse.raw
 
@@ -42,14 +43,14 @@ object EzoomBooks extends Controller with ContextProvider{
    * Redirects to book edition view for creating a new Book
    * @return
    */
-  def newBook = Action {implicit request =>
+  def newBook = StackAction {implicit request =>
     Ok(views.html.bookedit(bookForm))
   }
 
   /**
    * Loads and scans a book in epub format to display its meta data in the book form
    */
-  def loadBook = Action(loadFile){implicit request =>
+  def loadBook = StackAction(loadFile){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
       println("[INFO] created from File " + request.body.asFile.getPath)
       val book = BookDO.newBook(request.body.asFile)
@@ -72,7 +73,7 @@ object EzoomBooks extends Controller with ContextProvider{
   /**
    * Stores the book in the dabase
    */
-  def saveBook = Action{ implicit request =>
+  def saveBook = StackAction{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
         println("[ERROR] Found errors in bookForm: " + errors)
@@ -102,7 +103,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * Save the modifications made to a book meta-data.
    * Parts are not saved
    */
-  def saveEditedBook = Action{ implicit request =>
+  def saveEditedBook = StackAction{ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
         BadRequest(views.html.bookedit(errors))
@@ -119,7 +120,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * for an existing book.
    * @param The id of the book
 
-  def newEzoomBook(bookId:String) = Action{implicit request =>
+  def newEzoomBook(bookId:String) = StackAction{implicit request =>
     Ok(views.html.ezoombookedit(bookId, ezoomBookForm))
   }**/
 
@@ -127,7 +128,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * Receives from the request an eZoomBook form and saves the new eZoomBook into the database.
    * Then, it displays the ezoomlayer edition form
    */
-  def saveEzoomBook(bookId:String) = Action{implicit request =>
+  def saveEzoomBook(bookId:String) = StackAction{implicit request =>
     withUser{user =>
       ezoomBookForm.bindFromRequest.fold(
         errors => {
@@ -147,14 +148,14 @@ object EzoomBooks extends Controller with ContextProvider{
   /**
    * Displays the ezoomlayer edition form
    */
-//  def newEzoomlayer(ezbId:String) = Action{implicit request =>
+//  def newEzoomlayer(ezbId:String) = StackAction{implicit request =>
 //    Redirect(routs.EzoomBooks.ezoomBookEdit(ezbId))
 //  }
 
   /**
    * Stores an ezoomlayer in the databasse
    */
-  def saveEzoomlayer(ezbId:String) = Action{implicit request =>
+  def saveEzoomlayer(ezbId:String) = StackAction{implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         ezoomlayerForm(ezb.ezoombook_id,UUID.randomUUID,user.id).bindFromRequest.fold(
@@ -175,7 +176,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * Displays the ezoomlayer edit form without specifying a ezoomlayer,
    * creating by default a new empty ezoomlayer.
    */
-  def ezoomBookEdit(ezbId:String) = Action{implicit request =>
+  def ezoomBookEdit(ezbId:String) = StackAction{implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         BookDO.setWorkingEzb(ezb)
@@ -192,7 +193,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * Creates a new empty eZoomLayer with a given level,
    * then redirects the user to the ezb edition page.
    */
-  def createEzoomLayer(ezbId:String, layerLevel:String, owner:String) = Action{implicit request =>
+  def createEzoomLayer(ezbId:String, layerLevel:String, owner:String) = StackAction{implicit request =>
     withUser{user =>
       val layerid = UUID.randomUUID()
       val newEzLayer = EzoomLayer(
@@ -213,7 +214,7 @@ object EzoomBooks extends Controller with ContextProvider{
   /**
    * Displays the ezoomlayer edit form for an existing ezoomlayer
    */
-  def ezoomLayerEdit(ezbId:String, ezlId:String, refresh:Boolean) = Action{implicit request =>
+  def ezoomLayerEdit(ezbId:String, ezlId:String, refresh:Boolean) = StackAction{implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         BookDO.getEzoomLayer(UUID.fromString(ezlId), refresh).map{ezl =>
@@ -232,7 +233,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * If a working layer exists this action displays the edition page for that layer,
    * otherwise it shows the edition page without layer
    */
-  def workingEzoomLayer = Action{implicit request =>
+  def workingEzoomLayer = StackAction{implicit request =>
     withUser{user =>
       BookDO.getWorkingLayer.flatMap{ezl =>
         BookDO.getWorkingEzb.map{ezb =>
@@ -250,7 +251,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * in the ezoomlayer edition form
    */
   //TODO Correct repeated contribution_id on atomic contrib
-  def loadEzoomLayer(ezbId:String) = Action(parse.multipartFormData){implicit request =>
+  def loadEzoomLayer(ezbId:String) = StackAction(parse.multipartFormData){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         val ezlform = ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id)
@@ -280,7 +281,7 @@ object EzoomBooks extends Controller with ContextProvider{
   }
 
   //TODO rename to simply book
-  def readBook(id:String) = Action{implicit request =>
+  def readBook(id:String) = StackAction{implicit request =>
     BookDO.getBook(id).map{book =>
       val  ezb = Ezoombook (UUID.randomUUID, UUID.fromString(id) ,context.user.get.id.toString, books.dal.Status.workInProgress,"",false) 
       Ok(views.html.book(book, ezoomBookForm.fill(ezb), BookDO.getEzoomBooks(UUID.fromString(id))))
@@ -290,7 +291,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  def bookCover(bookId:String) = Action{implicit request =>    
+  def bookCover(bookId:String) = StackAction{implicit request =>    
     val cover = BookDO.getBookCover(UUID.fromString(bookId))
 //    val fis = new FileInputStream(new File("/Users/mayleen/ezoombook2.png"))
 //    val cover = IOUtils.toByteArray(fis)
@@ -301,7 +302,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  def cachedBookCover = Action{implicit request =>
+  def cachedBookCover = StackAction{implicit request =>
     getCachedBook.map{cb =>
       if(!cb.bookCover.isEmpty)
         Ok(cb.bookCover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
@@ -320,11 +321,11 @@ object EzoomBooks extends Controller with ContextProvider{
     Cache.getAs[Book]("ebook")
   }
 
-   def listbooks = Action {implicit request =>
+   def listbooks = StackAction {implicit request =>
     Ok(views.html.listbooks(BookDO.listBooks,bookForm))
   }
 
-   def reedit(id:String) = Action {implicit request =>
+   def reedit(id:String) = StackAction {implicit request =>
      BookDO.getBook(id).map{b => 
       Cache.set("ebook",b,0)
       Ok(views.html.bookreedit(List[(String, Long)](),bookForm.fill(b)))
@@ -334,7 +335,7 @@ object EzoomBooks extends Controller with ContextProvider{
      }
   }
 
-  def setReadingEzb(ezbId:String, part:String, layer:String) = Action {implicit request =>
+  def setReadingEzb(ezbId:String, part:String, layer:String) = StackAction {implicit request =>
     BookDO.getEzoomBook(UUID.fromString(ezbId)).flatMap{ezb =>
       BookDO.getBook(ezb.book_id.toString).map{book =>
         val readPart = if (!part.isEmpty) part else book.bookParts(0).partId
@@ -348,7 +349,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  def readEzb(bookId:String,partId:String) = Action {implicit request =>
+  def readEzb(bookId:String,partId:String) = StackAction {implicit request =>
     BookDO.getBook(bookId).flatMap{book =>
       context.activeEzb.flatMap{ezbId =>
         BookDO.getEzoomBook(ezbId).map{ezb =>
@@ -371,7 +372,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-//  def bookPart(bookId:String,partId:String) = Action{implicit request =>
+//  def bookPart(bookId:String,partId:String) = StackAction{implicit request =>
 //    BookDO.getBookPart(UUID.fromString(bookId), partId).map{bpart =>
 //      //TODO get extension corresponding to epub format : play.api.libs.MimeTypes.forExtension("txt")
 //      Ok(bpart.content).as(play.api.http.MimeTypes.HTML)
@@ -380,7 +381,7 @@ object EzoomBooks extends Controller with ContextProvider{
 //    }
 //  }
 
-  def bookResource(bookId:String, file:String) = Action{implicit request =>
+  def bookResource(bookId:String, file:String) = StackAction{implicit request =>
     if (file.contains(".html")){
       Redirect(routes.EzoomBooks.readEzb(bookId, file))
     }else{
@@ -398,7 +399,7 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  def readLayer(bookId:String,partId:String) = Action{implicit request =>
+  def readLayer(bookId:String,partId:String) = StackAction{implicit request =>
     BookDO.getBook(bookId).map{book =>
       val partIndex = book.bookParts.indexWhere(_.partId == partId)
       val ezoomlayeropt = context.activeLayer.flatMap(BookDO.getEzoomLayer(_))
@@ -442,7 +443,7 @@ object EzoomBooks extends Controller with ContextProvider{
    * TODO Add authorizied access restriction
    * @return
    */
-  def addQuote = Action(parse.json){ request =>
+  def addQuote = StackAction(parse.json){ request =>
     request.body.validate[AtomicContrib].map{
       case contrib =>
         val ezl = BookDO.getEzoomLayer(contrib.ezoomlayer_id).getOrElse(
@@ -470,20 +471,20 @@ object EzoomBooks extends Controller with ContextProvider{
     }
   }
 
-  def ezoomLayerDelete(ezbId:String, layerLevel:Int) = Action{implicit request =>
+  def ezoomLayerDelete(ezbId:String, layerLevel:Int) = StackAction{implicit request =>
     BookDO.deleteEzoomLayer(UUID.fromString(ezbId), layerLevel)
     Redirect(routes.EzoomBooks.ezoomBookEdit(ezbId))
   }
 
-  def ezoomBookDelete(ezbId:String) = Action{implicit request =>
+  def ezoomBookDelete(ezbId:String) = StackAction{implicit request =>
     withUser{user =>
       //TODO Validate that user has the right to delete ezb
       BookDO.deleteEzoomBook(UUID.fromString(ezbId))
-      Redirect(routes.Application.home)
+      Redirect(routes.Workspace.home)
     }
   }
 
-  def getContribution(layerId:String, contribId:String) = Action{request =>
+  def getContribution(layerId:String, contribId:String) = StackAction{request =>
     BookDO.getEzoomLayer(UUID.fromString(layerId)).flatMap{layer =>
       layer.ezoomlayer_contribs.collectFirst{
         case atomic:AtomicContrib if(atomic.contrib_id == contribId) => atomic
@@ -506,7 +507,7 @@ object EzoomBooks extends Controller with ContextProvider{
   }
 
   /**
-  def addezbtrl(ezbId:String) = Action {implicit request =>
+  def addezbtrl(ezbId:String) = StackAction {implicit request =>
       BookDO.getEzoomBook(ezbId).map {
         abook =>
          readinglist = readinglist +: abook
@@ -517,7 +518,7 @@ object EzoomBooks extends Controller with ContextProvider{
     */
 
   /**
-  def addezbtf(ezbId:String) = Action {implicit request =>
+  def addezbtf(ezbId:String) = StackAction {implicit request =>
       BookDO.getEzoomBook(ezbId).map {
         abook =>
          favorite = favorite +: abook

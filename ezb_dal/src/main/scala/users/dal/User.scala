@@ -72,11 +72,18 @@ trait UserComponent {
 
     /**
      * Checks if the password is valid for a user by its user-name or mail 
-     */ 
+     */
+    @deprecated("Use authenticate instead")
     def validateUserPassword(username:String, pass:String)(implicit session:Session): Boolean = {
       Query(Users).filter(u => u.name === username || u.email === username).map(_.password).firstOption map(
 	  Hasher.compare(pass, _)
       ) getOrElse(false)      
+    }
+
+    def authenticate(id:String, pass:String)(implicit session:Session):Option[User] = {
+      Query(Users).filter(u => u.name === id || u.email === id).firstOption.filter(
+        u => Hasher.compare(pass, u.password)
+      )
     }
 
     /**

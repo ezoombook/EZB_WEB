@@ -20,6 +20,14 @@ object UserDO{
     }
   }
 
+  def authenticate(id:String, password:String):Option[User] = {
+    AppDB.database.withSession{
+      implicit session:Session =>
+        AppDB.dal.Users.authenticate(id, password)
+    }
+  }
+
+  @deprecated("Use authenticate instead", since="1.0")
   def validateUser(user:String, password:String):Boolean = {
     AppDB.database.withSession{
       implicit session:Session =>
