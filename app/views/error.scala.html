@@ -1,0 +1,21 @@
+@(message:String)
+<html>
+<head>
+    <title>@Messages("application.errorpage.title")</title>
+</head>
+<body>
+    <style>
+    .sharperGlow {
+        text-shadow: 1px 0px 0px #686868, 1px 1px 0px #686868, 0px 1px 0px #686868,
+        -1px 1px 0px #686868, -1px 0px 0px #686868, -1px -1px 0px #686868,
+        0px -1px 0px #686868, 1px -1px 0px #686868, 1px 4px 5px #aeaeae;
+    }
+    </style>
+
+
+    <div class="sharperGlow">
+    </br></br></br>
+    <center><p><h1>@message</h1></p><center>
+    </div>
+</body>
+</html>

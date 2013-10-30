@@ -1,5 +1,13 @@
-@(loginForm: Form[(String,String)], userForm: Form[User])(implicit context:Context)
+@(loginForm: Form[Option[User]], userForm: Form[User])(implicit context:Context)
 @import helper._
+
+@onAllowRegister(content:Html) = {
+    @if(play.api.Play.current.configuration.getBoolean("application.allowresgiser").getOrElse(true)){
+        @content
+    }else{
+        @Html("")
+    }
+}
 
 <script>
 function overlay() {
@@ -8,30 +16,7 @@ function overlay() {
 }
 </script>
 
-@main("User Password Test"){
-
-<style>
-
-body {
-     height:100%;
-     margin:0;
-     padding:0;
-}
-.rightpannel{
-
-float:right;
-width:50%;
-}
-
-.leftpannel{
-clear : both;	
-float:left;
-width:50%;
-}
-.label {
-   display:block;
-}
-</style>
+@main("Login to eZoomBook"){
 
 <!-- Contract Licence Modal -->
 <div class="modal hide" id="infos">
@@ -79,10 +64,7 @@ width:50%;
 
 <div class="hero-unit">
     <h1>eZoomBook</h1>
-    <p>
-        This is an innovative platform where you will be able to participate in the world's greatest social reading experiment ever.
-        More than just a reading tool, eZoomBook is going to revolutionize the way that you obtain information.
-    </p>
+    <p>@Messages("ezoombook.presentation")</p>
     <a href="/tutorial" class="btn btn-primary btn-large">Learn more »</a>
 </div>
 <div class="row">
@@ -91,31 +73,37 @@ width:50%;
         <div>
             @form(routes.Application.validate){
                 @inputText(loginForm("id"), '_label -> <p>Username or email</p>)
-                @inputPassword(loginForm("password"), '_label -> <p>password</p>)
+                @inputPassword(loginForm("password"), '_label -> <p>Password</p>)
                 <input type="submit" value="Log in">
             }
         </div>
+        @onAllowRegister{
         <div>
-           
             <a href="/changepassword">Forgot your password ?</a>
         </div>
         <div>
             <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a>
         </div>
+        }
     </div>
     <div class="span6">
-        <h2>Create an Account</h2>
-        <div>
-            @form(routes.Application.newUser) {
-                @inputText(userForm("username"), '_label -> <p>Username</p>)
-                @inputText(userForm("mail"), '_label -> <p>Mail</p>)
-                @inputText(userForm("password"), '_label -> <p>password</p>)
-                <a class="btn btn-primary" data-toggle="modal" href="#infos" >Contract license</a></br>
-                <a><input type="checkbox" onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >I agree with Contract License</a></br></br>
-                <a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
-                <input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
-            }
-        </div>
+        @onAllowRegister{
+            <h2>Create an Account</h2>
+            <div>
+                @form(routes.Application.newUser) {
+                    @inputText(userForm("username"), '_label -> <p>Username</p>)
+                    @inputText(userForm("mail"), '_label -> <p>Mail</p>)
+                    @inputText(userForm("password"), '_label -> <p>password</p>)
+                    <a class="btn btn-primary" data-toggle="modal" href="#infos" >Contract license</a></br>
+                    <a>
+                        <input type="checkbox"
+                               onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >
+                        I agree with Contract License</a></br></br>
+                    <a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
+                    <input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
+                }
+            </div>
+        }
     </div>
 </div>
 

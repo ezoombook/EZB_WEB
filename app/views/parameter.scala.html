@@ -41,7 +41,7 @@
                     <!--<li><a href="#"> Deutsch</a></li>-->
                 <!--</ul>-->
             <!--</div>-->
-        @form(routes.Application.changeLang){
+        @form(routes.Workspace.changeLang){
             <div>
                 @select(langForm("locale"), options = Seq("fr" -> "French", "en" -> "English"), '_label -> "")
             </div>
@@ -81,7 +81,7 @@
 
         </br>
         <div>
-            @form(routes.Application.changepass) {
+            @form(routes.Support.changepass) {
             @inputPassword(passwordForm("password1"), '_label -> <p>enter your new password</p>)
             @inputPassword(passwordForm("password2"), '_label -> <p>enter your new password again</p>)
             <input type="submit" value="submit">

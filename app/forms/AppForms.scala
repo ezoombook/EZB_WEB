@@ -1,11 +1,13 @@
 package forms
 
+import models._
 import ezb.comments.Comment
 import utils.FormHelpers
 
 import play.api.data.Form
 import play.api.data.Forms._
 import java.util.{UUID,Date}
+import play.api.i18n.Messages
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,11 +18,13 @@ import java.util.{UUID,Date}
  */
 object AppForms extends FormHelpers{
 
-  val loginForm = Form(
-    tuple(
+  val loginForm = Form{
+    mapping(
       "id" -> text,
       "password" -> text
-    ))
+    )(UserDO.authenticate)(_.map(u => (u.email, "")))
+      .verifying(Messages("application.login.failed"), result => result.isDefined)
+  }
 
   def commentForm = Form[Comment](
     mapping(
@@ -36,4 +40,28 @@ object AppForms extends FormHelpers{
       "commentContent" -> text
     )(Comment.apply)(Comment.unapply _)
   )
+
+  val contactForm = Form(
+    tuple(
+      "usermail" -> text,
+      "arequest" -> text
+    )
+  )
+
+  val passwordForm = Form(
+    tuple(
+      "password1" -> text,
+      "password2" -> text
+    )
+  )
+
+  val passwordrForm = Form(
+    tuple(
+      "email" -> text,
+      "password" -> text
+    )
+  )
+
+  val localeForm = Form("locale" -> nonEmptyText)
+
 }
