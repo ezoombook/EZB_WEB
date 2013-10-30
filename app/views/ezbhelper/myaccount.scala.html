@@ -3,7 +3,7 @@
 *
 *@
 
-@(loginForm: Form[(String,String)])(implicit context:Context, lang:Lang)
+@(loginForm: Form[Option[User]])(implicit context:Context, lang:Lang)
 
 @import utils.navHelpers._
 @import utils.MD5Util
@@ -18,7 +18,9 @@
 
 <div class="btn-toolbar pull-right">
     <div class="btn-group">
-        <a class="btn" href="/home" rel="tooltip" data-original-title='@Messages("topmenu.tooltip.workspace")'>
+        <a class="btn" href="@routes.Workspace.home"
+           rel="tooltip"
+           data-original-title='@Messages("topmenu.tooltip.workspace")'>
             @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
                 <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
             }

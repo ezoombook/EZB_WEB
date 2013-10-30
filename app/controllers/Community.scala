@@ -19,7 +19,7 @@ import play.api.data._
 import play.api.i18n.Messages
 import Forms._
 import java.util.UUID
-
+import jp.t2v.lab.play2.auth.AuthElement
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,7 +33,7 @@ import java.util.UUID
  * Manage community related operations: groups, etc
  *
  */
-object Community extends Controller with ContextProvider{
+object Community extends Controller with AuthElement with AuthConfigImpl  with ContextProvider{
 
   val memberForm = Form(
     tuple(
@@ -58,12 +58,6 @@ object Community extends Controller with ContextProvider{
     EzbProject(UUID.randomUUID, "", ownerId, (new java.util.Date()).getTime,
       groupId, None, List[TeamMember]())
 
-  /**
-   * Displays the groups owned by a user
-   */
-  def groups = Action{ implicit request =>
-    Redirect(routes.Application.home)
-  }
 
   /**
    * Displays the deails of a group
@@ -118,20 +112,21 @@ object Community extends Controller with ContextProvider{
       )
     }
   }
-  
- 
-    //((name, ownerId)=>Group(UUID.randomUUID, name, ownerId))
-    //((group:Group)=>(group.name, group.ownerId))
-   def newGroup = Action{ implicit request =>
+
+  /**
+   * Creates a new group
+    * @return
+   */
+  def newGroup = Action{ implicit request =>
       withUser{ user =>
         Form[String]("groupName" -> text).bindFromRequest.fold(
           err => {
             println("[ERRO] Could not create group. Errors in form: " + err)
-            Redirect(routes.Application.home)
+            Redirect(routes.Workspace.home)
           },
           groupName => {
             UserDO.newGroup(groupName, user.id)
-            Redirect(routes.Application.home)
+            Redirect(routes.Workspace.home)
           }
         )
       }

@@ -17,6 +17,9 @@ application.ezlayer.level.2=Fairly Detailed
 application.ezlayer.level.3=Fairly Abridged
 application.ezlayer.level.4=Highly Abridged
 application.contrib.Quote=Quote
+application.login.failed=Invalid username or password
+application.errorpage.title=Error
+application.errorpage.unauthorized=Opps! It seems like you don't have permission to see this page.
 
 index.learnmore.btn=Learn more
 index.createaccount.btn=Create an account

@@ -1,7 +1,9 @@
 import models.{DBeable, AppDB}
 import play.api.db.DB
 import play.api.GlobalSettings
-
+import play.api._
+import play.api.mvc._
+import play.api.mvc.Results._
 import users.dal._
 import play.api.Application
 import slick.session.Session
@@ -38,6 +40,12 @@ object Global extends DalSettings with DBeable{
   
   override def onStop(app: Application) {
   }
+
+//  override def onError(request: RequestHeader, ex: Throwable) = {
+//    InternalServerError(
+//      views.html.error(ex.toString)
+//    )
+//  }
 }
 
 
