@@ -50,7 +50,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Loads and scans a book in epub format to display its meta data in the book form
    */
-  def loadBook = StackAction(loadFile){implicit request =>
+  def loadBook = Action(loadFile){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
       println("[INFO] created from File " + request.body.asFile.getPath)
       val book = BookDO.newBook(request.body.asFile)
@@ -73,7 +73,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Stores the book in the dabase
    */
-  def saveBook = StackAction{ implicit request =>
+  def saveBook = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
         println("[ERROR] Found errors in bookForm: " + errors)
@@ -103,7 +103,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Save the modifications made to a book meta-data.
    * Parts are not saved
    */
-  def saveEditedBook = StackAction{ implicit request =>
+  def saveEditedBook = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
     bookForm.bindFromRequest.fold(
       errors => {
         BadRequest(views.html.bookedit(errors))
@@ -128,7 +128,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Receives from the request an eZoomBook form and saves the new eZoomBook into the database.
    * Then, it displays the ezoomlayer edition form
    */
-  def saveEzoomBook(bookId:String) = StackAction{implicit request =>
+  def saveEzoomBook(bookId:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       ezoomBookForm.bindFromRequest.fold(
         errors => {
@@ -155,7 +155,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Stores an ezoomlayer in the databasse
    */
-  def saveEzoomlayer(ezbId:String) = StackAction{implicit request =>
+  def saveEzoomlayer(ezbId:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         ezoomlayerForm(ezb.ezoombook_id,UUID.randomUUID,user.id).bindFromRequest.fold(
@@ -176,7 +176,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Displays the ezoomlayer edit form without specifying a ezoomlayer,
    * creating by default a new empty ezoomlayer.
    */
-  def ezoomBookEdit(ezbId:String) = StackAction{implicit request =>
+  def ezoomBookEdit(ezbId:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         BookDO.setWorkingEzb(ezb)
@@ -193,7 +193,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Creates a new empty eZoomLayer with a given level,
    * then redirects the user to the ezb edition page.
    */
-  def createEzoomLayer(ezbId:String, layerLevel:String, owner:String) = StackAction{implicit request =>
+  def createEzoomLayer(ezbId:String, layerLevel:String, owner:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       val layerid = UUID.randomUUID()
       val newEzLayer = EzoomLayer(
@@ -214,7 +214,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Displays the ezoomlayer edit form for an existing ezoomlayer
    */
-  def ezoomLayerEdit(ezbId:String, ezlId:String, refresh:Boolean) = StackAction{implicit request =>
+  def ezoomLayerEdit(ezbId:String, ezlId:String, refresh:Boolean) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         BookDO.getEzoomLayer(UUID.fromString(ezlId), refresh).map{ezl =>
@@ -233,7 +233,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * If a working layer exists this action displays the edition page for that layer,
    * otherwise it shows the edition page without layer
    */
-  def workingEzoomLayer = StackAction{implicit request =>
+  def workingEzoomLayer = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       BookDO.getWorkingLayer.flatMap{ezl =>
         BookDO.getWorkingEzb.map{ezb =>
@@ -251,7 +251,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * in the ezoomlayer edition form
    */
   //TODO Correct repeated contribution_id on atomic contrib
-  def loadEzoomLayer(ezbId:String) = StackAction(parse.multipartFormData){implicit request =>
+  def loadEzoomLayer(ezbId:String) = Action(parse.multipartFormData){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
         val ezlform = ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id)
@@ -281,7 +281,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   }
 
   //TODO rename to simply book
-  def readBook(id:String) = StackAction{implicit request =>
+  def readBook(id:String) = StackAction(AuthorityKey -> Guest){implicit request =>
     BookDO.getBook(id).map{book =>
       val  ezb = Ezoombook (UUID.randomUUID, UUID.fromString(id) ,context.user.get.id.toString, books.dal.Status.workInProgress,"",false) 
       Ok(views.html.book(book, ezoomBookForm.fill(ezb), BookDO.getEzoomBooks(UUID.fromString(id))))
@@ -291,7 +291,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def bookCover(bookId:String) = StackAction{implicit request =>    
+  def bookCover(bookId:String) = StackAction(AuthorityKey -> Guest){implicit request =>
     val cover = BookDO.getBookCover(UUID.fromString(bookId))
 //    val fis = new FileInputStream(new File("/Users/mayleen/ezoombook2.png"))
 //    val cover = IOUtils.toByteArray(fis)
@@ -302,7 +302,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def cachedBookCover = StackAction{implicit request =>
+  def cachedBookCover = StackAction(AuthorityKey -> Guest){implicit request =>
     getCachedBook.map{cb =>
       if(!cb.bookCover.isEmpty)
         Ok(cb.bookCover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
@@ -321,11 +321,11 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     Cache.getAs[Book]("ebook")
   }
 
-   def listbooks = StackAction {implicit request =>
+   def listbooks = StackAction(AuthorityKey -> Guest) {implicit request =>
     Ok(views.html.listbooks(BookDO.listBooks,bookForm))
   }
 
-   def reedit(id:String) = StackAction {implicit request =>
+   def reedit(id:String) = StackAction(AuthorityKey -> RegisteredUser) {implicit request =>
      BookDO.getBook(id).map{b => 
       Cache.set("ebook",b,0)
       Ok(views.html.bookreedit(List[(String, Long)](),bookForm.fill(b)))
@@ -335,7 +335,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
      }
   }
 
-  def setReadingEzb(ezbId:String, part:String, layer:String) = StackAction {implicit request =>
+  def setReadingEzb(ezbId:String, part:String, layer:String) = StackAction(AuthorityKey -> Guest) {implicit request =>
     BookDO.getEzoomBook(UUID.fromString(ezbId)).flatMap{ezb =>
       BookDO.getBook(ezb.book_id.toString).map{book =>
         val readPart = if (!part.isEmpty) part else book.bookParts(0).partId
@@ -349,7 +349,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def readEzb(bookId:String,partId:String) = StackAction {implicit request =>
+  def readEzb(bookId:String,partId:String) = StackAction(AuthorityKey -> Guest) {implicit request =>
     BookDO.getBook(bookId).flatMap{book =>
       context.activeEzb.flatMap{ezbId =>
         BookDO.getEzoomBook(ezbId).map{ezb =>
@@ -381,7 +381,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
 //    }
 //  }
 
-  def bookResource(bookId:String, file:String) = StackAction{implicit request =>
+  def bookResource(bookId:String, file:String) = StackAction(AuthorityKey -> Guest){implicit request =>
     if (file.contains(".html")){
       Redirect(routes.EzoomBooks.readEzb(bookId, file))
     }else{
@@ -399,7 +399,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def readLayer(bookId:String,partId:String) = StackAction{implicit request =>
+  def readLayer(bookId:String,partId:String) = StackAction(AuthorityKey -> Guest){implicit request =>
     BookDO.getBook(bookId).map{book =>
       val partIndex = book.bookParts.indexWhere(_.partId == partId)
       val ezoomlayeropt = context.activeLayer.flatMap(BookDO.getEzoomLayer(_))
@@ -443,7 +443,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * TODO Add authorizied access restriction
    * @return
    */
-  def addQuote = StackAction(parse.json){ request =>
+  def addQuote = Action(parse.json){ request =>
     request.body.validate[AtomicContrib].map{
       case contrib =>
         val ezl = BookDO.getEzoomLayer(contrib.ezoomlayer_id).getOrElse(
@@ -471,12 +471,12 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def ezoomLayerDelete(ezbId:String, layerLevel:Int) = StackAction{implicit request =>
+  def ezoomLayerDelete(ezbId:String, layerLevel:Int) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     BookDO.deleteEzoomLayer(UUID.fromString(ezbId), layerLevel)
     Redirect(routes.EzoomBooks.ezoomBookEdit(ezbId))
   }
 
-  def ezoomBookDelete(ezbId:String) = StackAction{implicit request =>
+  def ezoomBookDelete(ezbId:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       //TODO Validate that user has the right to delete ezb
       BookDO.deleteEzoomBook(UUID.fromString(ezbId))
@@ -484,7 +484,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def getContribution(layerId:String, contribId:String) = StackAction{request =>
+  def getContribution(layerId:String, contribId:String) = StackAction(AuthorityKey -> Guest){request =>
     BookDO.getEzoomLayer(UUID.fromString(layerId)).flatMap{layer =>
       layer.ezoomlayer_contribs.collectFirst{
         case atomic:AtomicContrib if(atomic.contrib_id == contribId) => atomic

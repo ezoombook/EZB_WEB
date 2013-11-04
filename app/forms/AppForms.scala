@@ -8,6 +8,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import java.util.{UUID,Date}
 import play.api.i18n.Messages
+import users.dal.User
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +26,15 @@ object AppForms extends FormHelpers{
     )(UserDO.authenticate)(_.map(u => (u.email, "")))
       .verifying(Messages("application.login.failed"), result => result.isDefined)
   }
+
+  val userForm = Form(
+    mapping(
+      "username" -> text,
+      "mail" -> email,
+      "password" -> text
+    )((username, email, password) => User(java.util.UUID.randomUUID(), username, email, password))
+      ((user: User) => Some(user.name, user.email, ""))
+  )
 
   def commentForm = Form[Comment](
     mapping(
