@@ -82,11 +82,6 @@ trait AuthConfigImpl extends AuthConfig{
       case (RegisteredUser, Guest) => true
       case _ => false
     }
-//    (user.permission, authority) match {
-//      case (Administrator, _) => true
-//      case (NormalUser, NormalUser) => true
-//      case _ => false
-//    }
 
   /**
    * Whether use the secure option or not use it in the cookie.
