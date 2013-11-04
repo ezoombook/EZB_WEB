@@ -75,10 +75,11 @@ trait AuthConfigImpl extends AuthConfig{
    * A function that determines what `Authority` a user has.
    */
   def authorize(user: User, authority: Authority): Boolean =
-    (user.name, authority) match{
+    (user.permission, authority) match{
       case (_, Guest) => true
-      case ("Mayleen", Administrator) => true
-      case ("Mayleen", RegisteredUser) => true
+      case (Administrator, _) => true
+      case (RegisteredUser, RegisteredUser) => true
+      case (RegisteredUser, Guest) => true
       case _ => false
     }
 //    (user.permission, authority) match {
