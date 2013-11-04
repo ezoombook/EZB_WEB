@@ -26,11 +26,11 @@ object AdminApp extends Controller with AuthElement with AuthConfigImpl with Con
     ("group C", users(2).id)
   )
 
-  def index = Action {implicit request =>
+  def index = StackAction(AuthorityKey -> Administrator) {implicit request =>
     Ok(views.html.admin(UserDO.listUsers, iscreateGroups, iscreateBooks))
   }
 
-  def createUsers = Action {implicit request =>
+  def createUsers = StackAction(AuthorityKey -> Administrator) {implicit request =>
     for (u <- users){
       UserDO.create(u)
     }
@@ -38,7 +38,7 @@ object AdminApp extends Controller with AuthElement with AuthConfigImpl with Con
     Ok(views.html.admin(UserDO.listUsers, iscreateGroups, iscreateBooks))
   }
 
-  def createGroups = Action {implicit request =>
+  def createGroups = StackAction(AuthorityKey -> Administrator) {implicit request =>
     for(g <- groups){
       UserDO.newGroup(g._1, g._2)
     }
@@ -48,7 +48,7 @@ object AdminApp extends Controller with AuthElement with AuthConfigImpl with Con
     Ok(views.html.admin(UserDO.listUsers, iscreateGroups, iscreateBooks))
   }
 
-  def createBooks = Action {implicit request =>
+  def createBooks = StackAction(AuthorityKey -> Administrator) {implicit request =>
     UserDO.newUserBook(users(0).id, UUID.randomUUID)
     UserDO.newUserBook(users(1).id, UUID.randomUUID)
     UserDO.newUserBook(users(1).id, UUID.randomUUID)

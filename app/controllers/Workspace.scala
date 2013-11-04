@@ -66,7 +66,7 @@ object Workspace extends Controller with AuthElement with AuthConfigImpl with Co
       }
   }
 
-  def parameter = Action {
+  def parameter = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -78,7 +78,7 @@ object Workspace extends Controller with AuthElement with AuthConfigImpl with Co
   /**
    * Changes the user predefined language
    */
-  def changeLang = Action {
+  def changeLang = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       val referer = request.headers.get(REFERER).getOrElse(Application.HOME_URL)
       localeForm.bindFromRequest.fold(

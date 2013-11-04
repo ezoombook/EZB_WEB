@@ -31,15 +31,6 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
 
   val HOME_URL = "/"
 
-  val userForm = Form(
-    mapping(
-      "username" -> text,
-      "mail" -> email,
-      "password" -> text
-    )((username, email, password) => User(java.util.UUID.randomUUID(), username, email, password))
-      ((user: User) => Some(user.name, user.email, ""))
-  )
-
   def index = StackAction {
     implicit request =>
       Ok(views.html.index(BookDO.listBooks))
@@ -49,32 +40,6 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
     implicit request =>
       Ok(views.html.errorlogin())
 
-  }
-
-  /**
-   * Adds a new user
-   */
-  def newUser = Action {
-    implicit request =>
-      userForm.bindFromRequest.fold(
-        errors => {
-          BadRequest(views.html.login(loginForm, errors))
-        },
-        user => {
-          UserDO.create(user)
-          UserDO.getUser(user.name).map {
-            newusr =>
-              Redirect(routes.Workspace.home).withSession(
-                "userId" -> newusr.id.toString,
-                "userName" -> newusr.name,
-                "userMail" -> newusr.email
-              )
-          }.getOrElse {
-            println("[ERROR] Could not find user " + user.name)
-            BadRequest(views.html.login(loginForm, userForm))
-          }
-        }
-      )
   }
 
   /**

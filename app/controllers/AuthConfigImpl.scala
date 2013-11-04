@@ -1,6 +1,7 @@
 package controllers
 
 import models._
+import users.dal._
 
 import play.api.i18n.Messages
 import play.api.mvc._
@@ -53,17 +54,17 @@ trait AuthConfigImpl extends AuthConfig{
   /**
    * Where to redirect the user after a successful login.
    */
-  def loginSucceeded(request: RequestHeader): Result = Redirect(routes.Application.index)
+  def loginSucceeded(request: RequestHeader): Result = Redirect(routes.Workspace.home)
 
   /**
    * Where to redirect the user after logging out
    */
-  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.login)
+  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.login).withNewSession
 
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:
    */
-  def authenticationFailed(request: RequestHeader): Result = Redirect(routes.Application.login)
+  def authenticationFailed(request: RequestHeader): Result = Redirect(routes.Application.login).withNewSession
 
   /**
    * If authorization failed (usually incorrect password) redirect the user as follows:
