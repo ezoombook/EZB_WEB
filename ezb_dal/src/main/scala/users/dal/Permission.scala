@@ -1,10 +1,12 @@
-package models
+package users.dal
+
+import java.util.UUID
 
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
- * Date: 29/10/2013
- * Time: 11:59
+ * Date: 31/10/2013
+ * Time: 17:09
  * To change this template use File | Settings | File Templates.
  */
 sealed trait Permission
@@ -17,6 +19,7 @@ object Permission{
   def valueOf(value:String):Permission = value match{
     case "Administrator" => Administrator
     case "RegisteredUser" => RegisteredUser
+    case "Guest" => Guest
     case _ => throw new IllegalArgumentException()
   }
 }

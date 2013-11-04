@@ -34,7 +34,7 @@ object Global extends DalSettings with DBeable{
     //TODO Find a way to automatically update table definitions
 //    database.withSession{
 //      implicit session: Session =>
-//        dal.alterTable(dal.UserPreferences)
+//        dal.alterTable(dal.Users)
 //    }
   }
   

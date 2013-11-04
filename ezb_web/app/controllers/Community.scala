@@ -62,7 +62,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
   /**
    * Displays the deails of a group
    */
-  def group(gid:String) = Action{ implicit request =>
+  def group(gid:String) = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
     val groupId = UUID.fromString(gid)
     withUser{user =>
       cachedGroup(gid).map{group =>
@@ -81,7 +81,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
   /**
    * Adds a new member to a group
    */
-  def newGroupMember(gid:String) = Action{ implicit request =>
+  def newGroupMember(gid:String) = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
     val groupId = UUID.fromString(gid)
     withUser{ user =>
       memberForm.bindFromRequest.fold(
@@ -117,7 +117,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
    * Creates a new group
     * @return
    */
-  def newGroup = Action{ implicit request =>
+  def newGroup = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
       withUser{ user =>
         Form[String]("groupName" -> text).bindFromRequest.fold(
           err => {
@@ -155,7 +155,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
   }
 
 
-  def groupadmin(groupId:String) = Action{ implicit request =>
+  def groupadmin(groupId:String) = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
     withUser{user =>
       cachedGroup(groupId).map{group =>
         val members = cachedGroupMembers(groupId)

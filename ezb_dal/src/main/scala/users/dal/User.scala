@@ -15,7 +15,7 @@ import java.util.Date
 /**
  * The User entitiy
  */
-case class User(id: UUID, name: String, email: String, password: String){
+case class User(id: UUID, name: String, email: String, password: String, permission:Permission = RegisteredUser){
   val hashedPassword = Hasher.hash(password)
 }
 
@@ -33,18 +33,24 @@ trait UserComponent {
    * The Users table object
    */ 
   object Users extends Table[User]("users") {
+    implicit val permissionTypeMapper = MappedTypeMapper.base[Permission,String] (
+      { perm => perm.toString},
+      { str => Permission.valueOf(str)}
+    )
+
     def id = column[UUID]("user_id", O.PrimaryKey, O.DBType("UUID"))
     def name =  column[String]("user_name", O.NotNull)
     def email = column[String]("user_email", O.NotNull)
     def password = column[String]("user_password", O.NotNull)
-    def * = id ~ name ~ email ~ password <> (User, User.unapply _)
+    def permission = column[Permission]("user_permission", O.NotNull)
+    def * = id ~ name ~ email ~ password ~ permission <> (User, User.unapply _)
 
     /**
      * Adds a new user to the table
      */ 
     def add(user: User)(implicit session: Session) = {
-      val projection = Users.id ~ Users.name ~ Users.email ~ Users.password
-      projection.insert(user.id, user.name, user.email, user.hashedPassword)
+      val projection = Users.id ~ Users.name ~ Users.email ~ Users.password ~ Users.permission
+      projection.insert(user.id, user.name, user.email, user.hashedPassword, user.permission)
     }
 
     /**

@@ -3,7 +3,7 @@ package controllers
 import project.dal.EzbProject
 import models._
 import utils.FormHelpers
-import users.dal.Group
+import users.dal._
 import project.dal._
 import books.dal._
 import ezb.comments._
@@ -73,21 +73,9 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
   )
 
   /**
-   * Displays the project edition form for a new project
-   * @return
-   */
-  //  def newPoject = Action {
-  //    implicit request =>
-  //      withUser { user =>
-  //          val emptyProject = EzbProject(UUID.randomUUID, "", user.id, (new java.util.Date()).getTime, UUID.randomUUID, UUID.randomUUID, List[TeamMember]())
-  //          Ok(views.html.projectedit(projectForm.fill(emptyProject), UserDO.userOwnedGroups(user.id)))
-  //      }
-  //  }
-
-  /**
    * Displays the project edition form for an existing project
    */
-  def editProject(projectId: String) = Action {
+  def editProject(projectId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       context.user.map {
         user =>
@@ -106,7 +94,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * Stores the created/edited project in the database
    * @return
    */
-  def saveProject(groupId:String) = Action {
+  def saveProject(groupId:String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -133,7 +121,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * @param owner Owner of the EZB: normally, the group
    * @param projectId Id of the project
    */
-  def ezbProjectBookList(owner:String, projectId:String) = Action{implicit request =>
+  def ezbProjectBookList(owner:String, projectId:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
       val ezbform = EzbForms.ezoomBookForm.bind(Map(
         "ezb_id" -> UUID.randomUUID().toString,
@@ -152,7 +140,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * and updates the project
    * @param projectId Id of the project
    */
-  def saveProjectEzb(projectId: String) = Action {
+  def saveProjectEzb(projectId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -176,7 +164,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * @param projId
    * @return
    */
-  def projectAdmin(projId: String) = Action {
+  def projectAdmin(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -206,7 +194,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * @param projId The id of the project that is modified.
    *               Note that this action has no effect on a project with an already defined eZoomBook.
    */
-  def setProjectEzb(projId: String) = Action {
+  def setProjectEzb(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -234,7 +222,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * @param projId
    * @return
    */
-  def newProjectMember(projId: String) = Action {
+  def newProjectMember(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       val pId = UUID.fromString(projId)
       withUser {
@@ -252,7 +240,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       }
   }
 
-  def editProjectMember(projId:String) = Action {implicit request =>
+  def editProjectMember(projId:String) = StackAction(AuthorityKey -> RegisteredUser) {implicit request =>
     val pid=UUID.fromString(projId)
     withUser{ user =>
       Form(memberMapping).bindFromRequest.fold(
@@ -268,7 +256,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
     }
   }
 
-  def deleteProject(projId: String) = Action {
+  def deleteProject(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -277,7 +265,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       }
   }
 
-  def saveComment = Action{implicit request =>
+  def saveComment = StackAction(AuthorityKey -> RegisteredUser) {implicit request =>
     val referer = request.headers.get(REFERER).getOrElse(Application.HOME_URL)
     AppForms.commentForm.bindFromRequest.fold(
       err => {

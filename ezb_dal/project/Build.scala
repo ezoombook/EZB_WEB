@@ -16,7 +16,7 @@ object EzbDalBuild extends Build {
   )
 
   val libdependencies = Seq(
-      "com.typesafe.slick" %% "slick" % "1.0.0",
+      "com.typesafe.slick" %% "slick" % "1.0.1",
       "org.mindrot" % "jbcrypt" % "0.3m",
       "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
       "couchbase" % "couchbase-client" % "1.1.6",
