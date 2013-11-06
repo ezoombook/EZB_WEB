@@ -1,4 +1,6 @@
-@(ezb:Ezoombook, activeLayer:Option[EzoomLayer], ezlForm:Form[EzoomLayer], bookOpt:Option[Book])(implicit context:Context)
+@(ezb:Ezoombook, activeLayer:Option[EzoomLayer], ezlForm:Form[EzoomLayer],
+bookOpt:Option[Book],
+authenticate:User => Boolean)(implicit context:Context)
 
 @import helper._
 @** @import helper.twitterBootstrap._ **@
@@ -7,16 +9,32 @@
 
 @scripts = {
 <script type="text/javascript">//<![CDATA[
+    function onDeleteContrib(e){
+        var divId = $(this).attr("data-contribid");
+        $('#'+divId).remove();
+    }
+
+    function onPartIdChange(e){
+        var selectedPart = $(this).find("option[value='"+$(this).val()+"']").text();
+        var partTitleId = $(this).attr('data-titlefield');
+        $('#'+partTitleId).val(selectedPart);
+    }
+
     function addPart(){
         var partsCount = $("#contribs_set > .part_field" ).length;
         var sumCount = $("#contribs_set > .summary_div" ).length;
         var contribTotal = partsCount+sumCount;
 
-        var newPartField = $("#part_field_999").clone().attr("id", "part_field_"+(partsCount));
+        var newId = "part_field_"+(partsCount);
+        var newPartField = $("#part_field_999").clone().attr("id", newId);
+
+        newPartField.find(".part_id:first")
+             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_id")
+             .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_id");
 
         newPartField.find(".part_title:first")
-             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_title")
-             .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_title");
+            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_title")
+            .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_title");
 
         newPartField.find("#ezoomlayer_contribs_contrib_type:first")
             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
@@ -34,6 +52,11 @@
                 var divId = e.target.id.split("_")[1];
                 addAtomicContrib(divId, "contrib.Summary");
             });
+        newPartField.find(".deletecontrib").attr("data-contribid",newId)
+            .click(onDeleteContrib);
+        newPartField.find(".part_id")
+            .attr("data-titlefield","ezoomlayer_contribs_"+contribTotal+"__part_title")
+            .change(onPartIdChange);
 
         newPartField.removeClass("hide");
 
@@ -140,9 +163,9 @@
                 $(this).css("opacity", "0.2");
             }
         );
-        $(".delete").click(function(){
-            $(this).parents(".contrib_div:first").remove();
-        });
+
+        $(".deletecontrib").click(onDeleteContrib);
+
         $("#ezoomlayer_locked_btn").click(function(){
             var lkdButton = $("#ezoomlayer_locked");
             //Toggle
@@ -161,9 +184,8 @@
                 $("#ezoomlayer_status").attr("value","@Status.workInProgress")
             }
         });
-        $(".part_title").change(function(){
-            $(this).siblings(".part_id").attr("value", $(this).find("option[value='"+$(this).val()+"']").text());
-        });
+
+        $(".part_id").change(onPartIdChange);
    });
 //]]>
 </script>
@@ -195,10 +217,11 @@
                             case BookPart(id, _) => (id, "- Subsection")
                         } :+ ("","Add Custom Section"),
                         '_label -> "",
-                        'class -> "part_title")
+                        Symbol("data-titlefield") -> part("part_title").id,
+                        'class -> "part_id")
                     </div>
                 }
-                @hidden(part("part_title"), 'class -> "part_id")
+                @hidden(part("part_title"), 'class -> "part_title")
             }
         </div>
         <div class="span1 btn-group">
@@ -215,7 +238,8 @@
             }.getOrElse{
                 <a class="btn hide readBtn" href="#">Go to book...</a>
             }
-            <a class="btn delete" data-toggle="button" href="#"><i class="icon-trash"></i></a>
+            <a class="btn deletecontrib"
+               data-contribid="part_field_@divId"><i class="icon-trash"></i></a>
         </div>
     </div>
     @for(i <- part("part_contribs").indexes;
@@ -268,7 +292,12 @@
 @displayEzbInfo = {
     <dl>
         <dt>Title:</dt><dd>@ezb.ezoombook_title</dd>
-        <dt>Is Public:</dt><dd>@ezb.ezoombook_public</dd>
+        <dt>Is Public:</dt>
+            <dd>@if(ezb.ezoombook_public){
+                    @Messages("application.yes")
+                }else{
+                    @Messages("application.no")
+                }</dd>
         <dt>Status:</dt><dd>@ezb.ezoombook_status</dd>
         <dt>Layers</dt>
         <ul>
@@ -278,7 +307,14 @@
                 }
             }
         </ul>
-        <dt><a href="/ezb/edit/@ezb.ezoombook_id">Add a layer...</a></dt><dd></dd>
+        @context.user.map{user =>
+            @if(authenticate(user)){
+            <dt>
+                <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">Add a layer...</a>
+            </dt>
+            <dd></dd>
+            }
+        }
     </dl>
 }
 
@@ -305,10 +341,15 @@ textarea.contrib
 {
   padding-left: 5px;
 }
-.part_title
+.part_id
 {
   width: 100%;
 }
+.part_id
+{
+  width: 100%;
+}
+
 .part_field
 {
 
@@ -442,8 +483,10 @@ label{
                 @hidden(ezlForm("ezoomlayer_status"))
                 <div class="row-fluid">
                     <div class="span6 btn-group" data-toggle="buttons-checkbox">
+                        @if(context.user.exists(authenticate(_))){
                         <button type="button" id="ezoomlayer_locked_btn" class="btn btn-primary">Lock this Layer</button>
                         <button type="button" id="ezoomlayer_status_btn" class="btn btn-primary">Mark as Published</button>
+                        }
                     </div>
                     <div class="span6 btn-group">
                         <input class="btn" type="submit" value="Save eZoomLayer">
