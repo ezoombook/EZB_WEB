@@ -33,7 +33,7 @@ trait AuthConfigImpl extends AuthConfig{
   /**
    * Type that is defined for authorization
    */
-  type Authority = Permission
+  type Authority = User => Boolean
 
   /**
    * A `ClassManifest` is used to retrieve an id from the Cache API.
@@ -74,14 +74,7 @@ trait AuthConfigImpl extends AuthConfig{
   /**
    * A function that determines what `Authority` a user has.
    */
-  def authorize(user: User, authority: Authority): Boolean =
-    (user.permission, authority) match{
-      case (_, Guest) => true
-      case (Administrator, _) => true
-      case (RegisteredUser, RegisteredUser) => true
-      case (RegisteredUser, Guest) => true
-      case _ => false
-    }
+  def authorize(user: User, authority: Authority): Boolean = authority(user)
 
   /**
    * Whether use the secure option or not use it in the cookie.

@@ -37,7 +37,6 @@ GET     /groupadmin/:id		    controllers.Community.groupadmin(id:String)
 POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 
 # Projects
-GET     /project/edit/:id               controllers.Collaboration.editProject(id:String)
 POST    /project/save/:gid              controllers.Collaboration.saveProject(gid)
 POST    /project/saveezb/:pid           controllers.Collaboration.saveProjectEzb(pid)
 POST    /project/setezb/:pid            controllers.Collaboration.setProjectEzb(pid)
@@ -82,31 +81,31 @@ GET     /contact          controllers.Support.contact
 POST    /contactadmin     controllers.Support.contactadmin
 
 #EZOOMBOOK
-GET     /ezb/edit/:id               controllers.EzoomBooks.ezoomBookEdit(id:String)
-POST    /ezb/save/:bookid           controllers.EzoomBooks.saveEzoomBook(bookid:String)
-POST    /ezb/delete/:ezbid          controllers.EzoomBooks.ezoomBookDelete(ezbid)
+GET     /ezb/edit/:id                     controllers.EzoomBooks.ezoomBookEdit(id:String)
+POST    /ezb/save/:bookid                 controllers.EzoomBooks.saveEzoomBook(bookid:String)
+POST    /ezb/delete/:ezbid                controllers.EzoomBooks.ezoomBookDelete(ezbid)
 
-#GET    /ezlayer/form/:id           controllers.EzoomBooks.newEzoomlayer(id:String)
-POST    /ezlayer/load/:bid          controllers.EzoomBooks.loadEzoomLayer(bid:String)
-POST    /ezlayer/save/:bid          controllers.EzoomBooks.saveEzoomlayer(bid:String)
-GET     /ezlayer/new/:bid           controllers.EzoomBooks.ezoomBookEdit(bid:String)
+#GET    /ezlayer/form/:id                 controllers.EzoomBooks.newEzoomlayer(id:String)
+POST    /ezlayer/load/:bid                controllers.EzoomBooks.loadEzoomLayer(bid:String)
+POST    /ezlayer/save/:bid                controllers.EzoomBooks.saveEzoomlayer(bid:String)
+GET     /ezlayer/new/:bid                 controllers.EzoomBooks.ezoomBookEdit(bid:String)
 GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
 POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
 POST    /ezlayer/create/:bid/:lev/:ow     controllers.EzoomBooks.createEzoomLayer(bid,lev,ow)
-GET     /workingezlayer             controllers.EzoomBooks.workingEzoomLayer
+GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLayer
 
-GET     /read/:ezbid/:pid/:layer                controllers.EzoomBooks.setReadingEzb(ezbid,pid,layer)
-GET     /ezbread/:bid/:pid          controllers.EzoomBooks.readEzb(bid,pid)
+GET     /read/:ezbid/:pid/:layer          controllers.EzoomBooks.setReadingEzb(ezbid,pid,layer)
+GET     /ezbread/:bid/:pid                controllers.EzoomBooks.readEzb(bid,pid)
 # Book resources
-GET     /bookres/:bid/*file         controllers.EzoomBooks.bookResource(bid:String,file)
+GET     /bookres/:bid/*file               controllers.EzoomBooks.bookResource(bid:String,file)
 
-#POST    /addezbtrl/:id              controllers.EzoomBooks.addezbtrl(id:String)
-#POST    /addezbtf/:id              controllers.EzoomBooks.addezbtf(id:String)
+#POST    /addezbtrl/:id                   controllers.EzoomBooks.addezbtrl(id:String)
+#POST    /addezbtf/:id                    controllers.EzoomBooks.addezbtf(id:String)
 
-POST    /quote                      controllers.EzoomBooks.addQuote
+POST    /quote                            controllers.EzoomBooks.addQuote
 
 #error
-GET     /errorlogin                 controllers.Application.errorlogin
+GET     /errorlogin         controllers.Application.errorlogin
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)

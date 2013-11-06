@@ -73,24 +73,6 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
   )
 
   /**
-   * Displays the project edition form for an existing project
-   */
-  def editProject(projectId: String) = StackAction(AuthorityKey -> RegisteredUser) {
-    implicit request =>
-      context.user.map {
-        user =>
-          cachedProject(projectId).map {
-            project =>
-              Ok(views.html.projectedit(projectForm.fill(project), UserDO.userOwnedGroups(user.id)))
-          }.getOrElse {
-            Ok(views.html.projectedit(projectForm, UserDO.userOwnedGroups(user.id)))
-          }
-      }.getOrElse {
-        Unauthorized("Oops! you need to be connected to access this page")
-      }
-  }
-
-  /**
    * Stores the created/edited project in the database
    * @return
    */
@@ -101,14 +83,16 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
           projectForm.bindFromRequest.fold(
             errors => {
               println("[ERROR] Could not create project from form: " + errors.errors.map(err => err.key + " " + err.message))
-              BadRequest(views.html.projectedit(errors, UserDO.userOwnedGroups(user.id)))
+              Redirect(routes.Workspace.home)
             },
             ezbProject => {
               BookDO.saveProject(ezbProject)
               if (projectForm.bindFromRequest.data.getOrElse("new_ezb", "false").toBoolean) {
-                Redirect(routes.Collaboration.ezbProjectBookList(groupId,
+                Redirect(routes.Collaboration.ezbProjectBookList("group:"+groupId,
                   ezbProject.projectId.toString))
               } else {
+                //Change eZoomBook owner
+                BookDO.changeEzbOwner(ezbProject.ezoombookId.get, "group:"+groupId)
                 Redirect(routes.Collaboration.projectAdmin(ezbProject.projectId.toString))
               }
             }
@@ -278,6 +262,22 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       }
     )
   }
+
+  /**
+   * Returns the list of projects the user owns or participates into
+   */
+  def getProjectsByUser(userId:UUID):List[ListedProject] =
+    (BookDO.getOwnedProjects(userId).toSet ++ BookDO.getProjectsByMember(userId)).map {
+      proj =>
+        proj.ezoombookId.flatMap(BookDO.getEzoomBook(_)).map {
+          ezb =>
+            ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
+              proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
+        }.getOrElse {
+          ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
+            proj.projectCreationDate, None, "")
+        }
+    }.toList
 
   /**
    * Gets a group from the cache if it is there.

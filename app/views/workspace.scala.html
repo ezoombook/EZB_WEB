@@ -10,7 +10,7 @@
 <script type="text/javascript">//<![CDATA[
     $(document).ready(function(){
 
-      $('#deleteProjectButton').click(function(){
+      $('.deleteProjectButton').click(function(){
         var projId = $(this).attr('data-projId');
         $('#deleteProjectForm').attr('action','/project/delete/'+projId);
       });
@@ -143,10 +143,9 @@
 		             <td>
                      @context.user.map{
                          case user if(proj.projOwner == user.id) => {
-                              <a class="btn"
+                              <a class="btn deleteProjectButton"
                                 href="#projectDeleteAlert"
                                 title='@Messages("workspace.ezoombooks.delete.button")'
-                                id="deleteProjectButton"
                                 data-toggle="modal"
                                 data-projId="@proj.projId.toString">
                                          <i class="icon-remove"></i>

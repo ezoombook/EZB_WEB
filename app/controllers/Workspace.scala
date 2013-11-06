@@ -45,20 +45,8 @@ object Workspace extends Controller with AuthElement with AuthConfigImpl with Co
     implicit request =>
       withUser {
         user =>
-          val projectlist = (BookDO.getOwnedProjects(user.id).toSet ++ BookDO.getProjectsByMember(user.id)).map {
-            proj =>
-              proj.ezoombookId.flatMap(BookDO.getEzoomBook(_)).map {
-                ezb =>
-                  ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
-                    proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
-              }.getOrElse {
-                ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
-                  proj.projectCreationDate, None, "")
-              }
-          }
-
           Ok(views.html.workspace(
-            projectlist.toList,
+            Collaboration.getProjectsByUser(user.id),
             BookDO.getUserEzoombooks(user.id),
             BookDO.getUserBooks(user.id),
             UserDO.userOwnedGroups(user.id),

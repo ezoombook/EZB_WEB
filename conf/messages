@@ -20,6 +20,8 @@ application.contrib.Quote=Quote
 application.login.failed=Invalid username or password
 application.errorpage.title=Error
 application.errorpage.unauthorized=Opps! It seems like you don't have permission to see this page.
+application.yes=Yes
+application.no=No
 
 index.learnmore.btn=Learn more
 index.createaccount.btn=Create an account
@@ -146,3 +148,5 @@ ezbproject.assigment.modal.submit=Submit changes
 ezbproject.comment.on=commented on
 ezbproject.contribdetail.h3=Contribution details
 ezbproject.contrbidetail.contribtype.h4=Contribution type
+
+ezoomlayeredit.ezb.ezbtitle=Title
