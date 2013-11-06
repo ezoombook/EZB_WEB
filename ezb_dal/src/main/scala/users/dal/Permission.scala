@@ -9,7 +9,11 @@ import java.util.UUID
  * Time: 17:09
  * To change this template use File | Settings | File Templates.
  */
-sealed trait Permission
+sealed trait Permission extends Function1[User,Boolean]{
+  def apply(user:User):Boolean = {
+    user.permission == this
+  }
+}
 
 case object Administrator extends Permission
 case object RegisteredUser extends Permission

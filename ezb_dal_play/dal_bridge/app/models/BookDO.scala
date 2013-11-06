@@ -35,12 +35,6 @@ object BookDO{
     }
   }
 
-//  def saveBookParts(book:Book){
-//    for(bp <- book.bookParts){
-//      AppDB.cdal.saveBookPart(bp)
-//    }
-//  }
-
   def setWorkingEzb(ezb:Ezoombook){
     Cache.set("working-ezb", ezb.ezoombook_id, 0)
   }
@@ -256,4 +250,13 @@ object BookDO{
   def getCommetsByEzb(ezbId:UUID):List[Comment] = {
     AppDB.cdal.commentsByEzb(ezbId)
   }
+
+  def changeEzbOwner(ezbid:UUID, newOwner:String) = {
+    AppDB.cdal.getEzoomBook(ezbid).map{ ezb =>
+      val newEzb = ezb.copy(ezoombook_owner = newOwner)
+      AppDB.cdal.saveEzoomBook(newEzb)
+      newEzb
+    }
+  }
+
 }
