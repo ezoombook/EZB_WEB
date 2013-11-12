@@ -9,30 +9,38 @@
 @import utils.MD5Util
 
 @if(context.user == None){
-    @helper.form(routes.Application.validate, 'class -> "navbar-form pull-right"){
-        @helper.inputText(loginForm("id"), '_label -> "", 'class -> "span2", 'placeholder -> "Email")
-        @helper.inputPassword(loginForm("password"), '_label -> "", 'class -> "span2", 'placeholder -> "password")
-        <button type="submit" class="btn">Sign in</button>
+    @helper.form(routes.Application.validate, 'class -> "navbar-form navbar-right"){
+        <div class="form-group">
+            @helper.inputText(loginForm("id"), '_label -> "", 'class -> "form-control", 'placeholder -> "Email")
+        </div>
+        <div class="form-group">
+            @helper.inputPassword(loginForm("password"), '_label -> "", 'class -> "form-control", 'placeholder -> "password")
+        </div>
+        <button type="submit" class="btn btn-success">Sign in</button>
     }
 }else{
-
-<div class="btn-toolbar pull-right">
-    <div class="btn-group">
-        <a class="btn" href="@routes.Workspace.home"
-           rel="tooltip"
-           data-original-title='@Messages("topmenu.tooltip.workspace")'>
-            @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
-                <img src="https://www.gravatar.com/avatar/@icon?s=15&amp;d=identicon" >
-            }
-        </a>
-        <a class="btn" href="/parameter" rel="tooltip" data-original-title='@Messages("topmenu.tooltip.conf")'>
-            <i class="icon-wrench"></i>
-        </a>
-        <a class="btn" href="/logout" rel="tooltip" data-original-title='@Messages("topmenu.tooltip.logout")'>
-            <i class="icon-off"></i>
-        </a>
-    </div>
-</div>
-
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a href="@routes.Workspace.home"
+               rel="tooltip"
+               data-original-title='@Messages("topmenu.tooltip.workspace")'>
+                @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
+                <img src="https://www.gravatar.com/avatar/@icon?s=20&amp;d=identicon" >
+                }
+            </a>
+        </li>
+        <li>
+            <a href="/parameter">
+                @Messages("topmenu.tooltip.conf")
+                <!-- <span class="glyphicon glyphicon-wrench"> </span> -->
+            </a>
+        </li>
+        <li>
+            <a href="/logout">
+                @Messages("topmenu.tooltip.logout")
+                <!-- <span class="glyphicon glyphicon-off"> </span> -->
+            </a>
+        </li>
+    </ul>
 }
 

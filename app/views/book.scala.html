@@ -7,10 +7,10 @@
 @main("Book Page"){
 
 <div class="row">
-    <div class="span3">
+    <div class="col-md-3">
         <img src='@routes.EzoomBooks.bookCover(book.bookId.toString)' class='img-polaroid' width="100%"  >
     </div>
-    <div class="span9">
+    <div class="col-md-9">
         <h1>@book.bookTitle</h1>
         <dl>
             <dt>@Messages("book.author.dt")</dt><dd>@book.bookAuthors</dd>
@@ -57,16 +57,16 @@
             </td>
             <td>@g.ezoombook_owner</td>
             <td>@g.ezoombook_layers.size</td>
-            <td>@for(i <- 1 to 5){<i class=" icon-star"></i>}</td>
+            <td>@for(i <- 1 to 5){<i class=" glyphicon-star"></i>}</td>
             <td>
             @if(!context.user.isEmpty){
                 <div class="btn-group">
                 @if(context.user.get.id.toString.equals(g.ezoombook_owner)){
                     <a href="/ezb/edit/@g.ezoombook_id" class="btn" title='@Messages("book.ezoombooks.edit.button")'>
-                        <i class="icon-pencil"></i></a>
+                        <i class="glyphicon-pencil"></i></a>
                 }
-                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.favorite.button")'><i class="icon-heart"></i></a>
-                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.readlist.button")'><i class="icon-plus-sign"></i></a>
+                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.favorite.button")'><i class="glyphicon-heart"></i></a>
+                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.readlist.button")'><i class="glyphicon-plus-sign"></i></a>
                 </div>
             }
             </td>

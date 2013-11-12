@@ -11,14 +11,14 @@
     @contrib match{
         case atomic:AtomicContrib => {
             <div class="row">
-                <div class="span10">
+                <div class="col-md-10">
                     @displayAtomic(atomic, 0)
                 </div>
             </div>
         }
         case part:EzlPart => {
             <div class="row">
-                <div class="span10">
+                <div class="col-md-10">
                     <h3>@part.part_title</h3>
                     @part.part_contribs.map{partContrib =>
                         @displayAtomic(partContrib, 1)
@@ -33,7 +33,7 @@
         @contrib.contrib_type match{
             case "contrib.Summary" => {
                 <div class="row summary collapse in">
-                    <div class="span@(10-indent)">
+                    <div class="col-md-@(10-indent)">
                         <span>
                         @contrib.contrib_content
                         </span>
@@ -46,7 +46,7 @@
                                data-contrib-auth="@contrib.user_id"
                                data-contrib-type="summary"
                                data-contrib-layer="@contrib.ezoomlayer_id">
-                                <i class="icon-comment"></i>
+                                <i class="glyphicon-comment"></i>
                             </a>
                         </span>
                     </div>
@@ -54,10 +54,10 @@
             }
             case "contrib.Quote" => {
             <div class="row quote collapse in">
-                <div class="span1 offset1">
+                <div class="col-md-1 col-md-1">
                     <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
                 </div>
-                <div class="span7" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
+                <div class="col-md-7" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
                     <span>
                     <a class="quote-text" id="@contrib.contrib_id">
                         <i>@contrib.contrib_content</i>
@@ -72,7 +72,7 @@
                                 data-contrib-auth="@contrib.user_id"
                                 data-contrib-type="quote"
                                 data-contrib-layer="@contrib.ezoomlayer_id">
-                            <i class="icon-comment"></i>
+                            <i class="glyphicon-comment"></i>
                         </a>
                     </span>
                 </div>
@@ -197,7 +197,7 @@
 <h1>@ezb.ezoombook_title</h1>
 
 <div  class="row">
-    <div class="span12">
+    <div class="col-md-12">
         <div class="btn-group" data-toggle="buttons-radio">
             <a id="showall" class="btn btn-primary" href="#">
                 @Messages("read.readoptions.showall.button")</a>
@@ -210,7 +210,7 @@
 </div>
 
 <div class="row  reader">
-    <div class="tabbable span12">
+    <div class="tabbable col-md-12">
         <ul class="nav nav-tabs" id="level-tabs">
             <li class='@if(activeLayer == "0"){active}else{}'>
                 <a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a>
@@ -240,19 +240,19 @@
                 </div>
                 <!-- Reader -->
                 <div class="row">
-                    <div class="span1">
+                    <div class="col-md-1">
                         @if(partIndex > 0){
                         <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex-1).partId)'>
-                            <i class="icon-chevron-left"></i></a>
+                            <i class="glyphicon-chevron-left"></i></a>
                         }
                     </div>
-                    <div class="span10" id="reader">
+                    <div class="col-md-10" id="reader">
                         @partContent
                     </div>
-                    <div class="span1">
+                    <div class="col-md-1">
                         @if(partIndex < book.bookParts.size-1){
                          <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex+1).partId)'>
-                             <i class="icon-chevron-right"></i></a>
+                             <i class="glyphicon-chevron-right"></i></a>
                         }
                     </div>
                 </div> <!-- Reader End -->

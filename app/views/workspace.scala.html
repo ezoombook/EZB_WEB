@@ -95,7 +95,7 @@
 <center><h1>@session.get("userName")'s Workspace</h1></center>
 
 <div class="row">
-<div class="span3">
+<div class="col-md-3">
     @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
     <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon">
     }
@@ -103,7 +103,7 @@
     <table class="table table-striped">
         <tbody>
         <tr>
-            <th><i class="icon-envelope"></i>&nbsp;Message</th>
+            <th><i class="glyphicon-envelope"></i>&nbsp;Message</th>
             <th>author</th>
             <th>date</th>
             <th></th>
@@ -114,12 +114,12 @@
 </div>
 
 
-<div class="span9">
+<div class="col-md-9">
 
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab1" data-toggle="tab"><i class="icon-edit"></i>&nbsp;@Messages("workspace.tab.contribution.title")</a></li>
-        <li><a href="#tab2" data-toggle="tab"><i class="icon-globe"></i>&nbsp;@Messages("workspace.tab.community.title")</a></li>
-        <li><a href="#tab3" data-toggle="tab"><i class="icon-book"></i>&nbsp;@Messages("workspace.tab.books.title")</a></li>
+        <li class="active"><a href="#tab1" data-toggle="tab"><i class="glyphicon-edit"></i>&nbsp;@Messages("workspace.tab.contribution.title")</a></li>
+        <li><a href="#tab2" data-toggle="tab"><i class="glyphicon-globe"></i>&nbsp;@Messages("workspace.tab.community.title")</a></li>
+        <li><a href="#tab3" data-toggle="tab"><i class="glyphicon-book"></i>&nbsp;@Messages("workspace.tab.books.title")</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="tab1">  <!-- Projects -->
@@ -148,7 +148,7 @@
                                 title='@Messages("workspace.ezoombooks.delete.button")'
                                 data-toggle="modal"
                                 data-projId="@proj.projId.toString">
-                                         <i class="icon-remove"></i>
+                                         <i class="glyphicon-remove"></i>
                               </a>
                          }
                          case _ => { @None }
@@ -174,14 +174,14 @@
                         <a id="ezbEditButton"
                            href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
                            class="btn" title='@Messages("book.ezoombooks.edit.button")'>
-                            <i class="icon-pencil"></i>
+                            <i class="glyphicon-pencil"></i>
                         </a>
                         <a class="btn ezbDeleteButton"
                           href="#ezbDeleteAlert"
                           title='@Messages("workspace.ezoombooks.delete.button")'
                           data-ezbId="@g.ezoombook_id.toString"
                           data-toggle="modal">
-                            <i class="icon-remove"></i>
+                            <i class="glyphicon-remove"></i>
                         </a>
                     </td>
                 </tr>

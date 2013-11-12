@@ -113,7 +113,7 @@ a.addlink{
 </div>  <!-- Modal End -->
 
 <div class="row">
-    <div class="span12">
+    <div class="col-md-12">
         <h2>Book metadata edition</h2>
         @if(bookForm.hasErrors){
         <div class="alert alert-error">
@@ -126,19 +126,19 @@ a.addlink{
 @form(routes.EzoomBooks.saveBook){
 @hidden(bookForm("book_id"))
 <div class="row buttons">
-    <div class="span2 offset9 btn-group">
+    <div class="col-md-2 col-md-9 btn-group">
         <input type="submit" value="Save Book" class="btn">
         <a class="btn" href="@routes.EzoomBooks.listbooks">Cancel</a>
     </div>
 </div>
 <div class="row">
     <!-- Left Pannel -->
-    <div class="span7">
+    <div class="col-md-7">
         @inputText(bookForm("title"),'_label->"Title", 'span->"6", 'label_span->"1", 'class->"titlebox")
 
         <div class="row">
-            <div class="span1"><label for="authors">Author(s)</label></div>
-            <div class="span6"><a href="#" class="addlink" id="addauthor">Add an author</a></div>
+            <div class="col-md-1"><label for="authors">Author(s)</label></div>
+            <div class="col-md-6"><a href="#" class="addlink" id="addauthor">Add an author</a></div>
         </div>
         @repeat(bookForm("authors")){f =>
             @inputText(f,'_label->"", 'span->"6", 'label_span->"1", 'row_class -> "authors")
@@ -147,16 +147,16 @@ a.addlink{
         @textarea(bookForm("summary"), '_label->"Description", 'span->"6", 'label_span->"1", 'class->"descbox")
 
         <div class="row">
-            <div class="span2"><label for="publishers">Publisher(s)</label></div>
-            <div class="span5"><a href="#" class="addlink" id="btnAddPublshr">Add a publisher</a></div>
+            <div class="col-md-2"><label for="publishers">Publisher(s)</label></div>
+            <div class="col-md-5"><a href="#" class="addlink" id="btnAddPublshr">Add a publisher</a></div>
         </div>
         @repeat(bookForm("publishers")){f =>
             @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "publishers")
         }
 
         <div class="row">
-            <div class="span2"><label for="published_dates">Published date(s)</label></div>
-            <div class="span5"><a href="#" class="addlink" id="btnAddPubDate">Add a published date</a></div>
+            <div class="col-md-2"><label for="published_dates">Published date(s)</label></div>
+            <div class="col-md-5"><a href="#" class="addlink" id="btnAddPubDate">Add a published date</a></div>
         </div>
 
         @repeat(bookForm("published_dates")){f =>
@@ -164,16 +164,16 @@ a.addlink{
         }
 
         <div class="row">
-            <div class="span2"><label for="languages">Language(s)</label></div>
-            <div class="span5"><a href="#" class="addlink" id="btnAddLang">Add a language</a></div>
+            <div class="col-md-2"><label for="languages">Language(s)</label></div>
+            <div class="col-md-5"><a href="#" class="addlink" id="btnAddLang">Add a language</a></div>
         </div>
         @repeat(bookForm("languages")){f =>
             @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "languages")
         }
 
         <div class="row">
-            <div class="span1"><label for="tags">Tags</label></div>
-            <div class="span6"><a href="#" class="addlink" id="btnAddTag">Add a tag</a></div>
+            <div class="col-md-1"><label for="tags">Tags</label></div>
+            <div class="col-md-6"><a href="#" class="addlink" id="btnAddTag">Add a tag</a></div>
         </div>
         @repeat(bookForm("tags")){f =>
             @inputText(f,'_label->"", 'span->"6", 'label_span->"1", 'row_class -> "tags")
@@ -181,7 +181,7 @@ a.addlink{
 
     </div>
     <!-- Right Pannel -->
-    <div class="span5">
+    <div class="col-md-5">
         <img src='@routes.EzoomBooks.cachedBookCover' style='border: 1px solid #000;'>
         <p><a href="/">Change cover image</a></p>
     </div>

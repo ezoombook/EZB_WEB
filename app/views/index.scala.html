@@ -49,7 +49,7 @@ width:50%;
 </style>
 
 <h1 hidden="true">eZoomBook</h1>
-<div class="row-fluid">
+<div class="row">
     <p>
         <img border="0" src=@routes.Assets.at("/images/ezoombook2.png") width="50%" alt="eZoomBook">
     </p>
@@ -59,8 +59,8 @@ width:50%;
    <a href="/tutorial" class="btn btn-primary btn-large">@Messages("index.learnmore.btn") »</a>&nbsp;&nbsp;<a href="/login" class="btn btn-primary btn-large">@Messages("index.createaccount.btn")</a>&nbsp;&nbsp;<a href="forum" class="btn btn-primary btn-large">@Messages("index.forum.btn")</a>
 </div>
 <hr class="soften">
-<div class="row-fluid">
-    <div class="span6">
+<div class="row">
+    <div class="col-md-6">
         <h2>@Messages("index.topbooks.h2")</h2>
         <table class="table table-striped">
             <thead>
@@ -75,7 +75,7 @@ width:50%;
             </tbody>
         </table>
     </div>
-    <div class="span6">
+    <div class="col-md-6">
         <h2>@Messages("index.findbook.h2")</h2>
         <form id="searchbox" action="">
             <input id="search" type="text" placeholder='@Messages("index.findbook.placeholder")'>
