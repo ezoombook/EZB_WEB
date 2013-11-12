@@ -91,7 +91,7 @@ POST    /ezlayer/save/:bid                controllers.EzoomBooks.saveEzoomlayer(
 GET     /ezlayer/new/:bid                 controllers.EzoomBooks.ezoomBookEdit(bid:String)
 GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
 POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
-POST    /ezlayer/create/:bid/:lev/:ow     controllers.EzoomBooks.createEzoomLayer(bid,lev,ow)
+POST    /ezlayer/create/:bid/:lev/:p/:g   controllers.EzoomBooks.createEzoomLayer(bid,lev,p,g)
 GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLayer
 
 GET     /read/:ezbid/:pid/:layer          controllers.EzoomBooks.setReadingEzb(ezbid,pid,layer)
@@ -103,9 +103,6 @@ GET     /bookres/:bid/*file               controllers.EzoomBooks.bookResource(bi
 #POST    /addezbtf/:id                    controllers.EzoomBooks.addezbtf(id:String)
 
 POST    /quote                            controllers.EzoomBooks.addQuote
-
-#error
-GET     /errorlogin         controllers.Application.errorlogin
 
 # Assets
 GET     /assets/*file       controllers.Assets.at(path="/public", file)

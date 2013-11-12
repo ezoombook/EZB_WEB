@@ -200,9 +200,11 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Creates a new empty eZoomLayer with a given level,
    * then redirects the user to the ezb edition page.
    */
-  def createEzoomLayer(ezbId:String, layerLevel:String, owner:String) = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
+  def createEzoomLayer(ezbId:String, layerLevel:String, assignedPart:String, groupId:String) =
+    StackAction(AuthorityKey -> canEditEzb(ezbId) _) {implicit request =>
     withUser{user =>
       val layerid = UUID.randomUUID()
+      val owner = if (assignedPart.isEmpty) user.id.toString else "group:"+groupId
       val newEzLayer = EzoomLayer(
         ezoomlayer_id = layerid,
         ezoombook_id = UUID.fromString(ezbId),

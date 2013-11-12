@@ -12,7 +12,7 @@
 @bookList.grouped(4).map{blist=>
     <div class="row">
     @blist.map{book=>
-        <div class="span3">
+        <div class="col-md-3">
             <table class="table" style="border: 1px solid #ddd;">
                 <tbody>
                 <tr><td><img src='@routes.EzoomBooks.bookCover(book.bookId.toString)' style='width: 300px;'></td></tr>

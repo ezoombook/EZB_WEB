@@ -28,6 +28,8 @@ case class EzbProject(projectId:UUID,
                       projectCreationDate:Long,
                       groupId:UUID,
                       ezoombookId:Option[UUID],
+                      isMultiLevel:Boolean,
+                      level:Option[Int],
                       projectTeam:List[TeamMember]){
 }
 

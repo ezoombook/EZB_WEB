@@ -229,8 +229,8 @@ case class EzoomLayer(ezoomlayer_id: UUID,
                       ezoomlayer_owner: String,
                       ezoomlayer_status: Status.Value,
                       ezoomlayer_locked: Boolean,
-                      ezoomlayer_summaries:List[String],
-                      ezoomlayer_contribs: List[Contrib]) {
+                      ezoomlayer_summaries:List[String] = List[String](),
+                      ezoomlayer_contribs: List[Contrib] = List[Contrib]()) {
 
   @deprecated("Use lences")
   def addContrib(contr:Contrib):EzoomLayer = new EzoomLayer(ezoomlayer_id,ezoombook_id,ezoomlayer_level,

@@ -23,7 +23,8 @@
                 }.getOrElse{
                     @form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
                         member.assignedLayer,
-                        "group:"+project.groupId)){
+                        member.assignedPart,
+                        project.groupId.toString)){
                         @ezb.ezoombook_title
                         <input type="submit" class="btn" value="Create layer >>">
                     }
@@ -215,8 +216,8 @@
      </div>
  </div><!--/ .modal -->
 
-<div class="row-fluid"> <!-- Project Header -->
-    <div class="span12">
+<div class="row"> <!-- Project Header -->
+    <div class="col-md-12">
         <h1>Project @project.projectName</h1>
         <dl>
             <dt>@Messages("ezbproject.created.dt"): </dt>
@@ -230,8 +231,8 @@
         </dl>
     </div>
 </div>
-<div class="row-fluid">
-    <div class="span7"> <!-- Left Pannel -->
+<div class="row">
+    <div class="col-md-7"> <!-- Left Pannel -->
         @withUser{user =>
             @if(user.id == project.projectOwnerId){
             <p>
@@ -277,7 +278,7 @@
                            class="btn changeAssignmentBtn"
                            data-memberid="@member.userId"
                            title='@Messages("ezbproject.member.change.btn")'>
-                            <i class="icon-pencil"></i>
+                            <i class="glyphicon-pencil"></i>
                         </a>
                     }
                     </td>
@@ -286,18 +287,18 @@
             </tbody>
         </table>
     </div>
-    <div class="span5"> <!-- Right Pannel -->
+    <div class="col-md-5"> <!-- Right Pannel -->
         <h3>@Messages("ezbproject.messages.board.h3")</h3>
         @comments.map{comment =>
             @members.find(_.id == comment.commentAuthor).map{mem1 =>
                 @members.find(_.id == comment.contribAuthor).map{mem2 =>
                     <div class="comment row">
-                        <div class="avatar span1">
+                        <div class="avatar col-md-1">
                             @defining(MD5Util.md5Hex(mem2.email)){icon =>
                                 <img src="https://www.gravatar.com/avatar/@icon?s=92&amp;d=identicon">
                             }
                         </div>
-                        <div class="comment-content span10">
+                        <div class="comment-content col-md-10">
                             <div class="comment-header">
                                 <span class="comment-author">@mem1.name
                                 <span class="comment-on">@Messages("ezbproject.comment.on")</span>

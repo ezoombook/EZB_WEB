@@ -192,9 +192,9 @@ authenticate:User => Boolean)(implicit context:Context)
 }
 
 @displayEzbSummary(field:Field, hide:Boolean, divId:String) = {
-    <div class="row-fluid contrib_div @if(hide){hide}" id="ezb_summary_@divId">
-        <div class="span11 text_box">
-            <a href="#" class="btn delete del_text"><i class="icon-trash"></i></a>
+    <div class="row contrib_div @if(hide){hide}" id="ezb_summary_@divId">
+        <div class="col-md-11 text_box">
+            <a href="#" class="btn delete del_text"><i class="glyphicon-trash"></i></a>
             @textarea(field, '_label -> "", 'class -> "ezb_summary contrib")
         </div>
     </div>
@@ -202,8 +202,8 @@ authenticate:User => Boolean)(implicit context:Context)
 
 @displayPart(part:Field, hide:Boolean, divId:String) = {
 <div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId">
-    <div class="row-fluid part_div">
-        <div class="span6 title_box">
+    <div class="row part_div">
+        <div class="col-md-6 title_box">
             @hidden(part("contrib_type"))
             @part("part_id").value.map{partId =>
                 @hidden(part("part_id"))
@@ -224,7 +224,7 @@ authenticate:User => Boolean)(implicit context:Context)
                 @hidden(part("part_title"), 'class -> "part_title")
             }
         </div>
-        <div class="span1 btn-group">
+        <div class="col-md-1 btn-group">
             <button class="btn" data-toggle="dropdown" href="#" >New<span class="caret"></span></button>
             <ul class="dropdown-menu">
                 <li><a href="#" class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
@@ -239,7 +239,7 @@ authenticate:User => Boolean)(implicit context:Context)
                 <a class="btn hide readBtn" href="#">Go to book...</a>
             }
             <a class="btn deletecontrib"
-               data-contribid="part_field_@divId"><i class="icon-trash"></i></a>
+               data-contribid="part_field_@divId"><i class="glyphicon-trash"></i></a>
         </div>
     </div>
     @for(i <- part("part_contribs").indexes;
@@ -255,12 +255,12 @@ authenticate:User => Boolean)(implicit context:Context)
     @defining(parent+"_"+divId+"_"){div_id =>
         @ctype match{
             case "contrib.Quote" => {
-            <div class="row-fluid contrib_div quote_div @if(hide){hide}" id="quote_div_@div_id">
-                <div class="span1">
+            <div class="row contrib_div quote_div @if(hide){hide}" id="quote_div_@div_id">
+                <div class="col-md-1">
                     <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
                 </div>
-                <div class="span10 text_box">
-                    <a href="#" class="btn delete del_text"><i class="icon-trash"></i></a>
+                <div class="col-md-10 text_box">
+                    <a href="#" class="btn delete del_text"><i class="glyphicon-trash"></i></a>
                     @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
                     @hidden(c("contrib_type"))
                     @hidden(c("range"))
@@ -268,10 +268,10 @@ authenticate:User => Boolean)(implicit context:Context)
             </div>
             }
             case "contrib.Summary" => {
-                <div class='row-fluid contrib_div summary_div @if(level=="contrib_"){hl_contrib} @if(hide){hide}' id="summary_div_@div_id">
-                    <div class="span11 text_box">
+                <div class='row contrib_div summary_div @if(level=="contrib_"){hl_contrib} @if(hide){hide}' id="summary_div_@div_id">
+                    <div class="col-md-11 text_box">
                         @hidden(c("contrib_type"))
-                        <a href="#" class="btn delete del_text"><i class="icon-trash"></i></a>
+                        <a href="#" class="btn delete del_text"><i class="glyphicon-trash"></i></a>
                         @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary contrib")  )
                     </div>
                 </div>
@@ -434,12 +434,12 @@ label{
 </div> <!-- Modal End -->
 
     <div class="row">
-        <div class="span12">
+        <div class="col-md-12">
             <h1>eZoomBook Edition</h1>
         </div>
     </div>
     <div class="row">
-        <div class="span3">
+        <div class="col-md-3">
             <div>
                 <h3 id="ezoombook_title">eZoomBook Info</h3>
                 @displayEzbInfo
@@ -461,7 +461,7 @@ label{
             </div>
             }.getOrElse{<div>Please specify a book!</div>}
         </div>
-        <div class="span9">
+        <div class="col-md-9">
             @if(ezlForm.hasErrors){
             <div class="alert alert-error">
                 <a class="close" data-dismiss="alert">x</a>
@@ -481,30 +481,30 @@ label{
                 @hidden(ezlForm("ezoomlayer_owner"))
                 @hidden(ezlForm("ezoomlayer_locked"))
                 @hidden(ezlForm("ezoomlayer_status"))
-                <div class="row-fluid">
-                    <div class="span6 btn-group" data-toggle="buttons-checkbox">
+                <div class="row">
+                    <div class="col-md-6 btn-group" data-toggle="buttons-checkbox">
                         @if(context.user.exists(authenticate(_))){
                         <button type="button" id="ezoomlayer_locked_btn" class="btn btn-primary">Lock this Layer</button>
                         <button type="button" id="ezoomlayer_status_btn" class="btn btn-primary">Mark as Published</button>
                         }
                     </div>
-                    <div class="span6 btn-group">
+                    <div class="col-md-6 btn-group">
                         <input class="btn" type="submit" value="Save eZoomLayer">
                         @activeLayer.map{ezl =>
                         <button class="btn" href="#deleteAlert" role="button" data-toggle="modal">Delete eZoomLayer</button>
                         }.getOrElse{}
                     </div>
                 </div>
-                <div class="row-fluid">
-                    <div class="span9 padded_field">
+                <div class="row">
+                    <div class="col-md-9 padded_field">
                     @levelMap{lmap =>
                         @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
                         '_label -> "Choose the detail level of your layer:")
                     }
                     </div>
                 </div>
-                <div class="row-fluid">
-                    <div class="btn-group span4 offset3">
+                <div class="row">
+                    <div class="btn-group col-md-4 col-md-3">
                         <input type="button" class="btn" id="btnAddezbSummary" value="+ Book Summary">
                         <input type="button" class="btn" id="btnAddSummary" value="+ Summary">
                         <input type="button" class="btn" id="btnAddPart" value="+ Part">

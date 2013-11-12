@@ -259,4 +259,11 @@ object BookDO{
     }
   }
 
+  def changeLayerOwner(ezbLayer:UUID, newOwner:String) = {
+    AppDB.cdal.getLayer(ezbLayer).map{layer =>
+      val newLayer = layer.copy(ezoomlayer_owner = newOwner)
+      AppDB.cdal.saveLayer(newLayer)
+      newLayer
+    }
+  }
 }

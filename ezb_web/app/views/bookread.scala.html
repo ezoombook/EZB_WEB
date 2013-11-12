@@ -78,12 +78,12 @@
 </style>
 
 <div class="btn-group">
-    <a href="#" data-toggle="dropdown"><i class="icon-th-list"></i></a>
+    <a href="#" data-toggle="dropdown"><i class="glyphicon-th-list"></i></a>
     <ul class="dropdown-menu">
         @activeLayer.map{ezl =>
         <li>
             <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString, true)">
-                <i class="icon-arrow-left"></i> Go back to eZoomLayer...
+                <i class="glyphicon-arrow-left"></i> Go back to eZoomLayer...
             </a>
         </li>
         }.getOrElse{
@@ -109,17 +109,17 @@
 </a>
 <!-- Reader -->
 <div class="row">
-    <div class="span1">
+    <div class="col-md-1">
         @if(partIndex > 0){
-        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex-1).partId)'><i class="icon-chevron-left"></i></a>
+        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex-1).partId)'><i class="glyphicon-chevron-left"></i></a>
         }
     </div>
-    <div class="span10" id="reader">
+    <div class="col-md-10" id="reader">
         @partContent
     </div>
-    <div class="span1">
+    <div class="col-md-1">
         @if(partIndex < book.bookParts.size-1){
-        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex+1).partId)'><i class="icon-chevron-right"></i></a>
+        <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex+1).partId)'><i class="glyphicon-chevron-right"></i></a>
         }
     </div>
 </div> <!-- Reader End -->

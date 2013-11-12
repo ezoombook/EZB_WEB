@@ -41,12 +41,14 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       "project_creation" -> dateAsLong("dd-MM-yyyy"),
       "group_id" -> of[UUID],
       "new_ezb" -> default(boolean, true),
+      "multi_level" -> default(boolean, false),
+      "level" -> optional(number),
       "ezoombook_id" -> optional(of[UUID]),
       "project_team" -> list(memberMapping)
-    )((pid, pname, powner, pcreation, groupid, newezb, ezbidop, pteam) =>
-      EzbProject(pid, pname, powner, pcreation, groupid, ezbidop, pteam))
+    )((pid, pname, powner, pcreation, groupid, newezb, multilev, level, ezbidop, pteam) =>
+      EzbProject(pid, pname, powner, pcreation, groupid, ezbidop, multilev, level, pteam))
       ((proj: EzbProject) => Some((proj.projectId, proj.projectName, proj.projectOwnerId, proj.projectCreationDate,
-        proj.groupId, false, proj.ezoombookId, proj.projectTeam)))
+        proj.groupId, false, proj.isMultiLevel, proj.level, proj.ezoombookId, proj.projectTeam)))
   ).bind(
     Map(
       "project_id" -> UUID.randomUUID.toString,
@@ -64,13 +66,23 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       "project_creation" -> dateAsLong("dd-MM-yyyy"),
       "group_id" -> of[UUID],
       "new_ezb" -> default(boolean, true),
+      "multi_level" -> default(boolean, false),
+      "level" -> optional(number),
       "ezoombook_id" -> optional(of[UUID]),
       "project_team" -> list(memberMapping)
-    )((pid, pname, powner, pcreation, groupid, newezb, ezbidop, pteam) =>
-      EzbProject(pid, pname, powner, pcreation, groupid, ezbidop, pteam))
+    )((pid, pname, powner, pcreation, groupid, newezb, multilev, level, ezbidop, pteam) =>
+      EzbProject(pid, pname, powner, pcreation, groupid, ezbidop, multilev, level, pteam))
       ((proj: EzbProject) => Some((proj.projectId, proj.projectName, proj.projectOwnerId, proj.projectCreationDate,
-        proj.groupId, false, proj.ezoombookId, proj.projectTeam)))
+        proj.groupId, false, proj.isMultiLevel, proj.level, proj.ezoombookId, proj.projectTeam)))
   )
+
+  /**
+   * Creates an empty project for pre-filling the project form
+   * @return
+   */
+   def emptyProject(ownerId:UUID,groupId:UUID) =
+      EzbProject(UUID.randomUUID, "", ownerId, (new java.util.Date()).getTime,
+        groupId, None, false, None, List[TeamMember]())
 
   /**
    * Stores the created/edited project in the database
@@ -87,12 +99,25 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
             },
             ezbProject => {
               BookDO.saveProject(ezbProject)
-              if (projectForm.bindFromRequest.data.getOrElse("new_ezb", "false").toBoolean) {
+              val extraFields = projectForm.bindFromRequest.data
+              if (extraFields.getOrElse("new_ezb", "false").toBoolean) {
                 Redirect(routes.Collaboration.ezbProjectBookList("group:"+groupId,
                   ezbProject.projectId.toString))
               } else {
-                //Change eZoomBook owner
-                BookDO.changeEzbOwner(ezbProject.ezoombookId.get, "group:"+groupId)
+                //Change eZoomBook owner and create / change layer owner
+                BookDO.getEzoomBook(ezbProject.ezoombookId.get).map{ezb =>
+                  if (!ezbProject.isMultiLevel && !ezbProject.level.isEmpty){
+                    ezb.ezoombook_layers.get(ezbProject.level.get.toString) match{
+                      case Some(layerId) =>
+                        BookDO.changeLayerOwner(UUID.fromString(layerId), "group:" + groupId)
+                      case _ => val newLayer = EzoomLayer(UUID.randomUUID, ezb.ezoombook_id, ezbProject.level.get,
+                        "group:"+groupId, books.dal.Status.workInProgress, false)
+                        BookDO.saveLayer(newLayer)
+                    }
+                  }
+                  val newEzb = ezb.copy(ezoombook_owner = "group:"+groupId)
+                  BookDO.saveEzoomBook(newEzb)
+                }
                 Redirect(routes.Collaboration.projectAdmin(ezbProject.projectId.toString))
               }
             }
