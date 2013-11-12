@@ -50,14 +50,6 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
   
     )
 
-  /**
-   * Creates an empty project for pre-filling the project form
-   * @return
-   */
-  private def emptyProject(ownerId:UUID,groupId:UUID) =
-    EzbProject(UUID.randomUUID, "", ownerId, (new java.util.Date()).getTime,
-      groupId, None, List[TeamMember]())
-
 
   /**
    * Displays the deails of a group
@@ -92,7 +84,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
             BookDO.getGroupProjects(groupId),
             errors,
             BookDO.getUserEzoombooks(user.id),
-            Collaboration.projectForm.fill(emptyProject(user.id,groupId))))
+            Collaboration.projectForm.fill(Collaboration.emptyProject(user.id,groupId))))
         }.get,
         member => {
           UserDO.getUserId(member._1).map{userId =>

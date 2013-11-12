@@ -36,12 +36,6 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
       Ok(views.html.index(BookDO.listBooks))
   }
 
-  def errorlogin = Action {
-    implicit request =>
-      Ok(views.html.errorlogin())
-
-  }
-
   /**
    * Validates the user login form and creates a session
    */

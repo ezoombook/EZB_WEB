@@ -12,7 +12,8 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
     // Add your project dependencies here,
     jdbc,
-    "ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT",
+    //cache,
+    "ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT" exclude("org.scala-stm", "scala-stm_2.10.0"),
     "jp.t2v" %% "play2.auth"      % "0.10.1",
     "jp.t2v" %% "play2.auth.test" % "0.10.1" % "test"
    // "postgresql" % "postgresql" % "9.2-1002.jdbc4"

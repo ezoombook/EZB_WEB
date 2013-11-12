@@ -1,7 +1,7 @@
 @(elements: helper.FieldElements)
 
-@labelSpan = @{elements.args.get('label_span).map("span"+_).getOrElse("")}
-@elemSpan = @{elements.args.get('span).map("span"+_).getOrElse("")}
+@labelSpan = @{elements.args.get('label_span).map("col-md-"+_).getOrElse("")}
+@elemSpan = @{elements.args.get('span).map("col-md-"+_).getOrElse("")}
 @rowClass = @{elements.args.get('row_class).map(_.toString).getOrElse("")}
 
 <div class="row @rowClass">
