@@ -57,16 +57,18 @@
             </td>
             <td>@g.ezoombook_owner</td>
             <td>@g.ezoombook_layers.size</td>
-            <td>@for(i <- 1 to 5){<i class=" glyphicon-star"></i>}</td>
+            <td>@for(i <- 1 to 5){<i class="glyphicon glyphicon-star"></i>}</td>
             <td>
             @if(!context.user.isEmpty){
                 <div class="btn-group">
                 @if(context.user.get.id.toString.equals(g.ezoombook_owner)){
                     <a href="/ezb/edit/@g.ezoombook_id" class="btn" title='@Messages("book.ezoombooks.edit.button")'>
-                        <i class="glyphicon-pencil"></i></a>
+                        <i class="glyphicon glyphicon-pencil"></i></a>
                 }
-                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.favorite.button")'><i class="glyphicon-heart"></i></a>
-                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.readlist.button")'><i class="glyphicon-plus-sign"></i></a>
+                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.favorite.button")'>
+                        <span class="glyphicon glyphicon-heart"></span></a>
+                    <a href="/#" class="btn" title='@Messages("book.ezoombooks.readlist.button")'>
+                        <span class="glyphicon glyphicon-plus-sign"></span></a>
                 </div>
             }
             </td>

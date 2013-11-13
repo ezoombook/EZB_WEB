@@ -30,15 +30,15 @@
             </a>
         </li>
         <li>
-            <a href="/parameter">
-                @Messages("topmenu.tooltip.conf")
-                <!-- <span class="glyphicon glyphicon-wrench"> </span> -->
+            <a href="@routes.Workspace.parameter"
+               data-original-title="@Messages("topmenu.tooltip.conf")">
+                <span class="glyphicon glyphicon-wrench"> </span>
             </a>
         </li>
         <li>
-            <a href="/logout">
-                @Messages("topmenu.tooltip.logout")
-                <!-- <span class="glyphicon glyphicon-off"> </span> -->
+            <a href="@routes.Application.logout"
+               data-original-title="@Messages("topmenu.tooltip.logout")">
+                <span class="glyphicon glyphicon-off"> </span>
             </a>
         </li>
     </ul>

@@ -103,7 +103,7 @@
     <table class="table table-striped">
         <tbody>
         <tr>
-            <th><i class="glyphicon-envelope"></i>&nbsp;Message</th>
+            <th><span class="glyphicon glyphicon-envelope"></span>&nbsp;Message</th>
             <th>author</th>
             <th>date</th>
             <th></th>
@@ -117,9 +117,9 @@
 <div class="col-md-9">
 
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab1" data-toggle="tab"><i class="glyphicon-edit"></i>&nbsp;@Messages("workspace.tab.contribution.title")</a></li>
-        <li><a href="#tab2" data-toggle="tab"><i class="glyphicon-globe"></i>&nbsp;@Messages("workspace.tab.community.title")</a></li>
-        <li><a href="#tab3" data-toggle="tab"><i class="glyphicon-book"></i>&nbsp;@Messages("workspace.tab.books.title")</a></li>
+        <li class="active"><a href="#tab1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span>&nbsp;@Messages("workspace.tab.contribution.title")</a></li>
+        <li><a href="#tab2" data-toggle="tab"><span class="glyphicon glyphicon-globe"></span>&nbsp;@Messages("workspace.tab.community.title")</a></li>
+        <li><a href="#tab3" data-toggle="tab"><span class="glyphicon glyphicon-book"></span>&nbsp;@Messages("workspace.tab.books.title")</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="tab1">  <!-- Projects -->
@@ -148,7 +148,7 @@
                                 title='@Messages("workspace.ezoombooks.delete.button")'
                                 data-toggle="modal"
                                 data-projId="@proj.projId.toString">
-                                         <i class="glyphicon-remove"></i>
+                                         <span class="glyphicon glyphicon-remove"></span>
                               </a>
                          }
                          case _ => { @None }
@@ -174,14 +174,14 @@
                         <a id="ezbEditButton"
                            href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
                            class="btn" title='@Messages("book.ezoombooks.edit.button")'>
-                            <i class="glyphicon-pencil"></i>
+                            <span class="glyphicon glyphicon-pencil"></span>
                         </a>
                         <a class="btn ezbDeleteButton"
                           href="#ezbDeleteAlert"
                           title='@Messages("workspace.ezoombooks.delete.button")'
                           data-ezbId="@g.ezoombook_id.toString"
                           data-toggle="modal">
-                            <i class="glyphicon-remove"></i>
+                            <span class="glyphicon glyphicon-remove"></span>
                         </a>
                     </td>
                 </tr>

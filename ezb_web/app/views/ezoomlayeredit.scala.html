@@ -194,7 +194,7 @@ authenticate:User => Boolean)(implicit context:Context)
 @displayEzbSummary(field:Field, hide:Boolean, divId:String) = {
     <div class="row contrib_div @if(hide){hide}" id="ezb_summary_@divId">
         <div class="col-md-11 text_box">
-            <a href="#" class="btn delete del_text"><i class="glyphicon-trash"></i></a>
+            <a href="#" class="btn delete del_text"><span class="glyphicon glyphicon-trash"></span></a>
             @textarea(field, '_label -> "", 'class -> "ezb_summary contrib")
         </div>
     </div>
@@ -239,7 +239,7 @@ authenticate:User => Boolean)(implicit context:Context)
                 <a class="btn hide readBtn" href="#">Go to book...</a>
             }
             <a class="btn deletecontrib"
-               data-contribid="part_field_@divId"><i class="glyphicon-trash"></i></a>
+               data-contribid="part_field_@divId"><span class="glyphicon glyphicon-trash"></span></a>
         </div>
     </div>
     @for(i <- part("part_contribs").indexes;
@@ -260,7 +260,7 @@ authenticate:User => Boolean)(implicit context:Context)
                     <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
                 </div>
                 <div class="col-md-10 text_box">
-                    <a href="#" class="btn delete del_text"><i class="glyphicon-trash"></i></a>
+                    <a href="#" class="btn delete del_text"><span class="glyphicon glyphicon-trash"></span></a>
                     @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
                     @hidden(c("contrib_type"))
                     @hidden(c("range"))
@@ -271,7 +271,7 @@ authenticate:User => Boolean)(implicit context:Context)
                 <div class='row contrib_div summary_div @if(level=="contrib_"){hl_contrib} @if(hide){hide}' id="summary_div_@div_id">
                     <div class="col-md-11 text_box">
                         @hidden(c("contrib_type"))
-                        <a href="#" class="btn delete del_text"><i class="glyphicon-trash"></i></a>
+                        <a href="#" class="btn delete del_text"><span class="glyphicon glyphicon-trash"></span></a>
                         @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary contrib")  )
                     </div>
                 </div>
