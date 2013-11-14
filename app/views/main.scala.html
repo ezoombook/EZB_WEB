@@ -1,7 +1,7 @@
 @(title: String, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit context:Context)
 
-@import utils.EzbHelpers._
-@import ezbhelper._
+@import utils.ezbhelpers.navHelpers
+@import ezbhelpers._
 
 @language(code:String) = {
     @defining(Map("fr"->"Français (French)", "en-US"->"English US", "en"->"English", "es"->"Español (Spanish)")){lmap =>

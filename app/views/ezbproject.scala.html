@@ -7,10 +7,9 @@
    ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
 @import helper._
-@import utils.EzbHelpers._
-@import ezbhelper._
+@import ezbhelpers._
 @import utils.DateFormatter._
- @import utils.MD5Util
+@import utils.MD5Util
 
 @displayEzb = {
     @ezbook.map{ezb =>
