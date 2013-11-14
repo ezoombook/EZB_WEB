@@ -1,11 +1,11 @@
 @**
-* Generates HTML for "My Account" Box
+* Generates HTML for "My Account" Box in the navigation bar
 *
 *@
 
 @(loginForm: Form[Option[User]])(implicit context:Context, lang:Lang)
 
-@import utils.navHelpers._
+@import utils.ezbhelpers.navHelpers._
 @import utils.MD5Util
 
 @if(context.user == None){

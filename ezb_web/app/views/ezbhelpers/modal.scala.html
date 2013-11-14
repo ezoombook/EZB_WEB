@@ -1,0 +1,49 @@
+@**
+*
+*   Generates a modal window
+*
+**@
+
+@(modalId:String,
+    modalTitle:String,
+    formAction:Option[play.api.mvc.Call],
+    formArgs:(Symbol, String)*)(body: => Html)
+
+@import helper._
+
+@modalContent(isForm:Boolean) = {
+    <div class="modal-header">
+        <a class="close" data-dismiss="modal">x</a>
+        <h3 class="modal-title" id="@{modalId}Label">@modalTitle</h3>
+    </div>
+    <div class="modal-body">
+        @formAction.map{fa =>
+        @form(fa, (formArgs :+ ('role -> "form")):_*){
+            @body
+        }
+        }
+    </div>
+    <div class="modal-footer">
+        <a class="btn btn-default" data-dismiss="modal">@Messages("application.close.button")</a>
+        @if(isForm){
+            <input class="btn btn-primary" type="submit" value='@Messages("application.savechanges.button")'>
+        }
+    </div>
+}
+
+<div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="addMemberLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @modalContent(true)
+@**
+            @formAction.map{fa =>
+                @form(fa, (formArgs :+ ('role -> "form")):_*){
+                    @modalContent(true)
+                }
+            }.getOrElse{
+                @modalContent(false)
+            }
+**@
+        </div>
+    </div>
+</div><!--/ .modal -->

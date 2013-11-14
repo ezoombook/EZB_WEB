@@ -1,0 +1,21 @@
+@**
+* Field template for Bootstrap 3
+*@
+@(elements: helper.FieldElements)
+
+@inputType = {@elements.args.getOrElse('_type, "")}
+
+@if(inputType.toString.equals("checkbox")){
+    <div class="checkbox">
+        <label>
+            @elements.input <span>@elements.label</span>
+        </label>
+    </div>
+}else{
+    <div class="form-group">
+        <label for="@elements.id">@elements.label</label>
+        @elements.input
+        <p class="error">@elements.errors.mkString(", ")</p>
+        @** <p class="help-block">@elements.infos.mkString(", ")</p> **@
+    </div>
+}

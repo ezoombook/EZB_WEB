@@ -1,0 +1,9 @@
+@**
+*
+* A custom inputText with the preset bootstrap classes
+*
+**@
+
+@(field: play.api.data.Field, args: (Symbol,Any)*)(implicit handler: views.html.helper.FieldConstructor, lang: play.api.i18n.Lang)
+
+@helper.inputText(field, (args :+ 'class -> "form-control"):_*)

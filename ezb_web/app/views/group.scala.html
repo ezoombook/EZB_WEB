@@ -5,9 +5,12 @@
     userEzoomBooks:List[Ezoombook],
     projectForm:Form[EzbProject])(implicit session:Session, context:Context)
 
-@import helper._
-@import ezbhelper._
-@import utils.EzbHelpers._
+@import helper.form
+
+@import ezbhelpers.hidden
+@import ezbhelpers.modal
+@import ezbhelpers._
+@import utils.ezbhelpers.bootstrapHelper._
 
 @scripts = {
 <script type="text/javascript"> //<![CDATA[
@@ -55,25 +58,60 @@ function overlay() {
 </style>
 
 <!-- Add Group Member Modal Window -->
-<div class="modal hide" id="infos">
-  <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-    <h3>@Messages("group.addmember.h3")</h3>
-  </div>
-  <div class="modal-body">
-     @form(routes.Community.newGroupMember(groupId)){
-        @inputText(memberForm("member_email"),
-            Symbol("data-provider") -> "typehead",
-            Symbol("data-items") -> 5,
-            Symbol("data-source") -> "?",
-            '_label -> Messages("group.addmember.membermail"))
-        @select(memberForm("role"), UserDO.getGroupMemberRole, '_label -> Messages("group.addmember.role"))
-        <input type="submit" value="Add">
-     }
-  </div>
-  <div class="modal-footer"> <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a> </div>
+<div class="modal fade" id="infos" tabindex="-1" role="dialog" aria-labelledby="addMemberLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @form(routes.Community.newGroupMember(groupId), 'role -> "form"){
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">x</a>
+                <h3 class="modal-title" id="addMemberLabel">@Messages("group.addmember.h3")</h3>
+            </div>
+            <div class="modal-body">
+                @inputText(memberForm("member_email"),
+                    Symbol("data-provider") -> "typehead",
+                    Symbol("data-items") -> 5,
+                    Symbol("data-source") -> "?",
+                    '_label -> Messages("group.addmember.membermail"))
+                @select(memberForm("role"), UserDO.getGroupMemberRole,
+                    '_label -> Messages("group.addmember.role"))
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">@Messages("application.close.button")</a>
+                <input class="btn btn-primary" type="submit" value='@Messages("application.savechanges.button")'>
+            </div>
+            }
+        </div>
+    </div>
 </div><!--/ .modal -->
 
 <!-- New Project Modal Window -->
+@modal(modalId = "new_project",
+        modalTitle = Messages("group.newproject.h3"),
+        formAction = Some(routes.Collaboration.saveProject(groupId))
+){
+    @hidden(projectForm("project_id"))
+    @hidden(projectForm("project_owner"))
+    @hidden(projectForm("project_creation"))
+    @hidden(projectForm("group_id"))
+    @inputText(projectForm("project_name"),
+        '_label->Messages("group.newproject.projectname"))
+    @checkbox(projectForm("new_ezb"),
+        '_label->Messages("group.newproject.newezbcheck"),
+        'checked->projectForm("new_ezb").value.map(_ == true).getOrElse(false))
+    @select(projectForm("ezoombook_id"),
+        userEzoomBooks.map(ezb => ezb.ezoombook_id.toString -> ezb.ezoombook_title).toSeq,
+        '_label->Messages("group.newproject.ezoombook"),
+        'disabled->true)
+    @checkbox(projectForm("multi_level"),
+        '_label -> Messages("group.newproject.ismultilevel"))
+    @levelMap{lmap =>
+        @select(projectForm("level"),
+            options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+            '_label -> Messages("group.newproject.chooselevel"))
+    }
+}
+
+@**
 <div class="modal hide" id="new_project">
     @form(routes.Collaboration.saveProject(groupId)){
     <div class="modal-header">
@@ -118,6 +156,7 @@ function overlay() {
     </div>
     }
 </div>
+**@
 
 @if(memberForm.hasErrors){
     <div class="alert">

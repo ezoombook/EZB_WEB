@@ -12,6 +12,7 @@ topmenu.help.contact=Contact Us
 application.close.button=Close
 application.cancel.button=Cancel
 application.delete.button=Delete
+application.savechanges.button=Save changes
 application.ezlayer.level.1=Higly Detailed
 application.ezlayer.level.2=Fairly Detailed
 application.ezlayer.level.3=Fairly Abridged
