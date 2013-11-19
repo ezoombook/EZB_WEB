@@ -33,31 +33,6 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
     "assigned_layer" -> text
   )(TeamMember.apply)(TeamMember.unapply)
 
-  def projectForm(ownerId: UUID, groupId: UUID) = Form[EzbProject](
-    mapping(
-      "project_id" -> of[UUID],
-      "project_name" -> nonEmptyText,
-      "project_owner" -> of[UUID],
-      "project_creation" -> dateAsLong("dd-MM-yyyy"),
-      "group_id" -> of[UUID],
-      "new_ezb" -> default(boolean, true),
-      "multi_level" -> default(boolean, false),
-      "level" -> optional(number),
-      "ezoombook_id" -> optional(of[UUID]),
-      "project_team" -> list(memberMapping)
-    )((pid, pname, powner, pcreation, groupid, newezb, multilev, level, ezbidop, pteam) =>
-      EzbProject(pid, pname, powner, pcreation, groupid, ezbidop, multilev, level, pteam))
-      ((proj: EzbProject) => Some((proj.projectId, proj.projectName, proj.projectOwnerId, proj.projectCreationDate,
-        proj.groupId, false, proj.isMultiLevel, proj.level, proj.ezoombookId, proj.projectTeam)))
-  ).bind(
-    Map(
-      "project_id" -> UUID.randomUUID.toString,
-      "project_owner" -> ownerId.toString,
-      "project_creation" -> (new java.text.SimpleDateFormat("dd-MM-yyyy").format(new java.util.Date())),
-      "group_id" -> groupId.toString
-    )
-  )
-
   val projectForm = Form[EzbProject](
     mapping(
       "project_id" -> of[UUID],
@@ -74,6 +49,24 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       EzbProject(pid, pname, powner, pcreation, groupid, ezbidop, multilev, level, pteam))
       ((proj: EzbProject) => Some((proj.projectId, proj.projectName, proj.projectOwnerId, proj.projectCreationDate,
         proj.groupId, false, proj.isMultiLevel, proj.level, proj.ezoombookId, proj.projectTeam)))
+  )
+
+  /**
+   * Returns a pre-filled form for a new project
+   * @param ownerId owner of the project
+   * @param groupId group to which this project belongs
+   */
+
+  def projectFrm(ownerId: UUID, groupId: UUID) = projectForm.bind(
+    Map(
+      "project_id" -> UUID.randomUUID.toString,
+      "project_owner" -> ownerId.toString,
+      "project_creation" -> (new java.text.SimpleDateFormat("dd-MM-yyyy").format(new java.util.Date())),
+      "group_id" -> groupId.toString,
+      "new_ezb" -> "true",
+      "multi_level" -> "false",
+      "level" -> Some(1).toString
+    )
   )
 
   /**
@@ -99,13 +92,9 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
             },
             ezbProject => {
               BookDO.saveProject(ezbProject)
-              val extraFields = projectForm.bindFromRequest.data
-              if (extraFields.getOrElse("new_ezb", "false").toBoolean) {
-                Redirect(routes.Collaboration.ezbProjectBookList("group:"+groupId,
-                  ezbProject.projectId.toString))
-              } else {
+              ezbProject.ezoombookId.map{ezbid =>
                 //Change eZoomBook owner and create / change layer owner
-                BookDO.getEzoomBook(ezbProject.ezoombookId.get).map{ezb =>
+                BookDO.getEzoomBook(ezbid).map{ezb =>
                   if (!ezbProject.isMultiLevel && !ezbProject.level.isEmpty){
                     ezb.ezoombook_layers.get(ezbProject.level.get.toString) match{
                       case Some(layerId) =>
@@ -119,6 +108,9 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
                   BookDO.saveEzoomBook(newEzb)
                 }
                 Redirect(routes.Collaboration.projectAdmin(ezbProject.projectId.toString))
+              }.getOrElse{
+                Redirect(routes.Collaboration.ezbProjectBookList("group:"+groupId,
+                  ezbProject.projectId.toString))
               }
             }
           )

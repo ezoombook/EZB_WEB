@@ -14,31 +14,33 @@
 
 @scripts = {
 <script type="text/javascript"> //<![CDATA[
-var users = ["Bob","Ann","Joe","Gabriel","Daniel","Sofia","Camila"];
-$('.typeahead').typeahead({source: users});
+    function overlay() {
+        el = document.getElementById("overlay");
+        el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+    }
 
-function overlay() {
-	el = document.getElementById("overlay");
-	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-}
+    $('document').ready(function(){
+        $('#div_@{projectForm("ezoombook_id").id}').addClass('hidden');
+        $('#div_@{projectForm("level").id}').addClass('hideen');
 
-    $('#@projectForm("new_ezb").id').change(function(e){
-        if(!$(this).is(':checked')){
-            $('#@projectForm("ezoombook_id").id').attr('disabled',false);
-            $('#ezbselect').removeClass("hide");
-        }else{
-            $('#@projectForm("ezoombook_id").id').attr('disabled',true);
-            $('#ezbselect').addClass("hide");
-        }
+        $('input[name="@{projectForm("new_ezb").id}"]').change(function(e){
+            if($(this).val() == "false"){
+                $('#@projectForm("ezoombook_id").id').attr('disabled',false);
+                $('#div_@{projectForm("ezoombook_id").id}').removeClass("hidden");
+            }else{
+                $('#@projectForm("ezoombook_id").id').attr('disabled',true);
+                $('#div_@{projectForm("ezoombook_id").id}').addClass("hidden");
+            }
+        });
+
+        $('#@projectForm("multi_level").id').change(function(e){
+            if($(this).is(':checked')){
+                $('#div_@{projectForm("level").id}').addClass("hidden");
+            }else{
+                $('#div_@{projectForm("level").id}').removeClass("hidden");
+            }
+        })
     });
-
-    $('#@projectForm("multi_level").id').change(function(e){
-        if(!$(this).is(':checked')){
-            $('#levelselect').addClass("hide");
-        }else{
-            $('#levelselect').removeClass("hide");
-        }
-    })
 //]]>
 </script>
 }
@@ -58,31 +60,19 @@ function overlay() {
 </style>
 
 <!-- Add Group Member Modal Window -->
-<div class="modal fade" id="infos" tabindex="-1" role="dialog" aria-labelledby="addMemberLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            @form(routes.Community.newGroupMember(groupId), 'role -> "form"){
-            <div class="modal-header">
-                <a class="close" data-dismiss="modal">x</a>
-                <h3 class="modal-title" id="addMemberLabel">@Messages("group.addmember.h3")</h3>
-            </div>
-            <div class="modal-body">
-                @inputText(memberForm("member_email"),
-                    Symbol("data-provider") -> "typehead",
-                    Symbol("data-items") -> 5,
-                    Symbol("data-source") -> "?",
-                    '_label -> Messages("group.addmember.membermail"))
-                @select(memberForm("role"), UserDO.getGroupMemberRole,
-                    '_label -> Messages("group.addmember.role"))
-            </div>
-            <div class="modal-footer">
-                <a class="btn btn-default" data-dismiss="modal">@Messages("application.close.button")</a>
-                <input class="btn btn-primary" type="submit" value='@Messages("application.savechanges.button")'>
-            </div>
-            }
-        </div>
-    </div>
-</div><!--/ .modal -->
+@modal(modalId = "new_member",
+        modalTitle = Messages("group.addmember.h3"),
+        formAction = Some(routes.Community.newGroupMember(groupId))){
+
+    @inputText(memberForm("member_email"),
+        Symbol("data-provider") -> "typehead",
+        Symbol("data-items") -> 5,
+        Symbol("data-source") -> "?",
+        '_label -> Messages("group.addmember.membermail"))
+
+    @select(memberForm("role"), UserDO.getGroupMemberRole,
+        '_label -> Messages("group.addmember.role"))
+}
 
 <!-- New Project Modal Window -->
 @modal(modalId = "new_project",
@@ -93,70 +83,28 @@ function overlay() {
     @hidden(projectForm("project_owner"))
     @hidden(projectForm("project_creation"))
     @hidden(projectForm("group_id"))
+
     @inputText(projectForm("project_name"),
         '_label->Messages("group.newproject.projectname"))
-    @checkbox(projectForm("new_ezb"),
-        '_label->Messages("group.newproject.newezbcheck"),
-        'checked->projectForm("new_ezb").value.map(_ == true).getOrElse(false))
+
+    @radioButtonGroup(projectForm("new_ezb"),
+        options = Seq("true" -> Messages("group.newproject.newezbcheck"), "false" -> Messages("group.newproject.ezoombook")),
+        '_label -> "")
+
     @select(projectForm("ezoombook_id"),
         userEzoomBooks.map(ezb => ezb.ezoombook_id.toString -> ezb.ezoombook_title).toSeq,
-        '_label->Messages("group.newproject.ezoombook"),
+        '_label->"",
         'disabled->true)
+
     @checkbox(projectForm("multi_level"),
         '_label -> Messages("group.newproject.ismultilevel"))
+
     @levelMap{lmap =>
         @select(projectForm("level"),
             options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
             '_label -> Messages("group.newproject.chooselevel"))
     }
 }
-
-@**
-<div class="modal hide" id="new_project">
-    @form(routes.Collaboration.saveProject(groupId)){
-    <div class="modal-header">
-        <a class="close" data-dismiss="modal">x</a>
-        <h3>@Messages("group.newproject.h3")</h3>
-    </div>
-    <div class="modal-body">
-            @hidden(projectForm("project_id"))
-            @hidden(projectForm("project_owner"))
-            @hidden(projectForm("project_creation"))
-            @hidden(projectForm("group_id"))
-            <div>
-            @inputText(projectForm("project_name"),
-                '_label->Messages("group.newproject.projectname"))
-            </div>
-            <div>
-                @checkbox(projectForm("new_ezb"),
-                '_label->Messages("group.newproject.newezbcheck"),
-                'checked->projectForm("new_ezb").value.map(_ == true).getOrElse(false))
-            </div>
-            <div id="ezbselect" class="hide">
-            @select(projectForm("ezoombook_id"),
-                userEzoomBooks.map(ezb => ezb.ezoombook_id.toString -> ezb.ezoombook_title).toSeq,
-                '_label->Messages("group.newproject.ezoombook"),
-                'disabled->true)
-            </div>
-            <div>
-                @checkbox(projectForm("multi_level"),
-                    '_label -> Messages("group.newproject.ismultilevel"))
-            </div>
-            <div id="levelselect">
-                @levelMap{lmap =>
-                    @select(projectForm("level"),
-                        options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-                        '_label -> Messages("group.newproject.chooselevel"))
-                }
-            </div>
-    </div>
-    <div class="modal-footer">
-        <input type="submit" value="Save changes" class='btn'>
-        <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
-    </div>
-    }
-</div>
-**@
 
 @if(memberForm.hasErrors){
     <div class="alert">
@@ -173,7 +121,7 @@ function overlay() {
 <div class="row">
     <div class="col-md-12">
         <h1>@groupName Group</h1>
-        <a class="btn btn-primary" data-toggle="modal" href="#infos" >@Messages("group.addmember.button")</a>
+        <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("group.addmember.button")</a>
         <a class="btn btn-primary"  href="@routes.Community.groupadmin(groupId)">@Messages("group.administrate.button")</a>
     </div>
 </div>

@@ -9,7 +9,7 @@
     formAction:Option[play.api.mvc.Call],
     formArgs:(Symbol, String)*)(body: => Html)
 
-@import helper._
+@import ezbhelpers._
 
 @modalContent(isForm:Boolean) = {
     <div class="modal-header">
@@ -17,11 +17,7 @@
         <h3 class="modal-title" id="@{modalId}Label">@modalTitle</h3>
     </div>
     <div class="modal-body">
-        @formAction.map{fa =>
-        @form(fa, (formArgs :+ ('role -> "form")):_*){
-            @body
-        }
-        }
+       @body
     </div>
     <div class="modal-footer">
         <a class="btn btn-default" data-dismiss="modal">@Messages("application.close.button")</a>
@@ -34,16 +30,13 @@
 <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="addMemberLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            @modalContent(true)
-@**
             @formAction.map{fa =>
-                @form(fa, (formArgs :+ ('role -> "form")):_*){
+                @helper.form(fa, (formArgs :+ ('role -> "form")):_*){
                     @modalContent(true)
                 }
             }.getOrElse{
                 @modalContent(false)
             }
-**@
         </div>
     </div>
 </div><!--/ .modal -->

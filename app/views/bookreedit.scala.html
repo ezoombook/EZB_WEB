@@ -1,6 +1,5 @@
 @(books:List[(String, Long)], bookForm:Form[Book])(implicit session:Session, context:Context)
 
-@import helper._
 @import ezbhelpers._
 <!-- bookreedit.html -->
 
@@ -76,10 +75,10 @@ function toggle(divtag){
 
    
 
-    @form(routes.EzoomBooks.saveEditedBook){
+    @helper.form(routes.EzoomBooks.saveEditedBook){
 	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
         @hidden(bookForm("book_id"))
-        @repeat(bookForm("authors")){f =>
+        @helper.repeat(bookForm("authors")){f =>
             <div id="authors0" style="margin-bottom:4px;" class="authors">
             <h4>@inputText(f,'_label->"author")</h4>
             </div>
@@ -88,27 +87,27 @@ function toggle(divtag){
         
       </fieldset>
       <fieldset class="midlepannel">
-        @repeat(bookForm("languages")){f =>
+        @helper.repeat(bookForm("languages")){f =>
             <div id="languages0" class="languages">
                 <h4>@inputText(f,'_label->"languages")</h4>
             </div>
         }
         <input type="button" id="btnAddLang" value="Add another language" >
 
-        @repeat(bookForm("publishers")){f =>
+        @helper.repeat(bookForm("publishers")){f =>
             <div id="publishers0" class="publishers">
                 <h4>@inputText(f,'_label->"publishers")</h4>
             </div>
         }
         <input type="button" id="btnAddPublshr" value="Add another publisher" >
 
-        @repeat(bookForm("published_dates")){f =>
+        @helper.repeat(bookForm("published_dates")){f =>
             <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
         }
         <input type="button" id="btnAddPubDate" value="Add another published date" >
 </fieldset>
 <fieldset class="rightpannel">
-        @repeat(bookForm("tags")){f =>
+        @helper.repeat(bookForm("tags")){f =>
             <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
         }
         <input type="button" id="btnAddTag" value="Add another tag" >

@@ -1,7 +1,6 @@
 @(bookForm:Form[Book])(implicit session:Session, context:Context)
 
-@import helper._
-@import ezbhelpers.hidden
+@import ezbhelpers._
 @import utils.ezbhelpers.bookFieldHelper._
 
 @scripts = {
@@ -93,24 +92,17 @@ a.addlink{
 </style>
 
 <!-- Modal for uploading a file -->
-<div class="modal hide fade" tabindex="-1" role="dialog" id="uploadAlert" aria-labelledby="uploadFileHeader" aria-hidden="true">
-    @form(routes.EzoomBooks.loadBook, 'enctype -> "multipart/form-data"){
-        <div class="modal-header">
-            <h3 id="uploadFileHeader">ePub Upload</h3>
-        </div>
-        <div class="modal-body">
-            <p> In order to create a new book you have to upload the corresponding epub file.</p>
-            <div>
-                <label for="fileInput"> Please choose a file: </label>
-                <input type="file" name="book" id="fileInput">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <a href="@routes.EzoomBooks.listbooks()" class="btn">Cancel</a>
-            <input type="submit" class="btn bnt-primary" value="Upload File" id="fileSubmit">
-        </div>
-    }
-</div>  <!-- Modal End -->
+@modal(modalId = "uploadAlert",
+    modalTitle = Messages("bookedit.upload.header"),
+    formAction = Some(routes.EzoomBooks.loadBook),
+    'enctype -> "multipart/form-data"
+){
+    <p> @Messages("bookedit.upload.message")</p>
+    <div>
+        <label for="fileInput"> Please choose a file: </label>
+        <input type="file" name="book" id="fileInput">
+    </div>
+}
 
 <div class="row">
     <div class="col-md-12">
@@ -123,7 +115,8 @@ a.addlink{
         }
     </div>
 </div>
-@form(routes.EzoomBooks.saveBook){
+
+@helper.form(routes.EzoomBooks.saveBook){
 @hidden(bookForm("book_id"))
 <div class="row buttons">
     <div class="col-md-2 col-md-9 btn-group">
@@ -140,7 +133,7 @@ a.addlink{
             <div class="col-md-1"><label for="authors">Author(s)</label></div>
             <div class="col-md-6"><a href="#" class="addlink" id="addauthor">Add an author</a></div>
         </div>
-        @repeat(bookForm("authors")){f =>
+        @helper.repeat(bookForm("authors")){f =>
             @inputText(f,'_label->"", 'span->"6", 'label_span->"1", 'row_class -> "authors")
         }
 
@@ -150,7 +143,7 @@ a.addlink{
             <div class="col-md-2"><label for="publishers">Publisher(s)</label></div>
             <div class="col-md-5"><a href="#" class="addlink" id="btnAddPublshr">Add a publisher</a></div>
         </div>
-        @repeat(bookForm("publishers")){f =>
+        @helper.repeat(bookForm("publishers")){f =>
             @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "publishers")
         }
 
@@ -159,7 +152,7 @@ a.addlink{
             <div class="col-md-5"><a href="#" class="addlink" id="btnAddPubDate">Add a published date</a></div>
         </div>
 
-        @repeat(bookForm("published_dates")){f =>
+        @helper.repeat(bookForm("published_dates")){f =>
             @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "published_dates")
         }
 
@@ -167,7 +160,7 @@ a.addlink{
             <div class="col-md-2"><label for="languages">Language(s)</label></div>
             <div class="col-md-5"><a href="#" class="addlink" id="btnAddLang">Add a language</a></div>
         </div>
-        @repeat(bookForm("languages")){f =>
+        @helper.repeat(bookForm("languages")){f =>
             @inputText(f,'_label->"", 'span->"5", 'label_span->"2", 'row_class -> "languages")
         }
 
@@ -175,7 +168,7 @@ a.addlink{
             <div class="col-md-1"><label for="tags">Tags</label></div>
             <div class="col-md-6"><a href="#" class="addlink" id="btnAddTag">Add a tag</a></div>
         </div>
-        @repeat(bookForm("tags")){f =>
+        @helper.repeat(bookForm("tags")){f =>
             @inputText(f,'_label->"", 'span->"6", 'label_span->"1", 'row_class -> "tags")
         }
 

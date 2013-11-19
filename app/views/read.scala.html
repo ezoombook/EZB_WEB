@@ -1,7 +1,6 @@
 @(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer], partContent:Html, bookStyles:Html, activeLayer:String)(
     implicit session:Session, context:Context)
 
-@import helper._
 @import ezbhelpers._
 @import utils.DateFormatter._
 @import AppForms.commentForm
@@ -162,26 +161,19 @@
 </style>
 
 <!-- Comment Box Modal -->
-<div class="modal hide" id="commentbox">
-    @form(action = routes.Collaboration.saveComment){
-    <div class="modal-header">
-        <h3>@Messages("read.comment.modal.h3")</h3>
-    </div>
-    <div class="modal-body">
-        @hidden(commentForm("commentAuthor"), '_value -> context.user.map(_.id.toString).getOrElse(""))
-        @hidden(commentForm("commentEzb"), '_value -> ezb.ezoombook_id.toString)
-        @hidden(commentForm("commentContrib"))
-        @hidden(commentForm("contribAuthor"))
-        @hidden(commentForm("contribType"))
-        @hidden(commentForm("commentLayer"))
-        @textarea(commentForm("commentContent"), '_label -> "", 'style -> "width: 494px; height: 78px;")
-    </div>
-    <div class="modal-footer">
-        <input type="submit" class="btn" value='@Messages("read.comment.modal.save.btn")'>
-        <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
-    </div>
-    }
-</div><!--/ .modal -->
+@modal(modalId="commentbox",
+        modalTitle=Messages("read.comment.modal.h3"),
+        formAction = Some(routes.Collaboration.saveComment)){
+
+    @hidden(commentForm("commentAuthor"), '_value -> context.user.map(_.id.toString).getOrElse(""))
+    @hidden(commentForm("commentEzb"), '_value -> ezb.ezoombook_id.toString)
+    @hidden(commentForm("commentContrib"))
+    @hidden(commentForm("contribAuthor"))
+    @hidden(commentForm("contribType"))
+    @hidden(commentForm("commentLayer"))
+    @textarea(commentForm("commentContent"), '_label -> "", 'style -> "width: 494px; height: 78px;")
+
+}
 
 <div id="fb-root"></div>
 <script>(function(d, s, id) {

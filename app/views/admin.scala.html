@@ -1,12 +1,12 @@
 @(users:List[User], groups:Boolean, books:Boolean)(implicit context:Context)
 
-@import helper._
+@import ezbhelpers._
 
 @main("Appliction Administration"){
     @if(users.isEmpty){
 	<h1>Create some users</h1>
 
-        @form(routes.AdminApp.createUsers){
+        @helper.form(routes.AdminApp.createUsers){
             <input type="submit" value="Go!">
         }
     }else{
@@ -20,14 +20,14 @@
 
     @if(groups){	       
 	<h1>Create some groups</h1>
-        @form(routes.AdminApp.createGroups){
+        @helper.form(routes.AdminApp.createGroups){
             <input type="submit" value="Go!">
         }
     }
 
     @if(books){
 	<h1>Add some books</h1>
-        @form(routes.AdminApp.createBooks){
+        @helper.form(routes.AdminApp.createBooks){
             <input type="submit" value="Go!">
         }
     }

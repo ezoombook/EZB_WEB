@@ -182,10 +182,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   def ezoomBookEdit(ezbId:String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _ ){implicit request =>
     withUser{user =>
       withEzoomBook(ezbId){ezb =>
-        BookDO.setWorkingEzb(ezb)
         val newEzlayer = EzoomLayer(UUID.randomUUID, ezb.ezoombook_id, 1,
           "user:"+user.id, books.dal.Status.workInProgress, false, List[String](), List[Contrib]())
-        BookDO.setWorkingLayer(newEzlayer)
         val ezlform = ezoomlayerForm.fill(newEzlayer)
         Ok(views.html.ezoomlayeredit(ezb,
           Some(newEzlayer),
@@ -230,7 +228,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
           val ezlform = ezoomlayerForm.fill(ezl)
           Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform,BookDO.getBook(ezb.book_id.toString), canEditEzb(ezbId))
           ).withSession(
-            session + ("working-layer" -> ezl.ezoomlayer_id.toString)
+            session + (WORKING_LAYER -> ezl.ezoomlayer_id.toString)
           )
         }.getOrElse{
           NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
@@ -245,11 +243,15 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    */
   def workingEzoomLayer = StackAction(AuthorityKey -> RegisteredUser){implicit request =>
     withUser{user =>
-      BookDO.getWorkingLayer.flatMap{ezl =>
-        BookDO.getWorkingEzb.map{ezb =>
-          val ezlform = ezoomlayerForm.fill(ezl)
-          Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString),
-            canEditEzb(ezb.ezoombook_id.toString) _))
+      context.activeEzb.flatMap{ezbId =>
+        BookDO.getEzoomBook(ezbId).flatMap{ezb =>
+          context.activeLayer.flatMap{layerId =>
+            BookDO.getEzoomLayer(layerId).map{ezl =>
+              val ezlform = ezoomlayerForm.fill(ezl)
+              Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString),
+                canEditEzb(ezb.ezoombook_id.toString) _))
+            }
+          }
         }
       }.getOrElse{
         NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
@@ -350,18 +352,21 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
      }
   }
 
-  def setReadingEzb(ezbId:String, part:String, layer:String) = StackAction(AuthorityKey -> Guest) {implicit request =>
-    BookDO.getEzoomBook(UUID.fromString(ezbId)).flatMap{ezb =>
-      BookDO.getBook(ezb.book_id.toString).map{book =>
-        val readPart = if (!part.isEmpty) part else book.bookParts(0).partId
-        Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,readPart)).withSession(
-          session + ("working-ezb" -> ezb.ezoombook_id.toString) + ("show-layer" -> layer)
-        )
-      }
+  def setReadingEzb(bookId:String, ezbId:String, layer:String) = StackAction(AuthorityKey -> Guest) {implicit request =>
+    BookDO.getBook(bookId).map{book =>
+      Redirect(routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(0).partId)).withSession(
+        session + ("working-ezb" -> ezbId) + ("show-layer" -> layer)
+      )
     }.getOrElse{
-      println("[WEB-ERROR] Could not load eZoomBook: " + ezbId)
       NotFound("Oops! We couldn't find the eZoomBook you are looking for")
     }
+  }
+
+  def setReadingEzbPart(bookId:String, ezbId:String, part:String, layer:String) = StackAction(AuthorityKey -> Guest) {
+    implicit request =>
+      Redirect(routes.EzoomBooks.readEzb(bookId, part)).withSession(
+        session + ("working-ezb" -> ezbId) + ("show-layer" -> layer)
+      )
   }
 
   def readEzb(bookId:String,partId:String) = StackAction(AuthorityKey -> Guest) {implicit request =>
@@ -371,12 +376,12 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
           val partIndex = book.bookParts.indexWhere(_.partId == partId)
           val (styles,bodyContent) = BookDO.getPartContentAndStyle(book.bookId,partId)
           val layer = session.get("show-layer").getOrElse("0")
+          val layers = ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
+            BookDO.getEzoomLayer(UUID.fromString(layer._2)).
+              map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
+          }
           Ok(views.html.read(book,
-            ezb, partIndex,
-            ezb.ezoombook_layers.foldLeft(Map[String,EzoomLayer]()){(lst, layer) =>
-              BookDO.getEzoomLayer(UUID.fromString(layer._2)).
-                map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
-            },
+            ezb, partIndex, layers,
             play.api.templates.Html(bodyContent),
             play.api.templates.Html(styles),
             layer))
@@ -386,15 +391,6 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
       NotFound("Oops! We couldn't find the resource you are looking for")
     }
   }
-
-//  def bookPart(bookId:String,partId:String) = StackAction{implicit request =>
-//    BookDO.getBookPart(UUID.fromString(bookId), partId).map{bpart =>
-//      //TODO get extension corresponding to epub format : play.api.libs.MimeTypes.forExtension("txt")
-//      Ok(bpart.content).as(play.api.http.MimeTypes.HTML)
-//    }.getOrElse{
-//      NotFound("Oops! We couldn't find the chapter you are looking for")
-//    }
-//  }
 
   def bookResource(bookId:String, file:String) = StackAction(AuthorityKey -> Guest){implicit request =>
     if (file.contains(".html")){

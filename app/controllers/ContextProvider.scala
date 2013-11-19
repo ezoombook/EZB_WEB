@@ -19,6 +19,9 @@ import java.util.UUID
  * To change this template use File | Settings | File Templates.
  */
 trait ContextProvider extends Controller{
+  val WORKING_EZB = "working-ezb"
+  val WORKING_LAYER = "working-layer"
+
   implicit def context[A](implicit request:Request[A]) : Context = {
     val userId = request.session.get("userId")
     val userName = request.session.get("userName")
@@ -39,9 +42,9 @@ trait ContextProvider extends Controller{
       )
     ))
 
-    val ezb = request.session.get("working-ezb").map(UUID.fromString(_))
+    val ezb = request.session.get(WORKING_EZB).map(UUID.fromString(_))
 
-    val layer = request.session.get("working-layer").map(UUID.fromString(_))
+    val layer = request.session.get(WORKING_LAYER).map(UUID.fromString(_))
 
     Context(user, prefs, request.acceptLanguages, ezb, layer)
   }
