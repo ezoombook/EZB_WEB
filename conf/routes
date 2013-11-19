@@ -94,7 +94,8 @@ POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelet
 POST    /ezlayer/create/:bid/:lev/:p/:g   controllers.EzoomBooks.createEzoomLayer(bid,lev,p,g)
 GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLayer
 
-GET     /read/:ezbid/:pid/:layer          controllers.EzoomBooks.setReadingEzb(ezbid,pid,layer)
+GET     /read/:bid/:ezbid/:pid/:layer     controllers.EzoomBooks.setReadingEzbPart(bid,ezbid,pid,layer)
+GET     /read/:bid/:ezbid/:layer          controllers.EzoomBooks.setReadingEzb(bid,ezbid,layer)
 GET     /ezbread/:bid/:pid                controllers.EzoomBooks.readEzb(bid,pid)
 # Book resources
 GET     /bookres/:bid/*file               controllers.EzoomBooks.bookResource(bid:String,file)

@@ -63,7 +63,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
           BookDO.getGroupProjects(groupId),
           memberForm,
           BookDO.getUserEzoombooks(user.id),
-          Collaboration.projectForm(user.id, groupId)))
+          Collaboration.projectFrm(user.id, groupId)))
       }.getOrElse(
         NotFound("Oops, the group you're looking for does not exists :(")
       )

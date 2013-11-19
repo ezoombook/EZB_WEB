@@ -6,7 +6,6 @@
    bookparts:List[BookPart] = List[BookPart](),
    ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
-@import helper._
 @import ezbhelpers._
 @import utils.DateFormatter._
 @import utils.MD5Util
@@ -20,7 +19,7 @@
                         @ezb.ezoombook_title
                     </a>
                 }.getOrElse{
-                    @form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
+                    @helper.form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
                         member.assignedLayer,
                         member.assignedPart,
                         project.groupId.toString)){
@@ -130,90 +129,58 @@
 </style>
 
 <!-- Select eZoomBook Modal -->
-<div class="modal hide" id="ezblist">
-    @form(routes.Collaboration.setProjectEzb(project.projectId.toString)){
-    <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-        <h3>@Messages("ezbproject.ezbmodal.chooseezb")</h3>
-    </div>
-    <div class="modal-body">
-        @ezbList.map{ezb =>
-            <div>
-                <input type="radio" value="@ezb.ezoombook_id" id="ezbId" name="ezbId"> @ezb.ezoombook_title
-            </div>
-        }
-    </div>
-    <div class="modal-footer">
-        <input type="submit" class="btn" value='@Messages("ezbproject.ezbmodal.setezb.button")'>
-        <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
-    </div>
-    }
-</div>
+@modal(modalId = "ezblist",
+ modalTitle = Messages("ezbproject.ezbmodal.chooseezb"),
+ formAction = Some(routes.Collaboration.setProjectEzb(project.projectId.toString))){
+
+     @ezbList.map{ezb =>
+     <div>
+         <input type="radio" value="@ezb.ezoombook_id" id="ezbId" name="ezbId"> @ezb.ezoombook_title
+     </div>
+     }
+
+}
 
 <!-- Add Group Member Modal Window -->
-<div class="modal hide" id="infos">
-    @form(routes.Collaboration.newProjectMember(project.projectId.toString)){
-     <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-         <h3>@Messages("ezbproject.addmember.modal.h3")</h3>
-     </div>
-     <div class="modal-body">
-         <p>
-            @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
-                        '_label -> Messages("ezbproject.addmember.form.selectmember"))
-            @levelMap{lmap =>
-                @select(memberForm("assigned_layer"),
-                    options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-                    '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
-            }
-            @select(memberForm("assigned_part"),
-              bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
-              '_label -> Messages("ezbproject.addmember.form.assignedpart"))
-
-     </div>
-     <div class="modal-footer">
-         <input type="submit" class="btn" value='@Messages("ezbproject.addmember.modal.submit")'>
-         <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
-     </div>
-    }
-</div><!--/ .modal -->
+@modal(modalId = "new_member",
+       modalTitle = Messages("ezbproject.addmember.modal.h3"),
+       formAction = Some(routes.Collaboration.newProjectMember(project.projectId.toString))
+){
+     @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
+         '_label -> Messages("ezbproject.addmember.form.selectmember"))
+     @levelMap{lmap =>
+         @select(memberForm("assigned_layer"),
+             options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+             '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+     }
+     @select(memberForm("assigned_part"),
+         bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+         '_label -> Messages("ezbproject.addmember.form.assignedpart"))
+ }
 
 <!-- Change ezb assigment modal -->
-<div class='modal hide' id='assigmentModal'>
-    @form(action=routes.Collaboration.editProjectMember(project.projectId.toString),
-        'id -> "modifMemberForm"){
-    <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-        <h3>@Messages("ezbproject.assigment.modal.h3")</h3>
-    </div>
-    <div class="modal-body">
-        <input type='hidden' id='user_id' name='user_id'>
-        @levelMap{lmap =>
-            @select(memberForm("assigned_layer"),
-                options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-                '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
-        }
-        @select(memberForm("assigned_part"),
-            bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
-            '_label -> Messages("ezbproject.addmember.form.assignedpart"))
-    </div>
-    <div class="modal-footer">
-        <input type="submit" class="btn" value='@Messages("ezbproject.assigment.modal.submit")'>
-        <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
-    </div>
-    }
-</div><!--/ .modal -->
+@modal("assigmentModal",
+        Messages("ezbproject.assigment.modal.h3"),
+        Some(routes.Collaboration.editProjectMember(project.projectId.toString))){
+
+     <input type='hidden' id='user_id' name='user_id'>
+     @levelMap{lmap =>
+         @select(memberForm("assigned_layer"),
+             options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+             '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+     }
+     @select(memberForm("assigned_part"),
+         bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+         '_label -> Messages("ezbproject.addmember.form.assignedpart"))
+}
 
 <!-- Contribution details modal -->
-<div class="modal hide" id="contribDetailModal">
-     <div class="modal-header"> <a class="close" data-dismiss="modal">x</a>
-         <h3>@Messages("ezbproject.contribdetail.h3")</h3>
-     </div>
-     <div class="modal-body">
-         <h4>@Messages("ezbproject.contrbidetail.contribtype.h4"): <span class="contrib-type"></span></h4>
-        <p class="contrib-content"></p>
-     </div>
-     <div class="modal-footer">
-         <a class="btn btn-info" data-dismiss="modal">@Messages("application.close.button")</a>
-     </div>
- </div><!--/ .modal -->
+@modal("contribDetailModal",
+        Messages("ezbproject.contribdetail.h3"),
+        None){
+     <h4>@Messages("ezbproject.contrbidetail.contribtype.h4"): <span class="contrib-type"></span></h4>
+    <p class="contrib-content"></p>
+}
 
 <div class="row"> <!-- Project Header -->
     <div class="col-md-12">
@@ -235,7 +202,7 @@
         @withUser{user =>
             @if(user.id == project.projectOwnerId){
             <p>
-                <a class="btn btn-primary" data-toggle="modal" href="#infos" >@Messages("ezbproject.addmember.button")</a>
+                <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("ezbproject.addmember.button")</a>
             </p>
             }
         }

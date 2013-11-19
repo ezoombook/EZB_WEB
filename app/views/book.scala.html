@@ -1,6 +1,5 @@
 @(book:Book, ezoomBookForm:Form[Ezoombook], listezbooks:List[Ezoombook])(implicit context:Context)
 
-@import helper._
 @import ezbhelpers._
 @main("Book Page"){
 
@@ -25,7 +24,7 @@
 
 <h2>@Messages("book.ezoombooks.h2")</h2>
 
-@form(routes.EzoomBooks.saveEzoomBook(book.bookId.toString)){
+@helper.form(routes.EzoomBooks.saveEzoomBook(book.bookId.toString)){
     @hidden(ezoomBookForm("ezb_owner"))
     @hidden(ezoomBookForm("book_id"))
     @hidden(ezoomBookForm("ezb_id"))
