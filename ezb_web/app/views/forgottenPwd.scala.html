@@ -1,10 +1,10 @@
 @(mailform:Form[String])(implicit context:Context)
 
-@import helper._
+@import ezbhelpers._
 
 @main("I forgot my password"){
 
-        @form(routes.Support.sendPasswordResetLink){
+        @helper.form(routes.Support.sendPasswordResetLink){
             @inputText(mailform("email"), '_label -> "Where do we send you the link?")
             <input type="submit" value="Send it!">
         }

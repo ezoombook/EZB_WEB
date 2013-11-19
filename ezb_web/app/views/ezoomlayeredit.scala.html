@@ -2,7 +2,6 @@
 bookOpt:Option[Book],
 authenticate:User => Boolean)(implicit context:Context)
 
-@import helper._
 @import ezbhelpers._
 
 @scripts = {
@@ -405,31 +404,16 @@ label{
 @displayEzbSummary(ezlForm("ezoomlayer_summaries"), true, "999")
 
 <!-- An alert modal to desplay when deleting an EzoomLayer -->
-<div id="deleteAlert" class="modal hide fade" tabindex="-1" role="dialog"
-     aria-labelledby="deleteAlertHeader" aria-hidden="true">
-    @activeLayer.map{ezl =>
-        @form(routes.EzoomBooks.ezoomLayerDelete(ezb.ezoombook_id.toString,ezl.ezoomlayer_level)){
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h3 id="deleteAlertHeader">EzoomLayer Elimination</h3>
-        </div>
-        <div class="modal-body">
-            <p>You are about to delete an EzoomLayer with all your contributions.
-            Are you sure you want to continue?</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-            <input type="submit" class="btn bnt-primary"
-                    value="Delete Layer">
-        </div>
-        }
-    }.getOrElse{
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h3 id="deleteAlertHeader">No Active eZoomLayer Found</h3>
-        </div>
+@modal(modalId= "deleteAlert",
+       modalTitle = Messages("ezoomlayeredit.ezlayerdelete.header"),
+       formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoombook_id.toString,ezl.ezoomlayer_level))
+){
+    @if(!activeLayer.isEmpty){
+        <p>@Messages("ezoomlayeredit.ezlayerdelete.alertmessage")</p>
+    }else{
+        <p>@Messages("ezoomlayeredit.ezlayerdelete.nolayerfound")</p>
     }
-</div> <!-- Modal End -->
+}
 
     <div class="row">
         <div class="col-md-12">
@@ -443,7 +427,7 @@ label{
                 @displayEzbInfo
 
                 <p>Load a layer from a file: </p>
-                @form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString), 'enctype -> "multipart/form-data"){
+                @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString), 'enctype -> "multipart/form-data"){
                     <input type="file" name="ezlfile"></br>
                     <input type="submit">
                 }
@@ -471,7 +455,7 @@ label{
                 </ul>
             </div>
             }
-            @form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString), 'id -> "ezl_form"){
+            @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString), 'id -> "ezl_form"){
             <fieldset class="field_set">
                 <legend>eZoomLayer</legend>
                 @hidden(ezlForm("ezoomlayer_id"))
@@ -511,7 +495,7 @@ label{
             </fieldset>
             <fieldset id="summaries_set" class="field_set">
                 <legend>Book Summaries</legend>
-                @repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
+                @helper.repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
                     @displayEzbSummary(f, false, "@f.id")
                 }
             </fieldset>

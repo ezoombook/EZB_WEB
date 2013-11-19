@@ -34,6 +34,8 @@ index.findbook.placeholder=Enter key-word
 index.findbook.search.button=Search
 index.findbook.advancedsearch.button=Advanced search
 
+login.contract.header=Contract Licence
+
 listbooks.addbook.link=Add a book
 listbooks.edit.button=Edit
 
@@ -89,6 +91,9 @@ workspace.creategroup.modal.h3=Group creation form
 workspace.creategroup.modal.button=Create group
 workspace.creategroup.modal.groupname=Name of the group
 
+parameters.deleteaccount.header=Account Removal
+parameters.deleteaccount.confirm=Are you sure you want to delete your account. (This cannot be undone)
+
 read.readoptions.showall.button=Show all
 read.readoptions.showquotes.button=Show only quotes
 read.readoptions.showsummaries.button=Show only summaries
@@ -114,7 +119,7 @@ group.newproject.button=Create a project
 group.newproject.h3=New Project
 group.newproject.projectname=Name of the project
 group.newproject.ezoombook=Chose an existing eZoomBook
-group.newproject.newezbcheck=Create a new eZoomBook?
+group.newproject.newezbcheck=Create a new eZoomBook
 group.newproject.ismultilevel=Is this a multilevel project?
 group.newproject.chooselevel=Choose the reading level of the eZoomBook:
 group.projects.h2=Projects
@@ -153,3 +158,10 @@ ezbproject.contribdetail.h3=Contribution details
 ezbproject.contrbidetail.contribtype.h4=Contribution type
 
 ezoomlayeredit.ezb.ezbtitle=Title
+ezoomlayeredit.ezlayerdelete.header=EzoomLayer Elimination
+ezoomlayeredit.ezlayerdelete.alertmessage=You are about to delete an eZoomLayer with all your contributions. Are you sure you want to continue?
+ezoomlayeredit.ezlayerdelete.nolayerfound=You first have to select an eZoomLayer
+
+
+bookedit.upload.header=ePub Upload
+bookedit.upload.message=In order to create a new book you have to upload the corresponding epub file.

@@ -22,7 +22,6 @@ object BookDO{
 
   def newBook(file: File):Book = {
     val ziped = new ZipFile(file)
-    Cache.set("epub",ziped,0)
     EpubLoader.loadBook(Right(ziped))
   }
 
@@ -35,32 +34,12 @@ object BookDO{
     }
   }
 
-  def setWorkingEzb(ezb:Ezoombook){
-    Cache.set("working-ezb", ezb.ezoombook_id, 0)
-  }
-
-  def setWorkingLayer(ezl:EzoomLayer){
-    Cache.set("working-layer", ezl.ezoomlayer_id, 0)
-  }
-
-  def getWorkingEzb:Option[Ezoombook] = {
-    Cache.getAs[Ezoombook]("working-ezb")
-  }
-
-  def getWorkingLayer:Option[EzoomLayer] = {
-    Cache.getAs[EzoomLayer]("working-layer")
-  }
-
   def saveEzoomBook(ezb:Ezoombook){
     AppDB.cdal.saveEzoomBook(ezb)
-    Cache.set("ezb:"+ezb.ezoombook_id,ezb)
   }
 
   def saveLayer(ezl:EzoomLayer){
-    AppDB.cdal.saveLayer(ezl).map{ezb =>
-      Cache.set("ezl:"+ezl.ezoomlayer_id, ezl)
-      Cache.set("ezb:"+ezb.ezoombook_id,ezb)
-    }
+    AppDB.cdal.saveLayer(ezl)
   }
 
   /**
@@ -82,19 +61,11 @@ object BookDO{
   }
 
   def getEzoomLayer(ezlId:UUID, reloadCache:Boolean = false):Option[EzoomLayer] = {
-    if(reloadCache){
-      AppDB.cdal.getLayer(ezlId)
-    }else{
-      Cache.getOrElse("ezl:"+ezlId, 0){
-        AppDB.cdal.getLayer(ezlId)
-      }
-    }
+    AppDB.cdal.getLayer(ezlId)
   }
 
   def deleteEzoomLayer(ezbId:UUID, layerLevel:Int){
-    if(AppDB.cdal.deleteLayer(ezbId, layerLevel)){
-      Cache.set("ezb:"+ezbId, AppDB.cdal.getEzoomBook(ezbId), 0)
-    }
+    AppDB.cdal.deleteLayer(ezbId, layerLevel)
   }
 
   def deleteEzoomBook(ezbId:UUID){
@@ -108,10 +79,6 @@ object BookDO{
   def getBook(bookId:String):Option[Book] = {
     AppDB.cdal.getBook(UUID.fromString(bookId))
   }
-
-//  def getBookPart(bookId:UUID,partId:String):Option[BookPart] = {
-//    AppDB.cdal.getBookPart(bookId,partId)
-//  }
 
   /**
    * Creates a new project
@@ -142,10 +109,7 @@ object BookDO{
   }
 
   def addProjectMember(projId:UUID,member:TeamMember):Option[EzbProject] = {
-    AppDB.cdal.addProjectMember(projId,member).map{proj =>
-      Cache.set("project:"+projId,proj)
-      proj
-    }
+    AppDB.cdal.addProjectMember(projId,member)
   }
 
   def updateProjectMember(projId:UUID, member:TeamMember):Option[EzbProject] = {

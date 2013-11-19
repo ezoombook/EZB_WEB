@@ -5,17 +5,25 @@
 
 @inputType = {@elements.args.getOrElse('_type, "")}
 
-@if(inputType.toString.equals("checkbox")){
-    <div class="checkbox">
-        <label>
-            @elements.input <span>@elements.label</span>
-        </label>
-    </div>
-}else{
-    <div class="form-group">
-        <label for="@elements.id">@elements.label</label>
-        @elements.input
-        <p class="error">@elements.errors.mkString(", ")</p>
-        @** <p class="help-block">@elements.infos.mkString(", ")</p> **@
-    </div>
+@inputType.toString match{
+        case "checkbox" => {
+            <div class="checkbox" id="div_@{elements.id}">
+                <label>
+                    @elements.input <span>@elements.label</span>
+                </label>
+            </div>
+        }
+        case "radio-buttons" => {
+            <div class="btn-group" data-toggle="buttons" id="div_@{elements.id}">
+                @elements.input
+            </div>
+        }
+        case _ => {
+            <div class="form-group" id="div_@{elements.id}">
+                <label for="@elements.id">@elements.label</label>
+                @elements.input
+                @** <p class="error">@elements.errors.mkString(", ")</p> **@
+                @** <p class="help-block">@elements.infos.mkString(", ")</p> **@
+            </div>
+        }
 }

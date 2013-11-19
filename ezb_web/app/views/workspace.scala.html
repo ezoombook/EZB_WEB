@@ -1,6 +1,5 @@
 @(projlist:List[ListedProject], listezb:List[Ezoombook], listmyb:List[Book], userGroups:List[Group], colabGroups:List[Group], groupForm:Form[(String, String)])(implicit session:Session, context:Context)
 
-@import helper._
 @import ezbhelpers._
 @import utils.MD5Util
 @import utils.DateFormatter._
@@ -11,85 +10,57 @@
 
       $('.deleteProjectButton').click(function(){
         var projId = $(this).attr('data-projId');
-        $('#deleteProjectForm').attr('action','/project/delete/'+projId);
+        var action = $('#deleteProjectForm').attr('action');
+        $('#deleteProjectForm').attr('action', action+projId);
       });
 
       $('.ezbDeleteButton').click(function(){
         var ezbId = $(this).attr('data-ezbId');
-        $('#deleteEZBForm').attr('action','/ezb/delete/'+ezbId);
+        var action = $('#deleteEZBForm').attr('action');
+        $('#deleteEZBForm').attr('action',action+ezbId);
       });
 
     });
 
     function toggle(divtag){
-    if(document.getElementById(divtag).style.display=="none"){
-    document.getElementById(divtag).style.display="block";
-    } else {
-    document.getElementById(divtag).style.display="none";
-    }
+       if(document.getElementById(divtag).style.display=="none"){
+         document.getElementById(divtag).style.display="block";
+       } else {
+         document.getElementById(divtag).style.display="none";
+       }
     }
     //]]>
 </script>
 }
 
 @main(Messages("workspace.title"), scripts){
+
 <!-- Delete project modal alert -->
-<div id="projectDeleteAlert" class="modal hide fade" tabindex="-1" role="dialog"
-     aria-labelledby="deleteAlertHeader" aria-hidden="true">
-     <form method ="post" id="deleteProjectForm">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h3 id="deleteAlertHeader">@Messages("workspace.deleteproject.h3")</h3>
-        </div>
-        <div class="modal-body">
-            <p>@Messages("workspace.deleteproject.alert")</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal"
-	  aria-hidden="true">@Messages("application.cancel.button")</button>
-            <input type="submit" class="btn bnt-primary"
-                    value='@Messages("application.delete.button")'>
-        </div>
-     </form>
-</div> <!-- Modal End -->
+@modal(modalId="projectDeleteAlert",
+       modalTitle= Messages("workspace.deleteproject.h3"),
+       formAction= Some(routes.Collaboration.deleteProject("")),
+       'id -> "deleteProjectForm"
+){
+    <p>@Messages("workspace.deleteproject.alert")</p>
+}
 
 <!-- Delete eZoomBook modal alert -->
-<div id="ezbDeleteAlert" class="modal hide fade" tabindex="-1" role="dialog"
-     aria-labelledby="ezbDeleteAlertHeader" aria-hidden="true">
-     <form method ="post" id="deleteEZBForm">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h3 id="ezbDeleteAlertHeader">@Messages("workspace.deleteEZB.h3")</h3>
-        </div>
-        <div class="modal-body">
-            <p>@Messages("workspace.deleteEZB.alert")</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">@Messages("application.cancel.button")</button>
-            <input type="submit" class="btn bnt-primary"
-                    value='@Messages("application.delete.button")'>
-        </div>
-     </form>
-</div> <!-- Modal End -->
+@modal(modalId = "ezbDeleteAlert",
+      modalTitle = Messages("workspace.deleteEZB.h3"),
+      formAction = Some(routes.EzoomBooks.ezoomBookDelete("")),
+      'id -> "deleteEZBForm"
+){
+    <p>@Messages("workspace.deleteEZB.alert")</p>
+}
 
 <!-- Create group modal -->
-<div id="groupFormModal" class="modal hide fade" tabindex="-1" role="dialog"
-     aria-labelledby="groupFormHeader" aria-hidden="true">
-    @form(action=routes.Community.newGroup){
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h3 id="groupFormHeader">@Messages("workspace.creategroup.modal.h3")</h3>
-        </div>
-        <div class="modal-body">
-            @inputText(groupForm("groupName"), '_label -> Messages("workspace.creategroup.modal.groupname"))
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">@Messages("application.cancel.button")</button>
-            <input type="submit" class="btn bnt-primary"
-                   value='@Messages("workspace.creategroup.modal.button")'>
-        </div>
-    }
-</div> <!-- Modal End -->
+@modal(modalId="groupFormModal",
+        modalTitle=Messages("workspace.creategroup.modal.h3"),
+        formAction=Some(routes.Community.newGroup)){
+
+    @inputText(groupForm("groupName"), '_label -> Messages("workspace.creategroup.modal.groupname"))
+
+}
 
 <center><h1>@session.get("userName")'s Workspace</h1></center>
 
@@ -168,7 +139,7 @@
                 <tbody>
                 @for(g<-listezb){
                 <tr>
-                    <td><a href="/read/@g.ezoombook_id">@g.ezoombook_title</a></td>
+                    <td><a href='@routes.EzoomBooks.setReadingEzb(g.book_id.toString, g.ezoombook_id.toString,"1")'>@g.ezoombook_title</a></td>
                     <td>
                         <a id="ezbEditButton"
                            href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
