@@ -13,16 +13,22 @@ object ApplicationBuild extends Build {
     "ezb-dal" %% "ezb-dal" % "0.1-SNAPSHOT" excludeAll(ExclusionRule(organization="play"),ExclusionRule(organization="nl")),
     jdbc,
     "com.typesafe.slick" %% "slick" % "1.0.0",
-    "couchbase" % "couchbase-client" % "1.1.2"
+    "com.couchbase.client" % "couchbase-client" % "1.2.2"
   )
 
   val appResolvers = Seq(
-    "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+    "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+    "eZoomBook repoisitory" at "https://github.com/ezoombook/ezb-mvn/raw/master"
   )
+
+  val localMavenRepo = Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/Developement/ezoombook/mvn-repo")))
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here   
       scalaVersion := "2.10.0",
-      resolvers ++= appResolvers
+      resolvers ++= appResolvers,
+      publishTo := localMavenRepo,
+      publishArtifact in (Compile, packageSrc) := false,
+      publishArtifact in (Compile, packageDoc) := false
   ) 
 }

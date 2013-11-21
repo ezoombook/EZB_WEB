@@ -12,24 +12,30 @@ object EzbDalBuild extends Build {
       "Mandubian repository snapshots" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots/",
       "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/releases/",
       "Couchbase Maven Repository" at "http://files.couchbase.com/maven2",
-      "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + "/.m2/repository"
+      "ePublib Maven Repository" at "https://github.com/psiegman/mvn-repo/raw/master/releases"
+      //"Local Maven Repository" at Path.userHome.asFile.toURI.toURL + "/.m2/repository"
   )
 
   val libdependencies = Seq(
       "com.typesafe.slick" %% "slick" % "1.0.1",
       "org.mindrot" % "jbcrypt" % "0.3m",
       "play"        % "play-json_2.10" % "2.2-SNAPSHOT",
-      "couchbase" % "couchbase-client" % "1.1.6",
+      "com.couchbase.client" % "couchbase-client" % "1.2.2",
       "nl.siegmann.epublib" %% "epublib-core" % "3.1",
       "org.scalaz" %% "scalaz-core" % "7.0.2"
   )
+
+  val localMavenRepo = Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/Developement/ezoombook/mvn-repo")))
 
   lazy val root = Project(name,
     file("."),
     settings = Defaults.defaultSettings ++ Seq (
       scalaVersion := buildScalaVersion,
       resolvers := libresolvers,
-      libraryDependencies ++= libdependencies
+      libraryDependencies ++= libdependencies,
+      publishTo := localMavenRepo,
+      publishArtifact in (Compile, packageSrc) := false,
+      publishArtifact in (Compile, packageDoc) := false
      )
    )
 }

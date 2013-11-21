@@ -139,7 +139,7 @@
                 <tbody>
                 @for(g<-listezb){
                 <tr>
-                    <td><a href='@routes.EzoomBooks.setReadingEzb(g.book_id.toString, g.ezoombook_id.toString,"1")'>@g.ezoombook_title</a></td>
+                    <td><a href='@routes.EzoomBooks.setReadingEzb(g.book_id.toString, g.ezoombook_id.toString,"0")'>@g.ezoombook_title</a></td>
                     <td>
                         <a id="ezbEditButton"
                            href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
@@ -216,8 +216,8 @@
                 </tr>
                 @for(g<-listmyb){
                 <tr>
-                    <td><a href="/books/@g.bookId">@g.bookTitle</a></td>
-                    <td><a href="/bookreedit/@g.bookId" class="btn" >@Messages("workspace.books.edit.button")</a></td>
+                    <td><a href="@routes.EzoomBooks.readBook(g.bookId.toString)">@g.bookTitle</a></td>
+                    <td><a href="@routes.EzoomBooks.reedit(g.bookId.toString)" class="btn" >@Messages("workspace.books.edit.button")</a></td>
 
                 </tr>
                 }

@@ -5,7 +5,7 @@
 @main("read a book"){
 <div class="row">
     <h1>Books</h1>
-    <a href="/books/new" class="bulle">@Messages("listbooks.addbook.link")</a>
+    <a href="@routes.EzoomBooks.newBook" class="bulle">@Messages("listbooks.addbook.link")</a>
 </div>
 
 @bookList.grouped(4).map{blist=>
@@ -15,11 +15,11 @@
             <table class="table" style="border: 1px solid #ddd;">
                 <tbody>
                 <tr><td><img src='@routes.EzoomBooks.bookCover(book.bookId.toString)' style='width: 300px;'></td></tr>
-                <tr><td><a href="/books/@book.bookId">@book.bookTitle</a></td></tr>
+                <tr><td><a href="@routes.EzoomBooks.readBook(book.bookId.toString)">@book.bookTitle</a></td></tr>
                 <tr><td>@book.bookAuthors</td></tr>
                 <tr><td>@book.bookPublishedDates</td></tr>
                 <tr><td>@book.bookTags</td></tr>
-                <tr><td><a href="/bookreedit/@book.bookId" class="btn" >@Messages("listbooks.edit.button")</a></td></tr>
+                <tr><td><a href="@routes.EzoomBooks.reedit(book.bookId.toString)" class="btn" >@Messages("listbooks.edit.button")</a></td></tr>
                 </tbody>
             </table>
         </div>

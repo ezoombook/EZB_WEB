@@ -1,15 +1,16 @@
 #!/bin/bash
 
-# Arguments = -u username -p password -f file -d desing-document
+# Arguments = -h bucket.address -u username -p password -f file -d desing-document
 
 usage()
 {
 cat << EOF
 usage: $0 options
 
-This script sends a design document to the localhost Couchbase
+This script sends a design document to the remote or localhost Couchbase
 
 Required Parameters:
+    -h    The address of the bucket
     -u    The administrator user name
     -p    The administrator password
     -f    File containing the desing document
@@ -17,13 +18,17 @@ Required Parameters:
 EOF
 }
 
+HOST=
 USER=
 PASSWD=
 FILE=
 DDOC=
-while getopts "u:p:f:d:" OPTION
+while getopts "h:u:p:f:d:" OPTION
 do
     case $OPTION in
+        h)
+            CHOST=$OPTARG
+            ;;
         u)
             CUSER=$OPTARG
             ;;
@@ -46,7 +51,13 @@ shift $(($OPTIND - 1))
 
 if [ -n "$CUSER" ] && [ -n "$CPASSWD" ] && [ -n "$CFILE" ] && [ -n "$CDDOC" ]
 then
-    curl -u $CUSER:"$CPASSWD" -X PUT -H 'Content-Type: application/json' 'http://127.0.0.1:8092/ezoom-books/_design/'$CDDOC -d @$CFILE
+    if [ -n "$CHOST" ]
+    then
+        echo "Connecting to $CHOST"
+        curl -u $CUSER:"$CPASSWD" -X PUT -H 'Content-Type: application/json' $CHOST'/'$CDDOC -d @$CFILE
+    else
+        curl -u $CUSER:"$CPASSWD" -X PUT -H 'Content-Type: application/json' 'http://127.0.0.1:8092/ezoom-books/_design/'$CDDOC -d @$CFILE
+    fi
 else
     echo "Oops! empty parameters"
     usage

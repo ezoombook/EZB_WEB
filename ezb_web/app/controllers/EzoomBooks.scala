@@ -383,7 +383,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
           Ok(views.html.read(book,
             ezb, partIndex, layers,
             play.api.templates.Html(bodyContent),
-            play.api.templates.Html(styles),
+            play.api.templates.Html(""),
             layer))
         }
       }

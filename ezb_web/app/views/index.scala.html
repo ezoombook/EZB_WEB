@@ -69,7 +69,7 @@ width:50%;
             <tbody>
             @for(abook<-listbook){
                 <tr>
-                    <td><a href="/books/@abook.bookId">@abook.bookTitle</a></td>
+                    <td><a href="@routes.EzoomBooks.readBook(abook.bookId.toString)">@abook.bookTitle</a></td>
                 </tr>
             }
             </tbody>

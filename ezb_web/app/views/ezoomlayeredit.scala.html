@@ -2,190 +2,11 @@
 bookOpt:Option[Book],
 authenticate:User => Boolean)(implicit context:Context)
 
+@import utils.ezbhelpers.bootstrapHelper._
 @import ezbhelpers._
 
 @scripts = {
-<script type="text/javascript">//<![CDATA[
-    function onDeleteContrib(e){
-        var divId = $(this).attr("data-contribid");
-        $('#'+divId).remove();
-    }
-
-    function onPartIdChange(e){
-        var selectedPart = $(this).find("option[value='"+$(this).val()+"']").text();
-        var partTitleId = $(this).attr('data-titlefield');
-        $('#'+partTitleId).val(selectedPart);
-    }
-
-    function addPart(){
-        var partsCount = $("#contribs_set > .part_field" ).length;
-        var sumCount = $("#contribs_set > .summary_div" ).length;
-        var contribTotal = partsCount+sumCount;
-
-        var newId = "part_field_"+(partsCount);
-        var newPartField = $("#part_field_999").clone().attr("id", newId);
-
-        newPartField.find(".part_id:first")
-             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_id")
-             .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_id");
-
-        newPartField.find(".part_title:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_title")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_title");
-
-        newPartField.find("#ezoomlayer_contribs_contrib_type:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_type")
-            .attr("value","contrib.Part");
-
-        //Change buttons' id
-        newPartField.find("#btnAddQuote_999").attr("id","btnAddQuote_"+contribTotal)
-            .click(function(e){
-                var divId = e.target.id.split("_")[1];
-                addAtomicContrib(divId, "contrib.Quote");
-            });
-        newPartField.find("#btnAddSummary_999").attr("id","btnAddSummary_"+contribTotal)
-            .click(function(e){
-                var divId = e.target.id.split("_")[1];
-                addAtomicContrib(divId, "contrib.Summary");
-            });
-        newPartField.find(".deletecontrib").attr("data-contribid",newId)
-            .click(onDeleteContrib);
-        newPartField.find(".part_id")
-            .attr("data-titlefield","ezoomlayer_contribs_"+contribTotal+"__part_title")
-            .change(onPartIdChange);
-
-        newPartField.removeClass("hide");
-
-        $("#contribs_set").append(newPartField);
-    }
-
-    function addSummary(){
-        var partsCount = $("#contribs_set > .part_field" ).length;
-        var sumCount = $("#contribs_set > .summary_div" ).length;
-        var contribTotal = partsCount+sumCount;
-
-        var newSummaryDiv = $("#summary_div___999_").clone().attr("id", "summary_div_"+sumCount);
-
-        newSummaryDiv.find("#ezoomlayer_contribs_contrib_type:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_type")
-            .attr("value", "contrib.Summary");
-
-        newSummaryDiv.find("#ezoomlayer_contribs_contrib_content:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_content")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_content");
-
-        newSummaryDiv.find(".delete:first").click(function(){
-            $(this).parents(".contrib_div:first").remove();
-        });
-
-        newSummaryDiv.removeClass("hide");
-        newSummaryDiv.addClass("hl_contrib");
-
-        $("#contribs_set").append(newSummaryDiv);
-    }
-
-    function addAtomicContrib(parentId, contribType){
-
-        var parent = $("#part_field_"+parentId);
-
-        var numContrs = parent.children(".quote_div").length +
-                        parent.children(".summary_div").length;
-
-        var contribDiv = contribType == "contrib.Quote" ?
-                            $("#quote_div___999_").clone().attr("id","quote_div_"+parentId+"_"+numContrs+"_") :
-                            $("#summary_div___999_").clone().attr("id","quote_div_"+parentId+"_"+numContrs+"_");
-
-        contribDiv.find("#ezoomlayer_contribs_contrib_type:first")
-            .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_type")
-            .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_type")
-            .attr("value", contribType);
-
-        contribDiv.find("#ezoomlayer_contribs_contrib_content:first")
-            .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_content")
-            .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_content");
-
-        contribDiv.find(".delete:first").click(function(){
-            $(this).parents(".contrib_div:first").remove();
-        });
-
-        contribDiv.removeClass("hide");
-
-        parent.append(contribDiv);
-    }
-
-    $(document).ready(function(){
-        $('#btnAddezbSummary').click(function (e) {
-            var sumSet = $("#summaries_set");
-            var numSums = $(".ezb_summary").length - 1;
-
-            var sumDiv = $("#ezb_summary_999").clone().attr("id", "ezb_summary_"+numSums);
-
-            sumDiv.find(".ezb_summary")
-                .attr("id","ezoomlayer_summaries_"+numSums+"_")
-                .attr("name","ezoomlayer_summaries["+numSums+"]");
-
-            sumDiv.find(".delete:first").click(function(){
-                $(this).parents(".contrib_div:first").remove();
-            });
-
-            sumDiv.removeClass("hide");
-
-            sumSet.append(sumDiv);
-        });
-        $('#btnAddPart').click(function () {
-            addPart();
-        });
-        $('.btnAddQuote').click(function (e){
-            var divId = e.target.id.split("_")[1];
-            if(divId){
-                addAtomicContrib(divId, "contrib.Quote");
-            }
-        });
-        $('.btnAddPartSummary').click(function (e) {
-            var divId = e.target.id.split("_")[1];
-            if(divId){
-                addAtomicContrib(divId, "contrib.Summary");
-            }
-        });
-        $('#btnAddSummary').click(function (e){
-            addSummary();
-        });
-        $(".del_text").hover(
-            function(){
-                $(this).css("opacity", "1");
-            },
-            function(){
-                $(this).css("opacity", "0.2");
-            }
-        );
-
-        $(".deletecontrib").click(onDeleteContrib);
-
-        $("#ezoomlayer_locked_btn").click(function(){
-            var lkdButton = $("#ezoomlayer_locked");
-            //Toggle
-            if (lkdButton.attr("value") == "true"){
-                $("#ezoomlayer_locked").attr("value","false")
-            }else{
-                $("#ezoomlayer_locked").attr("value","true")
-            }
-        });
-        $("#ezoomlayer_status_btn").click(function(){
-            var lkdButton = $("#ezoomlayer_status");
-            //Toggle
-            if (lkdButton.attr("value") == "@Status.workInProgress"){
-                $("#ezoomlayer_status").attr("value","@Status.published")
-            }else{
-                $("#ezoomlayer_status").attr("value","@Status.workInProgress")
-            }
-        });
-
-        $(".part_id").change(onPartIdChange);
-   });
-//]]>
-</script>
+<script src='@routes.Assets.at("javascript/layeredit.min.js")'></script>
 }
 
 @displayEzbSummary(field:Field, hide:Boolean, divId:String) = {
@@ -315,81 +136,11 @@ authenticate:User => Boolean)(implicit context:Context)
     </dl>
 }
 
-@main("Ezoombook Edition", scripts){
-
-<style>
-.field_set{
-    border:2px solid blue;
-    -moz-border-radius:8px;
-    -webkit-border-radius:8px;
-    border-radius:8px;
-}
-.text_box
-{
-  position: relative;
-  padding-left: 5px;
-}
-textarea.contrib
-{
-  width: 100%;
-  resize: none;
-}
-.title_box
-{
-  padding-left: 5px;
-}
-.part_id
-{
-  width: 100%;
-}
-.part_id
-{
-  width: 100%;
+@styles = {
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/layeredit.min.css")">
 }
 
-.part_field
-{
-
-}
-.delete {
-}
-.del_text{
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 20;
-  line-height: 20px;
-  float: right;
-  opacity: 0.2;
-}
-label{
-  //float: left;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-.padded_field{
-    padding-left: 5px;
-    padding-top: 16px;
-    padding-bottom: 10px;
-}
-.hl_contrib{
-    padding-top: 10px;
-    border: 0;
-    //border-top: 1px solid #EEE;
-    border-bottom: 1px solid #EEE;
-}
-//Editable dropdown list
-.select-editable {
-    position:relative; background-color:white; border:solid grey 1px;  width:120px; height:18px;
-}
-.select-editable select {
-    position:absolute; top:0px; left:0px; font-size:14px; border:none; width:120px; margin:0;
-}
-.select-editable input {
-    position:absolute; top:0px; left:0px; width:100px; padding:1px; font-size:12px; border:none;
-}
-.select-editable select:focus, .select-editable input:focus { outline:none; }
-</style>
+@main("Ezoombook Edition", scripts, styles){
 
 <!-- Invisible part div (used as template) -->
 @displayPart(ezlForm("ezoomlayer_contribs"), true, "999")
@@ -455,8 +206,9 @@ label{
                 </ul>
             </div>
             }
-            @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString), 'id -> "ezl_form"){
-            <fieldset class="field_set">
+            @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString),
+                        'id -> "ezl_form", 'role -> "form"){
+            <fieldset>
                 <legend>eZoomLayer</legend>
                 @hidden(ezlForm("ezoomlayer_id"))
                 @hidden(ezlForm("ezoombook_id"))
@@ -471,9 +223,9 @@ label{
                         }
                     </div>
                     <div class="col-md-6 btn-group">
-                        <input class="btn" type="submit" value="Save eZoomLayer">
+                        <input class="btn btn-default" type="submit" value="Save eZoomLayer">
                         @activeLayer.map{ezl =>
-                        <button class="btn" href="#deleteAlert" role="button" data-toggle="modal">Delete eZoomLayer</button>
+                        <button class="btn btn-default" href="#deleteAlert" role="button" data-toggle="modal">Delete eZoomLayer</button>
                         }.getOrElse{}
                     </div>
                 </div>
@@ -486,20 +238,20 @@ label{
                     </div>
                 </div>
                 <div class="row">
-                    <div class="btn-group col-md-4 col-md-3">
-                        <input type="button" class="btn" id="btnAddezbSummary" value="+ Book Summary">
-                        <input type="button" class="btn" id="btnAddSummary" value="+ Summary">
-                        <input type="button" class="btn" id="btnAddPart" value="+ Part">
+                    <div class="btn-group col-md-9">
+                        <input type="button" class="btn btn-default" id="btnAddezbSummary" value="+ Book Summary">
+                        <input type="button" class="btn btn-default" id="btnAddSummary" value="+ Summary">
+                        <input type="button" class="btn btn-default" id="btnAddPart" value="+ Part">
                     </div>
                 </div>
             </fieldset>
-            <fieldset id="summaries_set" class="field_set">
+            <fieldset id="summaries_set">
                 <legend>Book Summaries</legend>
                 @helper.repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
                     @displayEzbSummary(f, false, "@f.id")
                 }
             </fieldset>
-            <fieldset id="contribs_set" class="field_set">
+            <fieldset id="contribs_set">
                 <legend>Contributions</legend>
                 @for(i <- ezlForm("ezoomlayer_contribs").indexes;
                      f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
