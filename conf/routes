@@ -7,7 +7,6 @@ GET     /                   controllers.Application.index
 
 GET     /workspace		    controllers.Workspace.home
 
-#GET	/users              controllers.Application.users
 POST	/users			    controllers.Support.newUser
 
 POST	/login			    controllers.Application.validate
@@ -57,18 +56,16 @@ GET     /books/new          controllers.EzoomBooks.newBook
 GET     /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
 POST    /bookreedit/save    controllers.EzoomBooks.saveEditedBook
 
-GET     /books/:id          controllers.EzoomBooks.readBook(id:String)
 GET     /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
 GET     /cachedcover    	controllers.EzoomBooks.cachedBookCover
 
 # Book reading with levels
-GET     /book/read/:ezbid          controllers.EzoomBooks.readBook(ezbid:String)
+GET     /book/read/:ezbid         controllers.EzoomBooks.readBook(ezbid:String)
 
-GET     /bookread/:bid/:index    controllers.EzoomBooks.readLayer(bid:String,index:String)
-#GET     /bookpart/:bid/:pid      controllers.EzoomBooks.bookPart(bid:String,pid:String)
+GET     /bookread/:bid/:index     controllers.EzoomBooks.readLayer(bid:String,index:String)
 
 # Book resources
-GET     /bookread/:bid/*file    controllers.EzoomBooks.bookResource(bid:String,file)
+#GET     /bookread/:bid/*file    controllers.EzoomBooks.bookResource(bid:String,file)
 
 # Tutorial
 GET	    /tutorial         controllers.Support.tutorial
@@ -85,10 +82,8 @@ GET     /ezb/edit/:id                     controllers.EzoomBooks.ezoomBookEdit(i
 POST    /ezb/save/:bookid                 controllers.EzoomBooks.saveEzoomBook(bookid:String)
 POST    /ezb/delete/:ezbid                controllers.EzoomBooks.ezoomBookDelete(ezbid)
 
-#GET    /ezlayer/form/:id                 controllers.EzoomBooks.newEzoomlayer(id:String)
 POST    /ezlayer/load/:bid                controllers.EzoomBooks.loadEzoomLayer(bid:String)
 POST    /ezlayer/save/:bid                controllers.EzoomBooks.saveEzoomlayer(bid:String)
-GET     /ezlayer/new/:bid                 controllers.EzoomBooks.ezoomBookEdit(bid:String)
 GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
 POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
 POST    /ezlayer/create/:bid/:lev/:p/:g   controllers.EzoomBooks.createEzoomLayer(bid,lev,p,g)
@@ -100,9 +95,6 @@ GET     /ezbread/:bid/:pid                controllers.EzoomBooks.readEzb(bid,pid
 # Book resources
 GET     /bookres/:bid/*file               controllers.EzoomBooks.bookResource(bid:String,file)
 
-#POST    /addezbtrl/:id                   controllers.EzoomBooks.addezbtrl(id:String)
-#POST    /addezbtf/:id                    controllers.EzoomBooks.addezbtf(id:String)
-
 POST    /quote                            controllers.EzoomBooks.addQuote
 
 # Assets
@@ -112,7 +104,6 @@ GET     /assets/*file       controllers.Assets.at(path="/public", file)
 GET	    /asearch            controllers.Support.asearch
 
 # To create some data
-#GET  	/admin			    controllers.AdminApp.index
 POST	/adminusers		    controllers.AdminApp.createUsers
 POST	/admingroups		controllers.AdminApp.createGroups
 POST	/adminbooks		    controllers.AdminApp.createBooks
