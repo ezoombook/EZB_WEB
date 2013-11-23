@@ -43,7 +43,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Redirects to book edition view for creating a new Book
    * @return
    */
-  def newBook = StackAction {implicit request =>
+  def newBook = StackAction(AuthorityKey -> RegisteredUser) {implicit request =>
     Ok(views.html.bookedit(bookForm))
   }
 
@@ -52,9 +52,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    */
   def loadBook = Action(loadFile){implicit request =>
     (if (request.body.size > request.body.memoryThreshold){
-      println("[INFO] created from File " + request.body.asFile.getPath)
+      println("[INFO] created from File")
       val book = BookDO.newBook(request.body.asFile)
-      println("Part title: " + book.bookParts)
       Some(book)
     } else {
       println("[INFO] created from bytes")
@@ -85,13 +84,12 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
             val newbook = new Book(cb.bookId, book.bookTitle, book.bookAuthors, book.bookAuthors,
               book.bookPublishers, book.bookPublishedDates, book.bookTags,
               book.bookSummary, cb.bookCover, cb.bookParts)
-            println("My new book: " + newbook)
             BookDO.saveBook(newbook)
             //BookDO.saveBookParts(newbook)
             UserDO.newUserBook(user.id, newbook.bookId)
-            Redirect(routes.EzoomBooks.readBook(newbook.bookId.toString))
+            Redirect(routes.EzoomBooks.listbooks)
           }.getOrElse(
-            Ok(views.html.bookedit(
+            BadRequest(views.html.bookedit(
               bookForm.withGlobalError("An error occurred while trying to save the file.")))
           )
         }

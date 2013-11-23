@@ -76,6 +76,26 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
   }
 
   /**
+   * Adds a new user
+   */
+  def newUser = Action {
+    implicit request =>
+      userForm.bindFromRequest.fold(
+        errors => {
+          BadRequest(views.html.login(loginForm, errors))
+        },
+        user => {
+          if(UserDO.create(user) > 0){
+            Redirect(routes.Application.login)
+          }else{
+            println("[ERROR] Could not create user " + user.name)
+            BadRequest(views.html.login(loginForm, userForm.withGlobalError("Could not create user.")))
+          }
+        }
+      )
+  }
+
+  /**
    * Changes session language
    */
   def setLang(langCode: String) = Action {
