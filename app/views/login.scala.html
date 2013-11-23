@@ -81,7 +81,7 @@ function overlay() {
         @onAllowRegister{
             <h2>Create an Account</h2>
             <div>
-                @helper.form(routes.Support.newUser) {
+                @helper.form(routes.Application.newUser) {
                     @inputText(userForm("username"), '_label -> <p>Username</p>)
                     @inputText(userForm("mail"), '_label -> <p>Mail</p>)
                     @inputText(userForm("password"), '_label -> <p>password</p>)

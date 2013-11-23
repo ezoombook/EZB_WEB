@@ -36,32 +36,6 @@ import models.{UserDO, AppDB}
  */
 object Support extends Controller with AuthElement with AuthConfigImpl with ContextProvider{
 
-  /**
-   * Adds a new user
-   */
-  def newUser = StackAction(AuthorityKey -> Guest) {
-    implicit request =>
-      userForm.bindFromRequest.fold(
-        errors => {
-          BadRequest(views.html.login(loginForm, errors))
-        },
-        user => {
-          UserDO.create(user)
-          UserDO.getUser(user.name).map {
-            newusr =>
-              Redirect(routes.Workspace.home).withSession(
-                "userId" -> newusr.id.toString,
-                "userName" -> newusr.name,
-                "userMail" -> newusr.email
-              )
-          }.getOrElse {
-            println("[ERROR] Could not find user " + user.name)
-            BadRequest(views.html.login(loginForm, userForm))
-          }
-        }
-      )
-  }
-
   def faq = StackAction(AuthorityKey -> Guest) {
     implicit request =>
       Ok(views.html.faq())

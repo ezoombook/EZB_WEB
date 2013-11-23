@@ -7,7 +7,7 @@ GET     /                   controllers.Application.index
 
 GET     /workspace		    controllers.Workspace.home
 
-POST	/users			    controllers.Support.newUser
+POST	/users			    controllers.Application.newUser
 
 POST	/login			    controllers.Application.validate
 GET     /login			    controllers.Application.login

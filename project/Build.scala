@@ -22,7 +22,6 @@ object ApplicationBuild extends Build {
   )
 
   val appResolvers = Seq(
-    "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
     "eZoomBook repoisitory" at "https://github.com/ezoombook/ezb-mvn/raw/master"
   )
 
