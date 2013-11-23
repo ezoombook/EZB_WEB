@@ -1,0 +1,101 @@
+@(loginForm: Form[Option[User]], userForm: Form[User])(implicit context:Context)
+@import ezbhelpers._
+
+@onAllowRegister(content:Html) = {
+    @if(play.api.Play.current.configuration.getBoolean("application.allowresgiser").getOrElse(true)){
+        @content
+    }else{
+        @Html("")
+    }
+}
+
+<script>
+function overlay() {
+	el = document.getElementById("overlay");
+	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+}
+</script>
+
+@main("Login to eZoomBook"){
+
+<!-- Contract Licence Modal -->
+@modal("contract",
+        Messages("login.contract.header"), None){
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce porttitor, tortor vitae semper accumsan, lorem eros laoreet eros, tempus rutrum augue erat eu nunc. Aliquam purus tortor, aliquam eget pulvinar in, pulvinar elementum ligula. Mauris quis egestas massa. Mauris tortor turpis, ullamcorper lobortis ultrices eget, semper quis libero. Curabitur porta lobortis nisi rutrum sodales. Nam vitae accumsan arcu. Duis ac consequat dui.
+</p>
+<p>
+    Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In porttitor placerat purus, at fringilla felis euismod sed. Maecenas augue neque, placerat in pharetra ac, rutrum eu metus. Nunc a nisi neque. Sed enim quam, tristique quis iaculis nec, tincidunt quis sem. Duis dolor massa, ornare sit amet fermentum eu, lobortis in mauris.
+</p>
+<p>
+    Nulla suscipit, magna eget posuere hendrerit, lectus massa mollis turpis, vitae commodo enim lorem pharetra tortor. Mauris sit amet massa justo. Praesent eget nibh quis neque congue ultricies. Fusce ut neque vel arcu euismod condimentum. Nunc suscipit sem et libero tincidunt scelerisque. Mauris ac elit lorem, nec tincidunt mi. Quisque dictum purus eu ipsum consectetur tempus. Maecenas vel elit ac velit molestie congue eu ac orci. Duis scelerisque lacus risus, ut euismod nulla.
+</p>
+<p>
+    Pellentesque placerat ornare massa, nec laoreet lorem varius in. Aliquam vehicula fringilla diam, id gravida quam suscipit eu. Phasellus mauris magna, imperdiet vel posuere ut, iaculis et ante. Aliquam nec sem augue, at venenatis ipsum. Duis vehicula eleifend pharetra. Sed consectetur erat eget diam rutrum eu bibendum dui imperdiet. Aliquam erat volutpat. Suspendisse sodales elementum elit sit amet dapibus. Nulla lacinia convallis odio, eget laoreet odio fringilla eget. Nulla a elementum justo. Morbi interdum commodo risus sed rutrum. Sed vel libero ipsum, ut lacinia dolor.
+</p>
+<p>
+    Mauris lobortis, neque nec hendrerit facilisis, felis lacus tristique elit, tincidunt iaculis mauris justo ut nulla. Mauris venenatis, dui in fermentum mollis, nisi enim condimentum mi, adipiscing facilisis odio turpis eget velit. Vestibulum a magna non nibh luctus sodales gravida ut mi. Pellentesque sollicitudin consectetur sapien sit amet ornare. Morbi porttitor, arcu ut cursus fermentum, augue magna tincidunt leo, vitae eleifend risus sem at leo. Integer consectetur pharetra arcu, sit amet semper lectus vulputate id. Donec iaculis libero eu eros tincidunt in vulputate mauris vehicula. Integer leo nisi, adipiscing vitae blandit eget, ullamcorper sit amet ante. Suspendisse imperdiet, mi eget molestie vestibulum, tortor ante venenatis orci, vel facilisis ipsum leo ut mauris. Nunc eget magna quis nibh feugiat mollis ut quis enim. Fusce tincidunt, tortor eget tristique hendrerit, metus sem rutrum augue, et venenatis velit massa vitae sapien. Pellentesque vitae viverra nibh.
+</p>
+<p>
+    Pellentesque justo libero, facilisis mollis porta at, accumsan sed est. Phasellus eleifend aliquet magna. Aliquam vestibulum leo id odio dapibus bibendum. Aliquam fringilla aliquam vulputate. Sed nec purus rhoncus lectus blandit lacinia. Pellentesque ut ante sed nisi laoreet ullamcorper. Sed cursus elementum felis ac iaculis.
+</p>
+<p>
+    Vivamus in eros eu libero faucibus rutrum. Ut luctus ligula eget ante mollis consequat. Morbi et diam id nisl pellentesque ultrices et vitae magna. Integer ultrices sagittis consectetur. Pellentesque vitae lobortis nisi. Nunc porta eros sed mi vulputate ac commodo elit dapibus. Fusce lobortis magna in nibh sodales quis lobortis erat cursus.
+</p>
+<p>
+    Cras ac velit tellus. Aliquam eu justo ut felis ullamcorper venenatis ac non libero. Cras ut libero consectetur nisi tristique aliquet. Etiam vitae mi elit, quis consequat tortor. Nullam sagittis auctor sodales. Praesent arcu tellus, tincidunt ut consectetur et, porta vel ante. Vivamus nec consequat massa.
+</p>
+<p>
+    Phasellus ullamcorper hendrerit elit, quis semper tortor tincidunt at. Morbi vitae diam id massa consectetur feugiat in ut augue. Vivamus viverra, mi vitae varius dignissim, dolor nibh ornare tellus, facilisis imperdiet risus tellus non est. Aliquam erat volutpat. Aliquam dignissim adipiscing neque quis elementum. Integer quis odio ante, eu tincidunt ante. Curabitur lobortis quam quis nunc laoreet pulvinar. Mauris sed augue non tortor molestie ultricies. Aenean placerat semper ornare. In tincidunt velit sed leo feugiat sed tincidunt felis pharetra. Donec at nibh elit. Donec dignissim augue ut leo tempor at mattis purus volutpat. Sed consequat consectetur vulputate. Curabitur volutpat, justo vel facilisis malesuada, leo urna facilisis mi, quis mollis magna purus vitae purus. Nulla id rutrum felis. Phasellus in erat mi.
+</p>
+<p>
+    Nulla tincidunt rutrum nulla eu ornare. Fusce sed odio quis erat consequat consectetur dictum quis eros. Aliquam erat volutpat. Cras at tristique leo. Morbi id dolor et urna blandit ullamcorper. Donec neque lectus, tincidunt nec vehicula quis, aliquam nec ligula. Sed est nisi, semper in iaculis id, malesuada a felis. Morbi posuere, erat vel vehicula rutrum, magna urna vulputate leo, vitae adipiscing lacus leo at mi.
+</p>
+}
+
+<div class="jumbotron">
+    <h1>eZoomBook</h1>
+    <p>@Messages("ezoombook.presentation")</p>
+    <a href="/tutorial" class="btn btn-primary btn-large">Learn more »</a>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <h2>Sign In</h2>
+        <div>
+            @helper.form(routes.Application.validate){
+                @inputText(loginForm("id"), '_label -> <p>Username or email</p>)
+                @inputPassword(loginForm("password"), '_label -> <p>Password</p>)
+                <input type="submit" value="Log in">
+            }
+        </div>
+        @onAllowRegister{
+        <div>
+            <a href="/changepassword">Forgot your password ?</a>
+        </div>
+        <div>
+            <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a>
+        </div>
+        }
+    </div>
+    <div class="col-md-6">
+        @onAllowRegister{
+            <h2>Create an Account</h2>
+            <div>
+                @helper.form(routes.Application.newUser) {
+                    @inputText(userForm("username"), '_label -> <p>Username</p>)
+                    @inputText(userForm("mail"), '_label -> <p>Mail</p>)
+                    @inputText(userForm("password"), '_label -> <p>password</p>)
+                    <a class="btn btn-primary" data-toggle="modal" href="#contract" >Contract license</a></br>
+                    <a>
+                        <input type="checkbox"
+                               onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >
+                        I agree with Contract License</a></br></br>
+                    <a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
+                    <input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+}
