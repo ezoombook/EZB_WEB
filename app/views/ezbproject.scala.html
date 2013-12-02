@@ -1,271 +1,250 @@
- @(project:EzbProject,
-   members:List[User],
-   ezbook:Option[Ezoombook],
-   memberForm:Form[TeamMember],
-   comments:List[Comment],
-   bookparts:List[BookPart] = List[BookPart](),
-   ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
+@(project:EzbProject,
+members:List[User],
+ezbook:Option[Ezoombook],
+memberForm:Form[TeamMember],
+comments:List[Comment],
+bookparts:List[BookPart] = List[BookPart](),
+ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
 @import ezbhelpers._
+@import utils.ezbhelpers.bootstrapHelper._
 @import utils.DateFormatter._
 @import utils.MD5Util
 
 @displayEzb = {
-    @ezbook.map{ezb =>
-         @withUser{user =>
-            @project.projectTeam.find(_.userId == user.id).map{member =>
-                @ezb.ezoombook_layers.get(member.assignedLayer).map{layer =>
-                    <a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer,false)">
-                        @ezb.ezoombook_title
-                    </a>
-                }.getOrElse{
-                    @helper.form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
-                        member.assignedLayer,
-                        member.assignedPart,
-                        project.groupId.toString)){
-                        @ezb.ezoombook_title
-                        <input type="submit" class="btn" value="Create layer >>">
-                    }
-                }
-            }.getOrElse{
-                <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
-            }
-         }
-    }.getOrElse{
-        <p>
-        <i>@Messages("ezbproject.missing.ezb.message")</i>
-        </p>
-        <p>
-            <a class="btn" data-toggle="modal" href="#ezblist">@Messages("ezbproject.addezb.link")</a>
-            <a class="btn" data-toggle="modal"
-               href="@routes.Collaboration.ezbProjectBookList(project.groupId.toString,project.projectId.toString)">
-                @Messages("ezbproject.newezb.link")</a>
-        </p>
-    }
+@ezbook.map{ezb =>
+@withUser{user =>
+@project.projectTeam.find(_.userId == user.id).map{member =>
+@ezb.ezoombook_layers.get(member.assignedLayer).map{layer =>
+<a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer,false)">
+    @ezb.ezoombook_title
+</a>
+}.getOrElse{
+@helper.form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
+member.assignedLayer,
+member.assignedPart,
+project.groupId.toString)){
+@ezb.ezoombook_title
+<input type="submit" class="btn" value="Create layer >>">
+}
+}
+}.getOrElse{
+<a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
+}
+}
+}.getOrElse{
+<p>
+    <i>@Messages("ezbproject.missing.ezb.message")</i>
+</p>
+<p>
+    <a class="btn" data-toggle="modal" href="#ezblist">@Messages("ezbproject.addezb.link")</a>
+    <a class="btn" data-toggle="modal"
+       href="@routes.Collaboration.ezbProjectBookList(project.groupId.toString,project.projectId.toString)">
+        @Messages("ezbproject.newezb.link")</a>
+</p>
+}
 }
 
- @diqus_script = {
- <script type="text/javascript">
-     /* * * CONFIGURATION VARIABLES * * */
-     var disqus_shortname = 'ezoombook'; // Required
-     var disqus_identifier = '@project.projectId';
-     var disqus_title = 'Message Board';
-     //var disqus_url = 'www.ezoombook.com/bookread/2329f284';
+@diqus_script = {
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'ezoombook'; // Required
+    var disqus_identifier = '@project.projectId';
+    var disqus_title = 'Message Board';
+    //var disqus_url = 'www.ezoombook.com/bookread/2329f284';
 
-     /* * * DON'T EDIT BELOW THIS LINE * * */
-     (function() {
-     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-     })();
- </script>
- <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
- <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+</noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 }
 
 @scripts = {
-<script type="text/javascript">//<![CDATA[
-    $(document).ready(function(){
-      
-         $('#btnAddezbsection').click(function () {
-         createField("projectsection", "textarea", "project_section", "", "section_set")
-        });
-        $('#btnAddezbsummary').click(function () {
-         createField("projectsummary", "textarea", "project_summary", "", "section_set")
-        });
-
-        $('.changeAssignmentBtn').click(function (){
-          var memberId = $(this).attr('data-memberid');
-          $('#modifMemberForm #user_id').val(memberId);
-        });
-
-        $('.showContribDetail').click(function(){
-            var layerId = $(this).attr('data-layer');
-            var contribId = $(this).attr('data-contrib');
-            $.ajax({
-                url:"/collab/contrib/"+layerId+"/"+contribId,
-                type:"GET",
-                dataType:"json"
-            }).done(function(msg){
-                $('#contribDetailModal .modal-body p.contrib-content')
-                    .replaceWith('<p class="contrib-content">'+msg.contrib_content+'</p>');
-                $('#contribDetailModal .modal-body span.contrib-type')
-                    .replaceWith('<span class="contrib-type">'+msg.contrib_type+'<span>');
-            });
-        });
-    });
-
-    function overlay() {
-        el = document.getElementById("overlay");
-        el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-    }
-//]]>
-</script>
+<script type='text/javascript' src='@routes.Assets.at("javascript/projectedit.min.js")'></script>
 }
 
 @levelMap(body: (Map[String,String]) => Html ) = {
- @defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
-     @body(lmap)
- }
+@defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
+@body(lmap)
+}
 }
 
 @main("Project", scripts){
 
 <style>
     .comment-author,contrib-author{
-        font-weight: 600;
-        color: #08C;
+    font-weight: 600;
+    color: #08C;
     }
     .comment-timeago{
-        font-weight: 500;
-        font-size: 95%;
-        color: rgba(30, 55, 70, 0.4);
+    font-weight: 500;
+    font-size: 95%;
+    color: rgba(30, 55, 70, 0.4);
     }
     .comment-on{
-        font-style: normal;
-        font-weight: 400;
-        color: #42474A;
+    font-style: normal;
+    font-weight: 400;
+    color: #42474A;
     }
 </style>
 
 <!-- Select eZoomBook Modal -->
 @modal(modalId = "ezblist",
- modalTitle = Messages("ezbproject.ezbmodal.chooseezb"),
- formAction = Some(routes.Collaboration.setProjectEzb(project.projectId.toString))){
+modalTitle = Messages("ezbproject.ezbmodal.chooseezb"),
+formAction = Some(routes.Collaboration.setProjectEzb(project.projectId.toString))){
 
-     @ezbList.map{ezb =>
-     <div>
-         <input type="radio" value="@ezb.ezoombook_id" id="ezbId" name="ezbId"> @ezb.ezoombook_title
-     </div>
-     }
+@ezbList.map{ezb =>
+<div>
+    <input type="radio" value="@ezb.ezoombook_id" id="ezbId" name="ezbId"> @ezb.ezoombook_title
+</div>
+}
 
 }
 
 <!-- Add Group Member Modal Window -->
 @modal(modalId = "new_member",
-       modalTitle = Messages("ezbproject.addmember.modal.h3"),
-       formAction = Some(routes.Collaboration.newProjectMember(project.projectId.toString))
+modalTitle = Messages("ezbproject.addmember.modal.h3"),
+formAction = Some(routes.Collaboration.newProjectMember(project.projectId.toString))
 ){
-     @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
-         '_label -> Messages("ezbproject.addmember.form.selectmember"))
-     @levelMap{lmap =>
-         @select(memberForm("assigned_layer"),
-             options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-             '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
-     }
-     @select(memberForm("assigned_part"),
-         bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
-         '_label -> Messages("ezbproject.addmember.form.assignedpart"))
- }
+@select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
+'_label -> Messages("ezbproject.addmember.form.selectmember"))
+@if(project.isMultiLevel){
+@levelMap{lmap =>
+@select(memberForm("assigned_layer"),
+options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+'_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+}
+}else{
+@hidden(memberForm("assigned_layer"), '_value -> ezbook.map(_.ezoombook_layers.head._1).getOrElse("1"))
+}
+@select(memberForm("assigned_part"),
+bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+'_label -> Messages("ezbproject.addmember.form.assignedpart"))
+}
 
 <!-- Change ezb assigment modal -->
 @modal("assigmentModal",
-        Messages("ezbproject.assigment.modal.h3"),
-        Some(routes.Collaboration.editProjectMember(project.projectId.toString))){
+Messages("ezbproject.assigment.modal.h3"),
+Some(routes.Collaboration.editProjectMember(project.projectId.toString)),
+'id -> "modifMemberForm"){
 
-     <input type='hidden' id='user_id' name='user_id'>
-     @levelMap{lmap =>
-         @select(memberForm("assigned_layer"),
-             options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-             '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
-     }
-     @select(memberForm("assigned_part"),
-         bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
-         '_label -> Messages("ezbproject.addmember.form.assignedpart"))
+@hidden(memberForm("user_id"))
+@if(project.isMultiLevel){
+@levelMap{lmap =>
+@select(memberForm("assigned_layer"),
+options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+'_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+}
+}else{
+@hidden(memberForm("assigned_layer"))
+}
+@select(memberForm("assigned_part"),
+bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+'_label -> Messages("ezbproject.addmember.form.assignedpart"))
 }
 
 <!-- Contribution details modal -->
 @modal("contribDetailModal",
-        Messages("ezbproject.contribdetail.h3"),
-        None){
-     <h4>@Messages("ezbproject.contrbidetail.contribtype.h4"): <span class="contrib-type"></span></h4>
-    <p class="contrib-content"></p>
+Messages("ezbproject.contribdetail.h3"),
+None){
+<h4>@Messages("ezbproject.contrbidetail.contribtype.h4"): <span class="contrib-type"></span></h4>
+<p class="contrib-content"></p>
 }
 
 <div class="row"> <!-- Project Header -->
     <div class="col-md-12">
         <h1>Project @project.projectName</h1>
         <dl>
-            <dt>@Messages("ezbproject.created.dt"): </dt>
-                <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
+            <dt>@Messages("ezbproject.created.dt"):</dt>
+            <dd>@dateFormat(project.projectCreationDate, "dd-MM-yyyy")</dd>
             <dt>@Messages("ezbproject.group.dt"):</dt>
-                <dd>@UserDO.getGroupById(project.groupId).map{group =>
-                        <a href="@routes.Community.group(group.id.toString)">@group.name</a>
-                    }.getOrElse("")</dd>
-            <dt>@Messages("ezbproject.workingon.dt"): </dt>
-                <dd>@displayEzb</dd>
+            <dd>@UserDO.getGroupById(project.groupId).map{group =>
+                <a href="@routes.Community.group(group.id.toString)">@group.name</a>
+                }.getOrElse("")
+            </dd>
+            <dt>@Messages("ezbproject.workingon.dt"):</dt>
+            <dd>@displayEzb</dd>
         </dl>
     </div>
 </div>
 <div class="row">
     <div class="col-md-7"> <!-- Left Pannel -->
         @withUser{user =>
-            @if(user.id == project.projectOwnerId){
-            <p>
-                <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("ezbproject.addmember.button")</a>
-            </p>
-            }
+        @if(user.id == project.projectOwnerId){
+        <p>
+            <a class="btn btn-primary" data-toggle="modal"
+               href="#new_member">@Messages("ezbproject.addmember.button")</a>
+        </p>
+        }
         }
 
         <h3>@Messages("ezbproject.team.h3")</h3>
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th>@Messages("ezbproject.member.name.th")</th>
-                    <th colspan=3 style="text-align:center;">@Messages("ezbproject.member.workingon.th")</th>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th>@Messages("ezbproject.member.workingon.chapter.th")</th>
-                    <th>@Messages("ezbproject.member.workingon.level.th")</th>
-                    <th></th>
-                </tr>
+            <tr>
+                <th>@Messages("ezbproject.member.name.th")</th>
+                <th colspan=3 style="text-align:center;">@Messages("ezbproject.member.workingon.th")</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>@Messages("ezbproject.member.workingon.chapter.th")</th>
+                <th>@Messages("ezbproject.member.workingon.level.th")</th>
+                <th></th>
+            </tr>
             </thead>
             <tbody>
-                @project.projectTeam.map{member =>
-                <tr>
-                    <td>@members.find(_.id == member.userId).map(_.name).getOrElse("<span class='error'>Undefined</span>")</td>
-                    <td>
-                        @bookparts.find(_.partId == member.assignedPart).map{part =>
-                            <a href='@routes.EzoomBooks.setReadingEzb(ezbook.map(_.ezoombook_id.toString).getOrElse(""),part.partId,member.assignedLayer)'>
-                                @part.title
-                            </a>
-                        }.getOrElse("<span class='error'>Undefined</span>")
-                    </td>
-                    <td>
-                        @levelMap{lmap =>
-                            @lmap(member.assignedLayer)
-                        }
-                    </td>
-                    <td> <!-- Change chapter/level assignment -->
-                    @if(context.user.exists(_.id == project.projectOwnerId)){
-                        <a href="#assigmentModal"
-                           data-toggle="modal"
-                           class="btn changeAssignmentBtn"
-                           data-memberid="@member.userId"
-                           title='@Messages("ezbproject.member.change.btn")'>
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </a>
+            @project.projectTeam.map{member =>
+            <tr>
+                <td>@members.find(_.id == member.userId).map(_.name).getOrElse("<span class='error'>Undefined</span>")
+                </td>
+                <td>
+                    @bookparts.find(_.partId == member.assignedPart).map{part =>
+                    <a href='@routes.EzoomBooks.setReadingEzb(ezbook.map(_.ezoombook_id.toString).getOrElse(""),part.partId,member.assignedLayer)'>
+                        @part.title
+                    </a>
+                    }.getOrElse("<span class='error'>Undefined</span>")
+                </td>
+                <td>
+                    @levelMap{lmap =>
+                    @lmap(member.assignedLayer)
                     }
-                    </td>
-                </tr>
-                }
+                </td>
+                <td> <!-- Change chapter/level assignment -->
+                    @if(context.user.exists(_.id == project.projectOwnerId)){
+                    <a href="#assigmentModal"
+                       data-toggle="modal"
+                       class="btn changeAssignmentBtn"
+                       data-memberid="@member.userId"
+                       data-layer="@member.assignedLayer"
+                       title='@Messages("ezbproject.member.change.btn")'>
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </a>
+                    }
+                </td>
+            </tr>
+            }
             </tbody>
         </table>
     </div>
     <div class="col-md-5"> <!-- Right Pannel -->
         <h3>@Messages("ezbproject.messages.board.h3")</h3>
         @comments.map{comment =>
-            @members.find(_.id == comment.commentAuthor).map{mem1 =>
-                @members.find(_.id == comment.contribAuthor).map{mem2 =>
-                    <div class="comment row">
-                        <div class="avatar col-md-1">
-                            @defining(MD5Util.md5Hex(mem2.email)){icon =>
-                                <img src="https://www.gravatar.com/avatar/@icon?s=92&amp;d=identicon">
-                            }
-                        </div>
-                        <div class="comment-content col-md-10">
-                            <div class="comment-header">
+        @members.find(_.id == comment.commentAuthor).map{mem1 =>
+        @members.find(_.id == comment.contribAuthor).map{mem2 =>
+        <div class="comment row">
+            <div class="avatar col-md-1">
+                @defining(MD5Util.md5Hex(mem2.email)){icon =>
+                <img src="https://www.gravatar.com/avatar/@icon?s=92&amp;d=identicon">
+                }
+            </div>
+            <div class="comment-content col-md-10">
+                <div class="comment-header">
                                 <span class="comment-author">@mem1.name
                                 <span class="comment-on">@Messages("ezbproject.comment.on")</span>
                                 <span class="contrib-author">
@@ -281,16 +260,16 @@
                                 <span class="comment-timeago">
                                     @comment.commentDate.toString
                                 </span>
-                            </div>
-                            <div class="comment-body">
-                                <p>
-                                    @comment.commentContent
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                }
-            }
+                </div>
+                <div class="comment-body">
+                    <p>
+                        @comment.commentContent
+                    </p>
+                </div>
+            </div>
+        </div>
+        }
+        }
         }
 
         <div id="disqus_thread"></div>
