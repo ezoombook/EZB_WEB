@@ -9,6 +9,9 @@
         $('#'+partTitleId).val(selectedPart);
     }
 
+    function onDeleteHoverIn(){$(this).css("opacity", "1");}
+    function onDeleteHoverOut(){$(this).css("opacity", "0.2");}
+
     function addPart(){
         var partsCount = $("#contribs_set > .part_field" ).length;
         var sumCount = $("#contribs_set > .summary_div" ).length;
@@ -51,13 +54,14 @@
 
         $("#contribs_set").append(newPartField);
     }
-
+/*
     function addSummary(){
         var partsCount = $("#contribs_set > .part_field" ).length;
         var sumCount = $("#contribs_set > .summary_div" ).length;
+        var newId = "summary_div_"+sumCount;
         var contribTotal = partsCount+sumCount;
 
-        var newSummaryDiv = $("#summary_div___999_").clone().attr("id", "summary_div_"+sumCount);
+        var newSummaryDiv = $("#summary_div___999_").clone().attr("id", newId);
 
         newSummaryDiv.find("#ezoomlayer_contribs_contrib_type:first")
             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
@@ -68,16 +72,17 @@
             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_content")
             .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_content");
 
-        newSummaryDiv.find(".delete:first").click(function(){
-            $(this).parents(".contrib_div:first").remove();
-        });
+        newSummaryDiv.find(".deletecontrib").attr("data-contribid",newId)
+            .click(onDeleteContrib);
+
+        newSummaryDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
         newSummaryDiv.removeClass("hide");
         newSummaryDiv.addClass("hl_contrib");
 
         $("#contribs_set").append(newSummaryDiv);
     }
-
+*/
     function addAtomicContrib(parentId, contribType){
 
         var parent = $("#part_field_"+parentId);
@@ -85,9 +90,12 @@
         var numContrs = parent.children(".quote_div").length +
                         parent.children(".summary_div").length;
 
+        var newId =  contribType == "contrib.Quote" ?
+                        "quote_div_" +parentId+"_"+numContrs+"_" :
+                        "summary_div_" +parentId+"_"+numContrs+"_"
         var contribDiv = contribType == "contrib.Quote" ?
-                            $("#quote_div___999_").clone().attr("id","quote_div_"+parentId+"_"+numContrs+"_") :
-                            $("#summary_div___999_").clone().attr("id","quote_div_"+parentId+"_"+numContrs+"_");
+                            $("#quote_div___999_").clone().attr("id",newId) :
+                            $("#summary_div___999_").clone().attr("id",newId);
 
         contribDiv.find("#ezoomlayer_contribs_contrib_type:first")
             .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_type")
@@ -98,9 +106,10 @@
             .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_content")
             .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_content");
 
-        contribDiv.find(".delete:first").click(function(){
-            $(this).parents(".contrib_div:first").remove();
-        });
+        contribDiv.find(".deletecontrib").attr("data-contribid",newId)
+            .click(onDeleteContrib);
+
+        contribDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
         contribDiv.removeClass("hide");
 
@@ -118,9 +127,10 @@
                 .attr("id","ezoomlayer_summaries_"+numSums+"_")
                 .attr("name","ezoomlayer_summaries["+numSums+"]");
 
-            sumDiv.find(".delete:first").click(function(){
-                $(this).parents(".contrib_div:first").remove();
-            });
+            sumDiv.find(".deletecontrib").attr("data-contribid","ezb_summary_"+numSums)
+                .click(onDeleteContrib);
+
+            sumDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
             sumDiv.removeClass("hide");
 
@@ -144,14 +154,8 @@
         $('#btnAddSummary').click(function (e){
             addSummary();
         });
-        $(".del_text").hover(
-            function(){
-                $(this).css("opacity", "1");
-            },
-            function(){
-                $(this).css("opacity", "0.2");
-            }
-        );
+
+        $(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
         $(".deletecontrib").click(onDeleteContrib);
 
