@@ -2,7 +2,7 @@
 bookOpt:Option[Book],
 authenticate:User => Boolean)(implicit context:Context)
 
-@import utils.ezbhelpers.bootstrapHelper._
+@import utils.ezbhelpers.EzbHelpers._
 @import ezbhelpers._
 
 @scripts = {
@@ -10,134 +10,141 @@ authenticate:User => Boolean)(implicit context:Context)
 }
 
 @displayEzbSummary(field:Field, hide:Boolean, divId:String) = {
-    <div class="row contrib_div @if(hide){hide}" id="ezb_summary_@divId">
-        <div class="col-md-11 text_box">
-            <a href="#" class="btn delete del_text"><span class="glyphicon glyphicon-trash"></span></a>
-            @textarea(field, '_label -> "", 'class -> "ezb_summary contrib")
-        </div>
+<div class="row contrib_div @if(hide){hide}" id="ezb_summary_@divId">
+    <div class="col-md-11 text_box">
+        <a class="deletecontrib" data-contribid="ezb_summary_@divId"><span
+                class="glyphicon glyphicon-trash delete-icon"></span></a>
+        @textarea(field, '_label -> "", 'class -> "ezb_summary contrib")
     </div>
+</div>
 }
 
 @displayPart(part:Field, hide:Boolean, divId:String) = {
 <div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId">
-    <div class="row part_div">
+    <div class="row part_div form-group">
         <div class="col-md-6 title_box">
             @hidden(part("contrib_type"))
             @part("part_id").value.map{partId =>
-                @hidden(part("part_id"))
-                @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
+            @hidden(part("part_id"))
+            @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
             }.getOrElse{
-                @bookOpt.map{book =>
-                    <div>
-                    @select(part("part_id"),
-                        options = book.bookParts.map{
-                            case BookPart(id, Some(title)) => (id, title)
-                            case BookPart(id, _) => (id, "- Subsection")
-                        } :+ ("","Add Custom Section"),
-                        '_label -> "",
-                        Symbol("data-titlefield") -> part("part_title").id,
-                        'class -> "part_id")
-                    </div>
-                }
-                @hidden(part("part_title"), 'class -> "part_title")
+            @bookOpt.map{book =>
+            <div>
+                @select(part("part_id"),
+                options = book.bookParts.map{
+                case BookPart(id, Some(title)) => (id, title)
+                case BookPart(id, _) => (id, "- Subsection")
+                } :+ ("","Add Custom Section"),
+                '_label -> "",
+                Symbol("data-titlefield") -> part("part_title").id,
+                'class -> "part_id")
+            </div>
+            }
+            @hidden(part("part_title"), 'class -> "part_title")
             }
         </div>
-        <div class="col-md-1 btn-group">
-            <button class="btn" data-toggle="dropdown" href="#" >New<span class="caret"></span></button>
+        <div class="col-md-4 btn-group">
+            <button class="btn btn-default" data-toggle="dropdown" href="#">New<span class="caret"></span></button>
             <ul class="dropdown-menu">
-                <li><a href="#" class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
-                <li><a href="#" class="btnAddPartSummary" id="btnAddSummary_@divId">Summary</a></li>
+                <li><a class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
+                <li><a class="btnAddPartSummary" id="btnAddSummary_@divId">Summary</a></li>
             </ul>
             @bookOpt.map{book =>
-                @part("part_id").value.map{partId =>
-                    <a class="btn" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
-                    Go to book...</a>
-                }
-            }.getOrElse{
-                <a class="btn hide readBtn" href="#">Go to book...</a>
+            @part("part_id").value.map{partId =>
+            <a class="btn btn-default" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
+                Go to book...</a>
             }
-            <a class="btn deletecontrib"
+            }.getOrElse{
+            <a class="btn hide readBtn" href="#">Go to book...</a>
+            }
+            <a class="btn btn-default deletecontrib"
                data-contribid="part_field_@divId"><span class="glyphicon glyphicon-trash"></span></a>
         </div>
     </div>
     @for(i <- part("part_contribs").indexes;
-        pc = part("part_contribs")("["+i+"]")){
-        @pc("contrib_type").value.map{ct =>
-            @displayAtomic(ct,pc,"part_", divId, i.toString, false)
-        }.getOrElse{ <!-- Cannot display part content --> }
+    pc = part("part_contribs")("["+i+"]")){
+    @pc("contrib_type").value.map{ct =>
+    @displayAtomic(ct,pc,"part_", divId, i.toString, false)
+    }.getOrElse{ <!-- Cannot display part content --> }
     }
 </div>
 }
 
 @displayAtomic(ctype:String, c:Field, level:String, parent:String, divId:String, hide:Boolean) = {
-    @defining(parent+"_"+divId+"_"){div_id =>
-        @ctype match{
-            case "contrib.Quote" => {
-            <div class="row contrib_div quote_div @if(hide){hide}" id="quote_div_@div_id">
-                <div class="col-md-1">
-                    <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
-                </div>
-                <div class="col-md-10 text_box">
-                    <a href="#" class="btn delete del_text"><span class="glyphicon glyphicon-trash"></span></a>
-                    @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
-                    @hidden(c("contrib_type"))
-                    @hidden(c("range"))
-                </div>
-            </div>
-            }
-            case "contrib.Summary" => {
-                <div class='row contrib_div summary_div @if(level=="contrib_"){hl_contrib} @if(hide){hide}' id="summary_div_@div_id">
-                    <div class="col-md-11 text_box">
-                        @hidden(c("contrib_type"))
-                        <a href="#" class="btn delete del_text"><span class="glyphicon glyphicon-trash"></span></a>
-                        @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary contrib")  )
-                    </div>
-                </div>
-            }
-            case _ => {
-                <p>Could not display contribution. Unknown type @ctype</p>
-            }
-        }
-    }
+@defining(parent+"_"+divId+"_"){div_id =>
+@ctype match{
+case "contrib.Quote" => {
+<div class="row contrib_div quote_div form-group @if(hide){hide}" id="quote_div_@div_id">
+    <div class="col-md-1">
+        <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
+    </div>
+    <div class="col-md-10 text_box">
+        <a class="deletecontrib"
+           data-contribid="quote_div_@div_id"><span class="glyphicon glyphicon-trash delete-icon"></span></a>
+        @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
+        @hidden(c("contrib_type"))
+        @hidden(c("range"))
+    </div>
+</div>
+}
+case "contrib.Summary" => {
+<div class='row contrib_div summary_div form-group @if(level=="contrib_"){hl_contrib} @if(hide){hide}'
+     id="summary_div_@div_id">
+    <div class="col-md-11 text_box">
+        @hidden(c("contrib_type"))
+        <a class="deletecontrib"
+           data-contribid="summary_div_@div_id"><span class="glyphicon glyphicon-trash delete-icon"></span></a>
+        @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary contrib") )
+    </div>
+</div>
+}
+case _ => {
+<p>Could not display contribution. Unknown type @ctype</p>
+}
+}
+}
 }
 
 @levelMap(body: (Map[String,String]) => Html ) = {
-    @defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
-        @body(lmap)
-    }
+@defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
+@body(lmap)
+}
 }
 
 @displayEzbInfo = {
-    <dl>
-        <dt>Title:</dt><dd>@ezb.ezoombook_title</dd>
-        <dt>Is Public:</dt>
-            <dd>@if(ezb.ezoombook_public){
-                    @Messages("application.yes")
-                }else{
-                    @Messages("application.no")
-                }</dd>
-        <dt>Status:</dt><dd>@ezb.ezoombook_status</dd>
-        <dt>Layers</dt>
-        <ul>
-            @ezb.ezoombook_layers.map{layer =>
-                @levelMap{lmap =>
-                    <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer._2/false">@lmap.getOrElse(layer._1, "undef")</a></li>
-                }
-            }
-        </ul>
-        @context.user.map{user =>
-            @if(authenticate(user)){
-            <dt>
-                <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">Add a layer...</a>
-            </dt>
-            <dd></dd>
-            }
+<dl>
+    <dt>Title:</dt>
+    <dd>@ezb.ezoombook_title</dd>
+    <dt>Is Public:</dt>
+    <dd>@if(ezb.ezoombook_public){
+        @Messages("application.yes")
+        }else{
+        @Messages("application.no")
         }
-    </dl>
+    </dd>
+    <dt>Status:</dt>
+    <dd>@ezb.ezoombook_status</dd>
+    <dt>Layers</dt>
+    <ul>
+        @ezb.ezoombook_layers.map{layer =>
+        @levelMap{lmap =>
+        <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer._2/false">@lmap.getOrElse(layer._1, "undef")</a></li>
+        }
+        }
+    </ul>
+    @context.user.map{user =>
+    @if(authenticate(user)){
+    <dt>
+        <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">Add a layer...</a>
+    </dt>
+    <dd></dd>
+    }
+    }
+</dl>
 }
 
 @styles = {
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/layeredit.min.css")">
+<link rel="stylesheet" href='@routes.Assets.at("stylesheets/layeredit.min.css")'>
 }
 
 @main("Ezoombook Edition", scripts, styles){
@@ -156,117 +163,128 @@ authenticate:User => Boolean)(implicit context:Context)
 
 <!-- An alert modal to desplay when deleting an EzoomLayer -->
 @modal(modalId= "deleteAlert",
-       modalTitle = Messages("ezoomlayeredit.ezlayerdelete.header"),
-       formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoombook_id.toString,ezl.ezoomlayer_level))
+modalTitle = Messages("ezoomlayeredit.ezlayerdelete.header"),
+formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoombook_id.toString,ezl.ezoomlayer_level))
 ){
-    @if(!activeLayer.isEmpty){
-        <p>@Messages("ezoomlayeredit.ezlayerdelete.alertmessage")</p>
-    }else{
-        <p>@Messages("ezoomlayeredit.ezlayerdelete.nolayerfound")</p>
-    }
+@if(!activeLayer.isEmpty){
+<p>@Messages("ezoomlayeredit.ezlayerdelete.alertmessage")</p>
+}else{
+<p>@Messages("ezoomlayeredit.ezlayerdelete.nolayerfound")</p>
+}
 }
 
-    <div class="row">
-        <div class="col-md-12">
-            <h1>eZoomBook Edition</h1>
-        </div>
+<div class="row">
+    <div class="col-md-12">
+        <h1>eZoomBook Edition</h1>
     </div>
-    <div class="row">
-        <div class="col-md-3">
-            <div>
-                <h3 id="ezoombook_title">eZoomBook Info</h3>
-                @displayEzbInfo
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <div>
+            <h3 id="ezoombook_title">eZoomBook Info</h3>
+            @displayEzbInfo
 
-                <p>Load a layer from a file: </p>
-                @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString), 'enctype -> "multipart/form-data"){
-                    <input type="file" name="ezlfile"></br>
-                    <input type="submit">
-                }
-            </div>
-            @bookOpt.map{book =>
-            <div>
-                <h3 id="book_info_header">Book Info</h3>
-                <dl>
-                    <dt>Title:</dt><dd>@book.bookTitle</dd>
-                    <dt>Author(s):</dt><dd>@book.bookAuthors.mkString(",")</dd>
-                    <dt><a href="@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(0).partId)">Navigate this book... </a> </dt><dd></dd>
-                </dl>
-            </div>
-            }.getOrElse{<div>Please specify a book!</div>}
+            <p>Load a layer from a file: </p>
+            @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString), 'enctype ->
+            "multipart/form-data"){
+            <input type="file" name="ezlfile"></br>
+            <input type="submit">
+            }
         </div>
-        <div class="col-md-9">
-            @if(ezlForm.hasErrors){
-            <div class="alert alert-error">
-                <a class="close" data-dismiss="alert">x</a>
-                <p>It seems there are some errors in your request...</p>
-                <ul>
+        @bookOpt.map{book =>
+        <div>
+            <h3 id="book_info_header">Book Info</h3>
+            <dl>
+                <dt>Title:</dt>
+                <dd>@book.bookTitle</dd>
+                <dt>Author(s):</dt>
+                <dd>@book.bookAuthors.mkString(",")</dd>
+                <dt><a href="@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(0).partId)">Navigate this
+                    book... </a></dt>
+                <dd></dd>
+            </dl>
+        </div>
+        }.getOrElse{
+        <div>Please specify a book!</div>
+        }
+    </div>
+    <div class="col-md-9">
+        @if(ezlForm.hasErrors){
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert">x</a>
+
+            <p>It seems there are some errors in your request...</p>
+            <ul>
                 @ezlForm.errors.map{err =>
-                    <li>@err.message</li>
+                <li>@err.message</li>
                 }
-                </ul>
-            </div>
-            }
-            @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString),
-                        'id -> "ezl_form", 'role -> "form"){
-            <fieldset>
-                <legend>eZoomLayer</legend>
-                @hidden(ezlForm("ezoomlayer_id"))
-                @hidden(ezlForm("ezoombook_id"))
-                @hidden(ezlForm("ezoomlayer_owner"))
-                @hidden(ezlForm("ezoomlayer_locked"))
-                @hidden(ezlForm("ezoomlayer_status"))
-                <div class="row">
-                    <div class="col-md-6 btn-group" data-toggle="buttons-checkbox">
-                        @if(context.user.exists(authenticate(_))){
-                        <button type="button" id="ezoomlayer_locked_btn" class="btn btn-primary">Lock this Layer</button>
-                        <button type="button" id="ezoomlayer_status_btn" class="btn btn-primary">Mark as Published</button>
-                        }
-                    </div>
-                    <div class="col-md-6 btn-group">
-                        <input class="btn btn-default" type="submit" value="Save eZoomLayer">
-                        @activeLayer.map{ezl =>
-                        <button class="btn btn-default" href="#deleteAlert" role="button" data-toggle="modal">Delete eZoomLayer</button>
-                        }.getOrElse{}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-9 padded_field">
-                    @levelMap{lmap =>
-                        @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-                        '_label -> "Choose the detail level of your layer:")
-                    }
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="btn-group col-md-9">
-                        <input type="button" class="btn btn-default" id="btnAddezbSummary" value="+ Book Summary">
-                        <input type="button" class="btn btn-default" id="btnAddSummary" value="+ Summary">
-                        <input type="button" class="btn btn-default" id="btnAddPart" value="+ Part">
-                    </div>
-                </div>
-            </fieldset>
-            <fieldset id="summaries_set">
-                <legend>Book Summaries</legend>
-                @helper.repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
-                    @displayEzbSummary(f, false, "@f.id")
-                }
-            </fieldset>
-            <fieldset id="contribs_set">
-                <legend>Contributions</legend>
-                @for(i <- ezlForm("ezoomlayer_contribs").indexes;
-                     f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
-                    @f("contrib_type").value.map{cf =>
-                        @cf match{
-                            case "contrib.Part" => { @displayPart(f, false, i.toString) }
-                            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
-                        }
-                    }.getOrElse{ }
-                }
-            </fieldset>
-
-            }
+            </ul>
         </div>
+        }
+        @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString),
+        'id -> "ezl_form", 'role -> "form"){
+        <fieldset>
+            <legend>eZoomLayer</legend>
+            @hidden(ezlForm("ezoomlayer_id"))
+            @hidden(ezlForm("ezoombook_id"))
+            @hidden(ezlForm("ezoomlayer_owner"))
+            @hidden(ezlForm("ezoomlayer_locked"))
+            @hidden(ezlForm("ezoomlayer_status"))
+            <div class="row">
+                <div class="col-md-6 btn-group" data-toggle="buttons-checkbox">
+                    @if(context.user.exists(authenticate(_))){
+                    <button type="button" id="ezoomlayer_locked_btn" class="btn btn-primary">Lock this Layer</button>
+                    <button type="button" id="ezoomlayer_status_btn" class="btn btn-primary">Mark as Published</button>
+                    }
+                </div>
+                <div class="col-md-6 btn-group">
+                    <input class="btn btn-default" type="submit" value="Save eZoomLayer">
+                    @activeLayer.map{ezl =>
+                    <button class="btn btn-default" href="#deleteAlert" role="button" data-toggle="modal">Delete
+                        eZoomLayer
+                    </button>
+                    }.getOrElse{}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 padded_field form-group">
+                    @levelMap{lmap =>
+                    @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString ->
+                    lmap(i.toString)),
+                    '_label -> "Choose the detail level of your layer:")
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="btn-group col-md-9">
+                    <input type="button" class="btn btn-default" id="btnAddezbSummary" value="+ Book Summary">
+                    <input type="button" class="btn btn-default" id="btnAddSummary" value="+ Summary">
+                    <input type="button" class="btn btn-default" id="btnAddPart" value="+ Part">
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="summaries_set">
+            <legend>Book Summaries</legend>
+            @helper.repeat(ezlForm("ezoomlayer_summaries"), min = 0){f =>
+            @displayEzbSummary(f, false, "@f.id")
+            }
+        </fieldset>
+        <fieldset id="contribs_set">
+            <legend>Contributions</legend>
+            @for(i <- ezlForm("ezoomlayer_contribs").indexes;
+            f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
+            @f("contrib_type").value.map{cf =>
+            @cf match{
+            case "contrib.Part" => { @displayPart(f, false, i.toString) }
+            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
+            }
+            }.getOrElse{ }
+            }
+        </fieldset>
+
+        }
     </div>
+</div>
 }
 
 
