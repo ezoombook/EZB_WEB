@@ -205,7 +205,7 @@ None){
                 </td>
                 <td>
                     @bookparts.find(_.partId == member.assignedPart).map{part =>
-                    <a href='@routes.EzoomBooks.setReadingEzb(ezbook.map(_.ezoombook_id.toString).getOrElse(""),part.partId,member.assignedLayer)'>
+                    <a href='@routes.EzoomBooks.setReadingEzbPart(ezbook.map(_.book_id.toString).getOrElse(""),ezbook.map(_.ezoombook_id.toString).getOrElse(""),part.partId,member.assignedLayer)'>
                         @part.title
                     </a>
                     }.getOrElse("<span class='error'>Undefined</span>")
