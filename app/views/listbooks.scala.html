@@ -17,10 +17,9 @@
         @bookList.map{book=>
         <div class="book-thumbnail">
             <a href="@routes.EzoomBooks.readBook(book.bookId.toString)">
-                <img
-                        data-src='holder.js/260x180'
-                        src='@routes.EzoomBooks.bookCover(book.bookId.toString)'
-                        alt="@book.bookTitle">
+                <img class='img-polaroid'
+                     src='@routes.EzoomBooks.bookCover(book.bookId.toString)'
+                     alt="@book.bookTitle">
             </a>
             <a href="@routes.EzoomBooks.readBook(book.bookId.toString)"><h3>@book.bookTitle</h3></a>
 
