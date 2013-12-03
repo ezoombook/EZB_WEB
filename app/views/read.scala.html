@@ -1,37 +1,37 @@
 @(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer], partContent:Html, bookStyles:Html, activeLayer:String)(
-    implicit session:Session, context:Context)
+implicit session:Session, context:Context)
 
 @import ezbhelpers._
 @import utils.DateFormatter._
 @import AppForms.commentForm
 
 @displayLayerContrib(contrib:Contrib) = {
-    @contrib match{
-        case atomic:AtomicContrib => {
-            <div class="row">
-                <div class="col-md-10">
-                    @displayAtomic(atomic, 0)
-                </div>
-            </div>
+@contrib match{
+case atomic:AtomicContrib => {
+<div class="row">
+    <div class="col-md-10">
+        @displayAtomic(atomic, 0)
+    </div>
+</div>
+}
+case part:EzlPart => {
+<div class="row">
+    <div class="col-md-10">
+        <h3>@part.part_title</h3>
+        @part.part_contribs.map{partContrib =>
+        @displayAtomic(partContrib, 1)
         }
-        case part:EzlPart => {
-            <div class="row">
-                <div class="col-md-10">
-                    <h3>@part.part_title</h3>
-                    @part.part_contribs.map{partContrib =>
-                        @displayAtomic(partContrib, 1)
-                    }
-                </div>
-            </div>
-        }
-    }
+    </div>
+</div>
+}
+}
 }
 
 @displayAtomic(contrib:AtomicContrib, indent:Int) = {
-        @contrib.contrib_type match{
-            case "contrib.Summary" => {
-                <div class="row summary collapse in">
-                    <div class="col-md-@(10-indent)">
+@contrib.contrib_type match{
+case "contrib.Summary" => {
+<div class="row summary collapse in">
+    <div class="col-md-@(10-indent)">
                         <span>
                         @contrib.contrib_content
                         </span>
@@ -47,15 +47,15 @@
                                 <span class="glyphicon glyphicon-comment"></span>
                             </a>
                         </span>
-                    </div>
-                </div>
-            }
-            case "contrib.Quote" => {
-            <div class="row quote collapse in">
-                <div class="col-md-1 col-md-1">
-                    <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
-                </div>
-                <div class="col-md-7" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
+    </div>
+</div>
+}
+case "contrib.Quote" => {
+<div class="row quote collapse in">
+    <div class="col-md-1 col-md-1">
+        <span class="badge badge-inverse" style="font-size:20px; float: right; ">&ldquo;</span>
+    </div>
+    <div class="col-md-7" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
                     <span>
                     <a class="quote-text" id="@contrib.contrib_id">
                         <i>@contrib.contrib_content</i>
@@ -63,115 +63,44 @@
                     </span>
                     <span>
                         <a class="comment-btn"
-                                title='@Messages("read.contribution.comment.button.title")'
-                                href="#commentbox"
-                                data-toggle="modal"
-                                data-contrib-id="@contrib.contrib_id"
-                                data-contrib-auth="@contrib.user_id"
-                                data-contrib-type="quote"
-                                data-contrib-layer="@contrib.ezoomlayer_id">
+                           title='@Messages("read.contribution.comment.button.title")'
+                           href="#commentbox"
+                           data-toggle="modal"
+                           data-contrib-id="@contrib.contrib_id"
+                           data-contrib-auth="@contrib.user_id"
+                           data-contrib-type="quote"
+                           data-contrib-layer="@contrib.ezoomlayer_id">
                             <span class="glyphicon glyphicon-comment"></span>
                         </a>
                     </span>
-                </div>
-            </div>
-            }
-        }
+    </div>
+</div>
+}
+}
 }
 @script={
-<script src="/assets/javascripts/jquery.highlight.js" type="text/javascript"></script>
-<script type="text/javascript">//<![CDATA[
-    $(document).ready(function(){
-        function zoomOut(e){
-            var quote = $(this).text();
-            var quoteId = $(this).attr('data-origin');
-
-            $("body p").unhighlight({ element: 'a', className: 'zoom-out' });
-            $('#level-tabs li:eq(1) a').tab('show');
-            $('#'+quoteId).attr('tabindex',-1).focus();
-        }
-
-        $('#showall').click(function(){
-            $('.summary').collapse('show');
-            $('.quote').collapse('show');
-        });
-        $('#hidequotes').click(function(){
-            $('.quote').collapse('hide');
-            $('.summary').collapse('show');
-        });
-        $('#hidesummaries').click(function(){
-            $('.summary').collapse('hide');
-            $('.quote').collapse('show');
-        });
-        $('.quote-text').click(function(e){
-            var selected = $(this).children('i').text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
-            var quoteId = $(this).attr('id');
-
-            for (var i = 0; i < selected.length; i++) {
-                selected[i] = selected[i].trim();
-            }
-
-            $('#level-tabs a:first').tab('show');
-            $('body p').highlight(selected, {element: 'a', className: 'zoom-out'});
-            $('a.zoom-out').attr('data-origin',quoteId);
-            $('a.zoom-out').attr('tabindex',-1).focus();
-            $('a.zoom-out').click(zoomOut);
-        });
-        $('.comment-btn').click(function(){
-            console.log('coucou!');
-            var contribId = $(this).attr('data-contrib-id');
-            var currDate = new Date();
-            console.log('today: ' + currDate.toString());
-            $('#commentContrib').val(contribId);
-            $('#contribAuthor').val($(this).attr('data-contrib-auth'));
-            $('#contribType').val($(this).attr('data-contrib-type'));
-            $('#commentLayer').val($(this).attr('data-contrib-layer'));
-            //$('#commentPart').val();
-        });
-    });
-//]]>
-</script>
+<script type="text/javascript" src='@routes.Assets.at("javascripts/jquery.highlight.js")'></script>
+<script type='text/javascript' src='@routes.Assets.at("javascript/read.min.js")'></script>
 }
 
-@main("Read", styles=bookStyles, scripts=script){
-<style>
-    .ex{
-        padding:15px;
-    }
-    .reader{
-        padding-top: 10px;
-    }
-    a.quote-text {color:#000;}
-    a.quote-text:hover {color:#08C;}
+@style = {
+<link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/read.min.css")'>
+}
 
-    a.zoom-out {color:#000; background-color: #FF8;}
-    a.zoom-out:hover {
-        color:#08C;
-        cursor: url(@routes.Assets.at("images/magnify.cur")), auto
-    }
-
-    div.summary{
-        padding-top: 5px;
-        padding-bottom: 5px;
-        border-top: 1px solid #E5E5E5;
-    }
-    .highlight{
-        background-color: #FF8;
-    }
-</style>
+@main("Read", styles=style+=bookStyles, scripts=script){
 
 <!-- Comment Box Modal -->
 @modal(modalId="commentbox",
-        modalTitle=Messages("read.comment.modal.h3"),
-        formAction = Some(routes.Collaboration.saveComment)){
+modalTitle=Messages("read.comment.modal.h3"),
+formAction = Some(routes.Collaboration.saveComment)){
 
-    @hidden(commentForm("commentAuthor"), '_value -> context.user.map(_.id.toString).getOrElse(""))
-    @hidden(commentForm("commentEzb"), '_value -> ezb.ezoombook_id.toString)
-    @hidden(commentForm("commentContrib"))
-    @hidden(commentForm("contribAuthor"))
-    @hidden(commentForm("contribType"))
-    @hidden(commentForm("commentLayer"))
-    @textarea(commentForm("commentContent"), '_label -> "", 'style -> "width: 494px; height: 78px;")
+@hidden(commentForm("commentAuthor"), '_value -> context.user.map(_.id.toString).getOrElse(""))
+@hidden(commentForm("commentEzb"), '_value -> ezb.ezoombook_id.toString)
+@hidden(commentForm("commentContrib"))
+@hidden(commentForm("contribAuthor"))
+@hidden(commentForm("contribType"))
+@hidden(commentForm("commentLayer"))
+@textarea(commentForm("commentContent"), '_label -> "", 'style -> "width: 494px; height: 78px;")
 
 }
 
@@ -187,12 +116,13 @@
 
 <h1>@ezb.ezoombook_title</h1>
 
-<div  class="row">
+<div class="row">
     <div class="col-md-12">
         <div class="btn-group" data-toggle="buttons-radio">
             <a id="showall" class="btn btn-primary" href="#">
                 @Messages("read.readoptions.showall.button")</a>
-            <a id="hidesummaries" class="btn btn-primary" href="#"> <!-- data-toggle="collapse" data-target=".summary"-->
+            <a id="hidesummaries" class="btn btn-primary" href="#">
+                <!-- data-toggle="collapse" data-target=".summary"-->
                 @Messages("read.readoptions.showquotes.button")</a>
             <a id="hidequotes" class="btn btn-primary" href="#"> <!-- data-toggle="collapse" data-target=".quote" -->
                 @Messages("read.readoptions.showsummaries.button")</a>
@@ -207,15 +137,15 @@
                 <a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a>
             </li>
             @ezb.ezoombook_layers.map{layer =>
-                @defining(Map("1"->Messages("read.leveltabs.highlydetailed"),
-                    "2"->Messages("read.leveltabs.fairlydetailed"),
-                    "3"->Messages("read.leveltabs.fairlyabridge"),
-                    "4"->Messages("read.leveltabs.highlyabridge"))){lmap =>
-                    <li class='@if(activeLayer == layer._1){active}else{}'>
-                        <a href="#tab@layer._1" data-toggle="tab">
-                        @lmap.getOrElse(layer._1, "-")</a>
-                    </li>
-                }
+            @defining(Map("1"->Messages("read.leveltabs.highlydetailed"),
+            "2"->Messages("read.leveltabs.fairlydetailed"),
+            "3"->Messages("read.leveltabs.fairlyabridge"),
+            "4"->Messages("read.leveltabs.highlyabridge"))){lmap =>
+            <li class='@if(activeLayer == layer._1){active}else{}'>
+                <a href="#tab@layer._1" data-toggle="tab">
+                    @lmap.getOrElse(layer._1, "-")</a>
+            </li>
+            }
             }
         </ul>
         <div class="tab-content">
@@ -242,20 +172,21 @@
                     </div>
                     <div class="col-md-1">
                         @if(partIndex < book.bookParts.size-1){
-                         <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex+1).partId)'>
-                             <span class="glyphicon glyphicon-chevron-right"></span></a>
-                        }
-                    </div>
-                </div> <!-- Reader End -->
-            </div>
-            @ezb.ezoombook_layers.map{layer =>
-                <div class="tab-pane @if(activeLayer == layer._1){active}else{}" id="tab@layer._1">
-                    <div class="layer">
-                        @layers(layer._1).ezoomlayer_contribs.map{contrib =>
-                            @displayLayerContrib(contrib)
+                        <a href='@routes.EzoomBooks.readEzb(book.bookId.toString,book.bookParts(partIndex+1).partId)'>
+                            <span class="glyphicon glyphicon-chevron-right"></span></a>
                         }
                     </div>
                 </div>
+                <!-- Reader End -->
+            </div>
+            @ezb.ezoombook_layers.map{layer =>
+            <div class="tab-pane @if(activeLayer == layer._1){active}else{}" id="tab@layer._1">
+                <div class="layer">
+                    @layers(layer._1).ezoomlayer_contribs.map{contrib =>
+                    @displayLayerContrib(contrib)
+                    }
+                </div>
+            </div>
             }
         </div>
     </div>

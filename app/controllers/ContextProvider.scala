@@ -1,7 +1,7 @@
 package controllers
 
 import users.dal._
-import books.dal.{Ezoombook,EzoomLayer}
+import books.dal.{Ezoombook, EzoomLayer}
 import models.Context
 
 import play.api.mvc.{Result, Request, Controller}
@@ -18,11 +18,14 @@ import java.util.UUID
  * Time: 15:33
  * To change this template use File | Settings | File Templates.
  */
-trait ContextProvider extends Controller{
+trait ContextProvider {
+  //extends Controller{
+  this: Controller =>
+
   val WORKING_EZB = "working-ezb"
   val WORKING_LAYER = "working-layer"
 
-  implicit def context[A](implicit request:Request[A]) : Context = {
+  implicit def context[A](implicit request: Request[A]): Context = {
     val userId = request.session.get("userId")
     val userName = request.session.get("userName")
     val userMail = request.session.get("userMail")
@@ -30,7 +33,7 @@ trait ContextProvider extends Controller{
     val user = userId.flatMap(uid =>
       userName.flatMap(name =>
         userMail.map(mail =>
-          User(UUID.fromString(uid),name,mail,"****")
+          User(UUID.fromString(uid), name, mail, "****")
         )
       )
     )
@@ -39,8 +42,8 @@ trait ContextProvider extends Controller{
       request.session.get("maxHistory").flatMap(maxHistory =>
         request.session.get("language").map(language =>
           Preferences(u.id, maxHistory.toInt, language)
-      )
-    ))
+        )
+      ))
 
     val ezb = request.session.get(WORKING_EZB).map(UUID.fromString(_))
 
@@ -49,10 +52,11 @@ trait ContextProvider extends Controller{
     Context(user, prefs, request.acceptLanguages, ezb, layer)
   }
 
-  def withUser[A](block: (User) => Result)(implicit request:Request[A]):Result = {
-    context.user.map{user =>
-      block(user)
-    }.getOrElse{
+  def withUser[A](block: (User) => Result)(implicit request: Request[A]): Result = {
+    context.user.map {
+      user =>
+        block(user)
+    }.getOrElse {
       Unauthorized("Oops! you need to be connected to acccess this page.")
     }
   }
