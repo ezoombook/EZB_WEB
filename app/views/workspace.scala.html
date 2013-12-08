@@ -8,26 +8,26 @@
 <script type="text/javascript">//<![CDATA[
     $(document).ready(function(){
 
-      $('.deleteProjectButton').click(function(){
-        var projId = $(this).attr('data-projId');
-        var action = $('#deleteProjectForm').attr('action');
-        $('#deleteProjectForm').attr('action', action+projId);
-      });
+    $('.deleteProjectButton').click(function(){
+    var projId = $(this).attr('data-projId');
+    var action = $('#deleteProjectForm').attr('action');
+    $('#deleteProjectForm').attr('action', action+projId);
+    });
 
-      $('.ezbDeleteButton').click(function(){
-        var ezbId = $(this).attr('data-ezbId');
-        var action = $('#deleteEZBForm').attr('action');
-        $('#deleteEZBForm').attr('action',action+ezbId);
-      });
+    $('.ezbDeleteButton').click(function(){
+    var ezbId = $(this).attr('data-ezbId');
+    var action = $('#deleteEZBForm').attr('action');
+    $('#deleteEZBForm').attr('action',action+ezbId);
+    });
 
     });
 
     function toggle(divtag){
-       if(document.getElementById(divtag).style.display=="none"){
-         document.getElementById(divtag).style.display="block";
-       } else {
-         document.getElementById(divtag).style.display="none";
-       }
+    if(document.getElementById(divtag).style.display=="none"){
+    document.getElementById(divtag).style.display="block";
+    } else {
+    document.getElementById(divtag).style.display="none";
+    }
     }
     //]]>
 </script>
@@ -37,221 +37,228 @@
 
 <!-- Delete project modal alert -->
 @modal(modalId="projectDeleteAlert",
-       modalTitle= Messages("workspace.deleteproject.h3"),
-       formAction= Some(routes.Collaboration.deleteProject("")),
-       'id -> "deleteProjectForm"
+modalTitle= Messages("workspace.deleteproject.h3"),
+formAction= Some(routes.Collaboration.deleteProject("")),
+'id -> "deleteProjectForm"
 ){
-    <p>@Messages("workspace.deleteproject.alert")</p>
+<p>@Messages("workspace.deleteproject.alert")</p>
 }
 
 <!-- Delete eZoomBook modal alert -->
 @modal(modalId = "ezbDeleteAlert",
-      modalTitle = Messages("workspace.deleteEZB.h3"),
-      formAction = Some(routes.EzoomBooks.ezoomBookDelete("")),
-      'id -> "deleteEZBForm"
+modalTitle = Messages("workspace.deleteEZB.h3"),
+formAction = Some(routes.EzoomBooks.ezoomBookDelete("")),
+'id -> "deleteEZBForm"
 ){
-    <p>@Messages("workspace.deleteEZB.alert")</p>
+<p>@Messages("workspace.deleteEZB.alert")</p>
 }
 
 <!-- Create group modal -->
 @modal(modalId="groupFormModal",
-        modalTitle=Messages("workspace.creategroup.modal.h3"),
-        formAction=Some(routes.Community.newGroup)){
+modalTitle=Messages("workspace.creategroup.modal.h3"),
+formAction=Some(routes.Community.newGroup)){
 
-    @inputText(groupForm("groupName"), '_label -> Messages("workspace.creategroup.modal.groupname"))
+@inputText(groupForm("groupName"), '_label -> Messages("workspace.creategroup.modal.groupname"))
 
 }
 
 <center><h1>@session.get("userName")'s Workspace</h1></center>
 
 <div class="row">
-<div class="col-md-3">
-    @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
-    <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon">
-    }
-    </br>
-    <table class="table table-striped">
-        <tbody>
-        <tr>
-            <th><span class="glyphicon glyphicon-envelope"></span>&nbsp;Message</th>
-            <th>author</th>
-            <th>date</th>
-            <th></th>
-        </tr>
+    <div class="col-md-3">
+        @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
+        <img src="https://www.gravatar.com/avatar/@icon?s=250&amp;d=identicon">
+        }
+        </br>
+        <table class="table table-striped">
+            <tbody>
+            <tr>
+                <th><span class="glyphicon glyphicon-envelope"></span>&nbsp;Message</th>
+                <th>author</th>
+                <th>date</th>
+                <th></th>
+            </tr>
 
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
 
 
-<div class="col-md-9">
+    <div class="col-md-9">
 
-    <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span>&nbsp;@Messages("workspace.tab.contribution.title")</a></li>
-        <li><a href="#tab2" data-toggle="tab"><span class="glyphicon glyphicon-globe"></span>&nbsp;@Messages("workspace.tab.community.title")</a></li>
-        <li><a href="#tab3" data-toggle="tab"><span class="glyphicon glyphicon-book"></span>&nbsp;@Messages("workspace.tab.books.title")</a></li>
-    </ul>
-    <div class="tab-content">
-        <div class="tab-pane active" id="tab1">  <!-- Projects -->
-            <h2>@Messages("workspace.projects.h2")</h2>
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab1" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span>&nbsp;@Messages("workspace.tab.contribution.title")</a>
+            </li>
+            <li><a href="#tab2" data-toggle="tab"><span class="glyphicon glyphicon-globe"></span>&nbsp;@Messages("workspace.tab.community.title")</a>
+            </li>
+            <li><a href="#tab3" data-toggle="tab"><span class="glyphicon glyphicon-book"></span>&nbsp;@Messages("workspace.tab.books.title")</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab1">  <!-- Projects -->
+                <h2>@Messages("workspace.projects.h2")</h2>
 
-            <table class="table table-striped">                
-                <thead>
+                <table class="table table-striped">
+                    <thead>
                     <th>@Messages("workspace.projects.project.th")</th>
 
                     <th>eZoomBook</th>
                     <th>@Messages("workspace.projects.creationdate.th")</th>
-		            <th></th>
-                </thead>
-		        <tbody>
-                @projlist.map {proj =>
-                <tr>
-                    <td><a href='@routes.Collaboration.projectAdmin(proj.projId.toString)'>@proj.projName</a></td>
-                    <td>@proj.ezbTitle</td>
-                    <td>@dateFormat(proj.projectCreationDate,
-                    "dd-MM-yyyy")</td>
-		             <td>
-                     @context.user.map{
-                         case user if(proj.projOwner == user.id) => {
-                              <a class="btn deleteProjectButton"
-                                href="#projectDeleteAlert"
-                                title='@Messages("workspace.ezoombooks.delete.button")'
-                                data-toggle="modal"
-                                data-projId="@proj.projId.toString">
-                                         <span class="glyphicon glyphicon-remove"></span>
-                              </a>
-                         }
-                         case _ => { @None }
-                     }.getOrElse(Html(""))
-        		    </td>
-                </tr>
-                }
-                </tbody>
-            </table>
-            
-            <h2>@Messages("workspace.ezoombooks.h2")</h2> <!-- eZoomBooks -->
+                    <th></th>
+                    </thead>
+                    <tbody>
+                    @projlist.map {proj =>
+                    <tr>
+                        <td><a href='@routes.Collaboration.projectAdmin(proj.projId.toString)'>@proj.projName</a></td>
+                        <td>@proj.ezbTitle</td>
+                        <td>@dateFormat(proj.projectCreationDate,
+                            "dd-MM-yyyy")
+                        </td>
+                        <td>
+                            @context.user.map{
+                            case user if(proj.projOwner == user.id) => {
+                            <a class="btn deleteProjectButton"
+                               href="#projectDeleteAlert"
+                               title='@Messages("workspace.ezoombooks.delete.button")'
+                               data-toggle="modal"
+                               data-projId="@proj.projId.toString">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                            }
+                            case _ => { @None }
+                            }.getOrElse(Html(""))
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
 
-            <table class="table table-striped">
-                <thead>
+                <h2>@Messages("workspace.ezoombooks.h2")</h2> <!-- eZoomBooks -->
+
+                <table class="table table-striped">
+                    <thead>
                     <th>@Messages("workspace.ezoombooks.name.th")</th>
                     <th></th>
-                </thead>
-                <tbody>
-                @for(g<-listezb){
-                <tr>
-                    <td><a href='@routes.EzoomBooks.setReadingEzb(g.book_id.toString, g.ezoombook_id.toString,"0")'>@g.ezoombook_title</a></td>
-                    <td>
-                        <a id="ezbEditButton"
-                           href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
-                           class="btn" title='@Messages("book.ezoombooks.edit.button")'>
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </a>
-                        <a class="btn ezbDeleteButton"
-                          href="#ezbDeleteAlert"
-                          title='@Messages("workspace.ezoombooks.delete.button")'
-                          data-ezbId="@g.ezoombook_id.toString"
-                          data-toggle="modal">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </a>
-                    </td>
-                </tr>
-                }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    @for(g<-listezb){
+                    <tr>
+                        <td><a href='@routes.EzoomBooks.setReadingEzb(g.book_id.toString, g.ezoombook_id.toString,"0")'>@g.ezoombook_title</a>
+                        </td>
+                        <td>
+                            <a id="ezbEditButton"
+                               href="@routes.EzoomBooks.ezoomBookEdit(g.ezoombook_id.toString)"
+                               class="btn" title='@Messages("book.ezoombooks.edit.button")'>
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </a>
+                            <a class="btn ezbDeleteButton"
+                               href="#ezbDeleteAlert"
+                               title='@Messages("workspace.ezoombooks.delete.button")'
+                               data-ezbId="@g.ezoombook_id.toString"
+                               data-toggle="modal">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
 
+            </div>
+            <div class="tab-pane" id="tab2"> <!-- Friends Tab -->
+                <h2>@Messages("workspace.friends.h2")</h2>
+
+                <p><a>@Messages("workspace.friends.add.link")</a></p>
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>@Messages("workspace.friends.name.th")</th>
+                        <th>@Messages("workspace.friends.group.th")</th>
+                        <th>@Messages("workspace.friends.favbook.th")</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>Scot</td>
+                        <td>Dantes group</td>
+                        <td>Desperate Remedies, Alice in Wonderland</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h2>@Messages("workspace.groups.h2")</h2> <!-- Groups -->
+
+                <p><a data-toggle="modal" href="#groupFormModal">@Messages("workspace.groups.add.link")</a></p>
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>@Messages("workspace.groups.title.th")</th>
+                        <th>@Messages("workspace.groups.youwon.th")</th>
+                    </tr>
+
+                    @for(g<-colabGroups){
+                    <tr>
+                        <td><a href="@routes.Community.group(g.id.toString())">@g.name</a></td>
+                        <td>
+                            @context.user.map{user=>
+                            @if(g.ownerId == user.id){
+                            <span>X</span>
+                            }
+                            }
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane" id="tab3"> <!-- Books Tab -->
+
+                <h2>@Messages("workspace.books.h2")</h2>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>@Messages("workspace.books.name.th")</th>
+                        <th></th>
+                    </tr>
+                    @for(g<-listmyb){
+                    <tr>
+                        <td><a href="@routes.EzoomBooks.readBook(g.bookId.toString)">@g.bookTitle</a></td>
+                        <td><a href="@routes.EzoomBooks.reedit(g.bookId.toString)" class="btn">@Messages("workspace.books.edit.button")</a>
+                        </td>
+
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+
+                <h2>@Messages("workspace.books.readinglist.h2")</h2>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>@Messages("workspace.books.readinglist.title.th")</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <h2>@Messages("workspace.books.favorites.h2")</h2>
+
+                <table class="table table-striped">
+                    <tbody>
+                    <tr>
+                        <th>@Messages("workspace.books.favorites.title.th")</th>
+                        <th></th>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
         </div>
-        <div class="tab-pane" id="tab2"> <!-- Friends Tab -->
-            <h2>@Messages("workspace.friends.h2")</h2>
-            <p><a>@Messages("workspace.friends.add.link")</a></p>
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>@Messages("workspace.friends.name.th")</th>
-                    <th>@Messages("workspace.friends.group.th")</th>
-                    <th>@Messages("workspace.friends.favbook.th")</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <td>Scot</td>
-                    <td>Dantes group</td>
-                    <td>Desperate Remedies, Alice in Wonderland</td>
-                </tr>
-                </tbody>
-            </table>
 
-            <h2>@Messages("workspace.groups.h2")</h2> <!-- Groups -->
-
-            <p><a data-toggle="modal" href="#groupFormModal">@Messages("workspace.groups.add.link")</a></p>
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>@Messages("workspace.groups.title.th")</th>
-                    <th>@Messages("workspace.groups.youwon.th")</th>
-                </tr>
-                @for(g<-userGroups){
-                <tr>
-                    <td><a href="@routes.Community.group(g.id.toString())">@g.name</a></td>
-                    <td>X</td>
-                </tr>
-                }
-
-                @for(g<-colabGroups){
-                <tr>
-                    <td><a href="@routes.Community.group(g.id.toString())">@g.name</a></td>
-                    <td></td>
-                </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        <div class="tab-pane" id="tab3"> <!-- Books Tab -->
-
-            <h2>@Messages("workspace.books.h2")</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>@Messages("workspace.books.name.th")</th>
-                    <th></th>
-                </tr>
-                @for(g<-listmyb){
-                <tr>
-                    <td><a href="@routes.EzoomBooks.readBook(g.bookId.toString)">@g.bookTitle</a></td>
-                    <td><a href="@routes.EzoomBooks.reedit(g.bookId.toString)" class="btn" >@Messages("workspace.books.edit.button")</a></td>
-
-                </tr>
-                }
-                </tbody>
-            </table>
-
-            <h2>@Messages("workspace.books.readinglist.h2")</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>@Messages("workspace.books.readinglist.title.th")</th>
-                    <th></th>
-                </tr>
-
-                </tbody>
-            </table>
-
-            <h2>@Messages("workspace.books.favorites.h2")</h2>
-
-            <table class="table table-striped">
-                <tbody>
-                <tr>
-                    <th>@Messages("workspace.books.favorites.title.th")</th>
-                    <th></th>
-                </tr>
-
-                </tbody>
-            </table>
-
-        </div>
     </div>
-
-</div>
 </div>
 
 }
