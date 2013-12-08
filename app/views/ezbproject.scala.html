@@ -121,7 +121,7 @@ options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
 '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
 }
 }else{
-@hidden(memberForm("assigned_layer"), '_value -> ezbook.map(_.ezoombook_layers.head._1).getOrElse("1"))
+@hidden(memberForm("assigned_layer"), '_value ->  project.level.map(_.toString).getOrElse("1"))
 }
 @select(memberForm("assigned_part"),
 bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
