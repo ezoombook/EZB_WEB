@@ -4,3 +4,5 @@ cp -R app ../../PROD/
 cp -R conf ../../PROD/
 cp -R project ../../PROD/
 cp -R lib ../../PROD/
+cp -R public ../../PROD
+
