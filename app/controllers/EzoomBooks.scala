@@ -6,8 +6,8 @@ import models._
 import users.dal._
 import books.dal._
 
+import scala.util._
 import play.api._
-import scala.Some
 import Play.current
 import cache.Cache
 
@@ -54,11 +54,11 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   def loadBook = Action(loadFile) {
     implicit request =>
       (if (request.body.size > request.body.memoryThreshold) {
-        println("[INFO] created from File")
+        Logger.debug("Book created from File")
         val book = BookDO.newBook(request.body.asFile)
         Some(book)
       } else {
-        println("[INFO] created from bytes")
+        Logger.debug("Book created from bytes")
         request.body.asBytes().map(BookDO.newBook(_))
       }).map {
         epub =>
@@ -66,7 +66,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
           Ok(views.html.bookedit(bookForm.fill(epub)))
       }.getOrElse {
         //With error message
-        println("[ERROR] Could not load file")
+        Logger.error("Could not load book file")
         Ok(views.html.bookedit(
           bookForm.withGlobalError("An error occurred while trying to load the file.")))
       }
@@ -121,15 +121,6 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   }
 
   /**
-   * Displays the ezoombook edition form for creating a new eZoomBook
-   * for an existing book.
-   * @param The id of the book
-
-  def newEzoomBook(bookId:String) = StackAction{implicit request =>
-    Ok(views.html.ezoombookedit(bookId, ezoomBookForm))
-  }**/
-
-  /**
    * Receives from the request an eZoomBook form and saves the new eZoomBook into the database.
    * Then, it displays the ezoomlayer edition form
    */
@@ -167,8 +158,14 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                   BadRequest(views.html.ezoomlayeredit(ezb, None, errors, BookDO.getBook(ezb.book_id.toString), canEditEzb(ezbId) _))
                 },
                 ezl => {
+                  val newezb = if (ezl.ezoomlayer_status == books.dal.Status.published) {
+                    ezb.copy(ezoombook_status = books.dal.Status.published, ezoombook_public = true)
+                  } else {
+                    ezb
+                  }
                   BookDO.saveLayer(ezl)
-                  println(s"[INFO] Layer ${ezl.ezoomlayer_id} successfully saved!")
+                  BookDO.saveEzoomBook(newezb)
+                  Logger.debug(s"Layer ${ezl.ezoomlayer_id} successfully saved!")
                   Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString, false))
                 }
               )
@@ -179,8 +176,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   private def canEditEzb(ezbId: String)(user: User): Boolean = {
     BookDO.getEzoomBook(UUID.fromString(ezbId)).exists {
       ezb =>
-        println("ezb id: " + ezb.ezoombook_id)
-        println("user projects: " + Collaboration.getProjectsByUser(user.id).map(_.ezbId).mkString(","))
+        Logger.debug("ezb id: " + ezb.ezoombook_id)
+        Logger.debug("user projects: " + Collaboration.getProjectsByUser(user.id).map(_.ezbId).mkString(","))
 
         ezb.ezoombook_owner == user.id.toString ||
           Collaboration.getProjectsByUser(user.id).exists(_.ezbId.exists(_ == ezb.ezoombook_id))
@@ -297,35 +294,55 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
         user =>
           withEzoomBook(ezbId) {
             ezb =>
-              val ezlform = ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id)
-              request.body.file("ezlfile").map {
+              val ezlform = request.body.file("ezlfile").map {
                 filePart =>
-                  val lines = scala.io.Source.fromFile(filePart.ref.file).getLines.toSeq
-                  books.util.Transformer(lines) match {
-                    case Right(layerData) =>
-                      val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
-                      val filledForm = ezlform.bind(layerData)
-
-                      Ok(views.html.ezoomlayeredit(ezb, None, filledForm, BookDO.getBook(ezb.book_id.toString),
-                        canEditEzb(ezbId) _))
-                    case Left(error) =>
-                      println("[ERROR] " + error)
-                      Ok(views.html.ezoomlayeredit(ezb,
-                        None,
-                        ezlform.withGlobalError("An error occurred while trying to load the file. " + error),
-                        BookDO.getBook(ezb.book_id.toString),
-                        canEditEzb(ezbId) _))
+                  withFallBack(scala.io.Source.fromFile(filePart.ref.file)(_))
+                    .map(_.getLines.toSeq)
+                    .map(books.util.Transformer(_))
+                    .map(
+                      _.fold(
+                        error => {
+                          Logger.error("Unable to parse ezLayer: " + error)
+                          ezoomlayerForm.withGlobalError("An error occurred while trying to load the file.")
+                        },
+                        layerData => {
+                          //val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
+                          ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id).bind(layerData)
+                        }
+                      )
+                    ) match {
+                    case Failure(err) =>
+                      Logger.error("An error occurred while reading the file")
+                      ezoomlayerForm.withGlobalError(Messages("ezoomlayeredit.loadfile.err.invalidformat"))
+                    case Success(form) => form
                   }
               }.getOrElse {
-                println("[ERROR] oops!")
-                Ok(views.html.ezoomlayeredit(ezb,
-                  None,
-                  ezlform.withGlobalError("An error occurred while trying to load the file."),
-                  BookDO.getBook(ezb.book_id.toString),
-                  canEditEzb(ezbId) _))
+                Logger.error("Could not load eZoomLayer from file: no file found in the request")
+                ezoomlayerForm.withGlobalError(Messages("ezoomlayeredit.loadfile.err.nofile"))
               }
+              Ok(views.html.ezoomlayeredit(ezb,
+                None,
+                ezlform,
+                BookDO.getBook(ezb.book_id.toString),
+                canEditEzb(ezbId) _))
           }
       }
+  }
+
+  /**
+   * Try 2 most used encodings, and fail if none is possible
+   * @param file
+   * @return
+   */
+  private def withFallBack(f: io.Codec => io.Source): Try[io.Source] = {
+    Try {
+      Logger.debug(s"Reading file with encoding ${io.Codec.UTF8} ...")
+      f(io.Codec.UTF8)
+    }.recoverWith {
+      case err =>
+        Logger.debug(s"Failed reading file as UTF8, trying ${io.Codec.ISO8859} enconding...")
+        Try(f(io.Codec.ISO8859))
+    }
   }
 
   //TODO rename to simply book
