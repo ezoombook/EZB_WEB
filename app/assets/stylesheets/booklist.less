@@ -1,20 +1,25 @@
+@column-count: 4;
+@column-gap: 10px;
+@column-fill: auto;
+
 .book-thumbs-container{
-  width: 90%;
+  width: 100%;
   max-width: 1100px;
   min-width: 800px;
   margin: 50px auto;
 }
+
 .columns {
-  -webkit-column-count: 4;
-  -webkit-column-gap: 10px;
-  -webkit-column-fill: auto;
-  -moz-column-count: 3;
-  -moz-column-gap: 10px;
-  -moz-column-fill: auto;
-  column-count: 3;
-  column-gap: 15px;
-  column-fill: auto;
+  -webkit-column-count: @column-count;
+  -webkit-column-gap: @column-gap;
+  -webkit-column-fill: @column-fill;
+  -moz-column-count: @column-count;
+  -moz-column-gap: @column-gap;
+  column-count: @column-count;
+  column-gap: @column-gap;
+  column-fill: @column-fill;
 }
+
 .book-thumbnail{
   display: inline-block;
   background: #FEFEFE;
@@ -50,15 +55,15 @@
 
 @media (min-width: 960px) {
   #columns {
-    -webkit-column-count: 4;
-   -moz-column-count: 4;
-   column-count: 4;
+    -webkit-column-count: @column-count;
+    -moz-column-count: @column-count;
+    column-count: @column-count;
   }
 }
 
 @media (min-width: 1100px) {
   #columns {
-    -webkit-column-count: 5;
+    -webkit-column-count: @column-count;
     -moz-column-count: 5;
     column-count: 5;
   }

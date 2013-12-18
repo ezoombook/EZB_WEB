@@ -7,6 +7,8 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import play.api.mvc.Results._
 import play.api.Play._
+import play.api.Logger
+import play.api.cache.Cache
 import reflect.classTag
 import jp.t2v.lab.play2.auth._
 import jp.t2v.lab.play2.stackc.{RequestWithAttributes, RequestAttributeKey, StackableController}
@@ -18,7 +20,7 @@ import jp.t2v.lab.play2.stackc.{RequestWithAttributes, RequestAttributeKey, Stac
  * Time: 11:43
  * To change this template use File | Settings | File Templates.
  */
-trait AuthConfigImpl extends AuthConfig{
+trait AuthConfigImpl extends AuthConfig {
 
   /**
    * Type that idenfies a user
@@ -49,7 +51,12 @@ trait AuthConfigImpl extends AuthConfig{
    * A function that returns a `User` object from an `Id`.
    * You can alter the procedure to suit your application.
    */
-  def resolveUser(id: Id): Option[User] = UserDO.getUser(id)
+  def resolveUser(id: Id): Option[User] = {
+    Cache.getOrElse[Option[User]]("logged-user") {
+      Logger.debug("Resolving user " + id + "...")
+      UserDO.getUser(id)
+    }
+  }
 
   /**
    * Where to redirect the user after a successful login.

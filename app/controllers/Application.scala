@@ -13,6 +13,7 @@ import play.api.data.Forms._
 import play.api._
 import play.api.mvc._
 import play.api.data._
+import play.api.cache.Cache
 import Forms._
 
 import Play.current
@@ -41,21 +42,22 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
    */
   def validate = Action {
     implicit request =>
-      println("[INFO] Login validation...")
+      Logger.debug("Login validation...")
       loginForm.bindFromRequest.fold(
         errors => {
-          println("[ERROR] Form error while validating user: " + errors)
+          Logger.error("Form error while validating user: " + errors)
           BadRequest(views.html.login(errors, userForm))
         },
         user => {
+          Logger.debug("Validation Succeeded")
           val prefs = UserDO.getUserPreferences(user.get.id)
           gotoLoginSucceeded(user.get.id).withSession(
-                            "userId" -> user.get.id.toString,
-                            "userName" -> user.get.name,
-                            "userMail" -> user.get.email,
-                            "maxHistory" -> prefs.map(_.maxHistory.toString).getOrElse("10"),
-                            "language" -> prefs.map(_.language).getOrElse("")
-                          )
+            "userId" -> user.get.id.toString,
+            "userName" -> user.get.name,
+            "userMail" -> user.get.email,
+            "maxHistory" -> prefs.map(_.maxHistory.toString).getOrElse("10"),
+            "language" -> prefs.map(_.language).getOrElse("")
+          )
         }
       )
   }
@@ -71,8 +73,10 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
   /**
    * Logout the user
    */
-  def logout = Action{implicit request =>
-    gotoLogoutSucceeded
+  def logout = Action {
+    implicit request =>
+      Cache.remove("logged-user")
+      gotoLogoutSucceeded
   }
 
   /**
@@ -85,9 +89,9 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
           BadRequest(views.html.login(loginForm, errors))
         },
         user => {
-          if(UserDO.create(user) > 0){
+          if (UserDO.create(user) > 0) {
             Redirect(routes.Application.login)
-          }else{
+          } else {
             println("[ERROR] Could not create user " + user.name)
             BadRequest(views.html.login(loginForm, userForm.withGlobalError("Could not create user.")))
           }

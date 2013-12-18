@@ -54,7 +54,7 @@
 
         $("#contribs_set").append(newPartField);
     }
-/*
+
     function addSummary(){
         var partsCount = $("#contribs_set > .part_field" ).length;
         var sumCount = $("#contribs_set > .summary_div" ).length;
@@ -82,7 +82,7 @@
 
         $("#contribs_set").append(newSummaryDiv);
     }
-*/
+
     function addAtomicContrib(parentId, contribType){
 
         var parent = $("#part_field_"+parentId);

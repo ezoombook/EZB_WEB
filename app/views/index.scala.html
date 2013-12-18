@@ -5,43 +5,43 @@
 @main("Homeland"){
 
 <style>
-#search{
-width: 75%;
-}
-#searchbox
-{
-width: 90%;	
-}
+    #search{
+    width: 75%;
+    }
+    #searchbox
+    {
+    width: 90%;
+    }
 
 
-.logo{
-  position: absolute;
-   top: 100px;
-  right: 25%;
-}
+    .logo{
+    position: absolute;
+    top: 100px;
+    right: 25%;
+    }
 
 
-.rightpannel{
-		
-float:right;
-width:25%;
-}
+    .rightpannel{
 
-.midlepannel{
+    float:right;
+    width:25%;
+    }
 
-margin:0 auto;
+    .midlepannel{
 
-width:50%;
-}
+    margin:0 auto;
 
-.leftpannel{
- position: absolute;
-   top: 200px;
-  right: 74%;
-  left:2%
-}
+    width:50%;
+    }
 
-.container
+    .leftpannel{
+    position: absolute;
+    top: 200px;
+    right: 74%;
+    left:2%
+    }
+
+    .container
     {
     cursor:url(@routes.Assets.at("images/torch.jpeg")), pointer;
     }
@@ -51,12 +51,15 @@ width:50%;
 <h1 hidden="true">eZoomBook</h1>
 <div class="row">
     <p>
-        <img border="0" src=@routes.Assets.at("/images/ezoombook2.png") width="50%" alt="eZoomBook">
+        <img border="0" src='@routes.Assets.at("images/ezoombook2.png")' width="50%" alt="eZoomBook">
     </p>
+
     <p>
         @Messages("ezoombook.presentation")
     </p>
-   <a href="/tutorial" class="btn btn-primary btn-large">@Messages("index.learnmore.btn") »</a>&nbsp;&nbsp;<a href="/login" class="btn btn-primary btn-large">@Messages("index.createaccount.btn")</a>&nbsp;&nbsp;<a href="forum" class="btn btn-primary btn-large">@Messages("index.forum.btn")</a>
+    <a href="/tutorial" class="btn btn-primary btn-large">@Messages("index.learnmore.btn") »</a>&nbsp;&nbsp;<a
+        href="/login" class="btn btn-primary btn-large">@Messages("index.createaccount.btn")</a>&nbsp;&nbsp;<a
+        href="forum" class="btn btn-primary btn-large">@Messages("index.forum.btn")</a>
 </div>
 <hr class="soften">
 <div class="row">
@@ -64,19 +67,21 @@ width:50%;
         <h2>@Messages("index.topbooks.h2")</h2>
         <table class="table table-striped">
             <thead>
-                <th>@Messages("index.topbooks.title.th")</th><th></th>
+            <th>@Messages("index.topbooks.title.th")</th>
+            <th></th>
             </thead>
             <tbody>
             @for(abook<-listbook){
-                <tr>
-                    <td><a href="@routes.EzoomBooks.readBook(abook.bookId.toString)">@abook.bookTitle</a></td>
-                </tr>
+            <tr>
+                <td><a href="@routes.EzoomBooks.readBook(abook.bookId.toString)">@abook.bookTitle</a></td>
+            </tr>
             }
             </tbody>
         </table>
     </div>
     <div class="col-md-6">
         <h2>@Messages("index.findbook.h2")</h2>
+
         <form id="searchbox" action="">
             <input id="search" type="text" placeholder='@Messages("index.findbook.placeholder")'>
             <input id="submit" type="submit" value='@Messages("index.findbook.search.button")' style="width:15%">
