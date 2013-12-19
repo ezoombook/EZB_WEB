@@ -3,8 +3,5 @@
 *@
 @(elements: helper.FieldElements)
 
-@**<div class="@if(elements.hasErrors) {error}">**@
-    @if(elements.label != ""){ <label for="@elements.id">@elements.label</label> }
-        @elements.input
-        <span class="errors">@elements.errors.mkString(", ")</span>
-@**</div>**@
+@if(elements.label != ""){ <label for="@elements.id">@elements.label</label> }
+@elements.input

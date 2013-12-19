@@ -7,7 +7,7 @@ import play.api.mvc.Results._
 import users.dal._
 import play.api.Application
 import slick.session.Session
-
+import scala.concurrent.Future
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,8 +19,6 @@ import slick.session.Session
 
 object Global extends DalSettings with DBeable{
 
-//  override def onStart(app: Application) { /* Does nothing */ }
-
   override def onStart(app: Application) {
     implicit val application = app
     lazy val database = getDb
@@ -28,7 +26,7 @@ object Global extends DalSettings with DBeable{
     database.withSession {
       implicit session: Session =>
         dal.create
-	      println("[INFO] Database Created!")
+        Logger.info("Database Created!")
     }
 
     //TODO Find a way to automatically update table definitions
@@ -41,11 +39,11 @@ object Global extends DalSettings with DBeable{
   override def onStop(app: Application) {
   }
 
-//  override def onError(request: RequestHeader, ex: Throwable) = {
-//    InternalServerError(
-//      views.html.error(ex.toString)
-//    )
-//  }
+  override def onError(request: RequestHeader, ex: Throwable) = {
+    Future.successful(InternalServerError(
+      views.html.error("We are experiencing technical problems. Please try again later.")
+    ))
+  }
 }
 
 
