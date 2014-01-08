@@ -163,8 +163,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                   } else {
                     ezb
                   }
-                  BookDO.saveLayer(ezl)
                   BookDO.saveEzoomBook(newezb)
+                  BookDO.saveLayer(ezl)
                   Logger.debug(s"Layer ${ezl.ezoomlayer_id} successfully saved!")
                   Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString, false))
                 }
@@ -176,9 +176,6 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   private def canEditEzb(ezbId: String)(user: User): Boolean = {
     BookDO.getEzoomBook(UUID.fromString(ezbId)).exists {
       ezb =>
-        Logger.debug("ezb id: " + ezb.ezoombook_id)
-        Logger.debug("user projects: " + Collaboration.getProjectsByUser(user.id).map(_.ezbId).mkString(","))
-
         ezb.ezoombook_owner == user.id.toString ||
           Collaboration.getProjectsByUser(user.id).exists(_.ezbId.exists(_ == ezb.ezoombook_id))
     }
@@ -188,7 +185,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Displays the ezoomlayer edit form without specifying a ezoomlayer,
    * creating by default a new empty ezoomlayer.
    */
-  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -211,7 +208,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * then redirects the user to the ezb edition page.
    */
   def createEzoomLayer(ezbId: String, layerLevel: String, assignedPart: String, groupId: String) =
-    StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+    StackAction(AuthorityKey -> RegisteredUser) {
       implicit request =>
         withUser {
           user =>
