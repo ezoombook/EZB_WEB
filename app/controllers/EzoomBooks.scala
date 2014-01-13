@@ -5,6 +5,7 @@ import EzbForms._
 import models._
 import users.dal._
 import books.dal._
+import project.dal._
 
 import scala.util._
 import play.api._
@@ -155,7 +156,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
             ezb =>
               ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id).bindFromRequest.fold(
                 errors => {
-                  BadRequest(views.html.ezoomlayeredit(ezb, None, errors, BookDO.getBook(ezb.book_id.toString), canEditEzb(ezbId) _))
+                  BadRequest(views.html.ezoomlayeredit(ezb, None, errors, BookDO.getBook(ezb.book_id.toString), None, canEditEzb(ezbId) _))
                 },
                 ezl => {
                   val newezb = if (ezl.ezoomlayer_status == books.dal.Status.published) {
@@ -163,10 +164,10 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                   } else {
                     ezb
                   }
-                  BookDO.saveLayer(ezl)
                   BookDO.saveEzoomBook(newezb)
+                  BookDO.saveLayer(ezl)
                   Logger.debug(s"Layer ${ezl.ezoomlayer_id} successfully saved!")
-                  Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString, false))
+                  Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, ezl.ezoomlayer_id.toString))
                 }
               )
           }
@@ -176,9 +177,6 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   private def canEditEzb(ezbId: String)(user: User): Boolean = {
     BookDO.getEzoomBook(UUID.fromString(ezbId)).exists {
       ezb =>
-        Logger.debug("ezb id: " + ezb.ezoombook_id)
-        Logger.debug("user projects: " + Collaboration.getProjectsByUser(user.id).map(_.ezbId).mkString(","))
-
         ezb.ezoombook_owner == user.id.toString ||
           Collaboration.getProjectsByUser(user.id).exists(_.ezbId.exists(_ == ezb.ezoombook_id))
     }
@@ -188,6 +186,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Displays the ezoomlayer edit form without specifying a ezoomlayer,
    * creating by default a new empty ezoomlayer.
    */
+  //TODO Verify this works well without project
   def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
     implicit request =>
       withUser {
@@ -201,6 +200,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                 Some(newEzlayer),
                 ezoomlayerForm,
                 BookDO.getBook(ezb.book_id.toString),
+                None,
                 canEditEzb(ezbId) _))
           }
       }
@@ -228,31 +228,90 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
               ezoomlayer_contribs = List[Contrib]()
             )
             BookDO.saveLayer(newEzLayer)
-            Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, layerid.toString, false))
+            Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, layerid.toString))
         }
     }
 
   /**
    * Displays the ezoomlayer edit form for an existing ezoomlayer
    */
-  def ezoomLayerEdit(ezbId: String, ezlId: String, refresh: Boolean) = StackAction(AuthorityKey -> RegisteredUser) {
+  def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
-      withUser {
-        user =>
-          withEzoomBook(ezbId) {
-            ezb =>
-              BookDO.getEzoomLayer(UUID.fromString(ezlId), refresh).map {
-                ezl =>
-                  val ezlform = ezoomlayerForm.fill(ezl)
-                  Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString), canEditEzb(ezbId))
-                  ).withSession(
-                    session + (WORKING_LAYER -> ezl.ezoomlayer_id.toString)
-                  )
-              }.getOrElse {
-                NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
-              }
+      withEzoomBook(ezbId) {
+        ezb =>
+          BookDO.getEzoomLayer(UUID.fromString(ezlId), true).map {
+            ezl =>
+              val ezlform = ezoomlayerForm.fill(ezl)
+              Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString), None, canEditEzb(ezbId))
+              ).withSession(
+                session + (WORKING_LAYER -> ezl.ezoomlayer_id.toString)
+              )
+          }.getOrElse {
+            NotFound("Oops! We couldn't find the EzoomLayer you are looking for :(")
           }
       }
+  }
+
+  /**
+   * Validates that a user can make modifications on a layer, like publishing it, adding parts or summaries, etc
+   */
+  private def canEditProjectLayer(ezb: Ezoombook, proj: EzbProject, layerId: String)(user: User): Boolean = {
+    ezb.ezoombook_owner == user.id.toString ||
+      proj.isMultiLevel &&
+        proj.projectTeam.exists(m => m.userId == user.id &&
+          ezb.ezoombook_layers.get(m.assignedLayer).exists(_ == layerId))
+  }
+
+  private def canEditProjectEzb(projId: String)(user: User): Boolean = {
+    projId.toUUID.fold(
+      err => {
+        Logger.error(err); false
+      },
+      pid =>
+        BookDO.getProject(pid).map{
+          proj =>
+            (proj.projectOwnerId == user.id) ||
+             proj.projectTeam.find(_.userId == user.id).nonEmpty
+        }.getOrElse(false)
+    )
+  }
+
+  def projectEzlayerEdit(projId: String) = StackAction(AuthorityKey -> canEditProjectEzb(projId) _) {
+    implicit request =>
+      projId.toUUID.fold(
+        err => BadRequest("Invalid projectId..."),
+        pid => {
+          BookDO.getProject(pid).map {
+            proj =>
+              withUserAndEzb(request, proj.ezoombookId.map(_.toString).getOrElse("")) {
+                (user, ezb) =>
+                  val layer = (((level:String) => for {
+                    ezblayer <- ezb.ezoombook_layers.get(level)
+                    layerId <- ezblayer.toUUID.right.toOption
+                    layr <- BookDO.getEzoomLayer(layerId, true)
+                  } yield layr)(
+                      if(proj.projectOwnerId == user.id)
+                        "1"
+                      else {
+                        proj.projectTeam.find(_.userId == user.id).map(_.assignedLayer).getOrElse("1")
+                      }
+                  )).getOrElse(new EzoomLayer(ezb.ezoombook_id,"group:"+proj.groupId))
+
+                  Ok(views.html.ezoomlayeredit(ezb,
+                    Some(layer),
+                    ezoomlayerForm.fill(layer),
+                    BookDO.getBook(ezb.book_id.toString),
+                    Some(proj),
+                    canEditProjectLayer(ezb, proj, layer.ezoomlayer_id.toString)
+                  )).withSession(
+                      session + (WORKING_LAYER -> layer.ezoomlayer_id.toString)
+                    )
+              }
+          }.getOrElse(
+            NotFound("Oops! We couldn't find the project you are looking for :(")
+          )
+        }
+      )
   }
 
   /**
@@ -272,7 +331,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                       BookDO.getEzoomLayer(layerId).map {
                         ezl =>
                           val ezlform = ezoomlayerForm.fill(ezl)
-                          Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString),
+                          Ok(views.html.ezoomlayeredit(ezb, Some(ezl), ezlform, BookDO.getBook(ezb.book_id.toString), None,
                             canEditEzb(ezb.ezoombook_id.toString) _))
                       }
                   }
@@ -287,7 +346,6 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Loads an ezoomlayer from a marked down file and displays it
    * in the ezoomlayer edition form
    */
-  //TODO Correct repeated contribution_id on atomic contrib
   def loadEzoomLayer(ezbId: String) = Action(parse.multipartFormData) {
     implicit request =>
       withUser {
@@ -308,7 +366,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                         layerData => {
                           //val ezoombookTitle = (layerData \ "ezoombook_title").asOpt[String]
                           ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id).bind(layerData)
-                        }
+                  }
                       )
                     ) match {
                     case Failure(err) =>
@@ -320,14 +378,14 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                 Logger.error("Could not load eZoomLayer from file: no file found in the request")
                 ezoomlayerForm.withGlobalError(Messages("ezoomlayeredit.loadfile.err.nofile"))
               }
-              Ok(views.html.ezoomlayeredit(ezb,
-                None,
+                Ok(views.html.ezoomlayeredit(ezb,
+                  None,
                 ezlform,
-                BookDO.getBook(ezb.book_id.toString),
-                canEditEzb(ezbId) _))
+                  BookDO.getBook(ezb.book_id.toString),
+                  None, canEditEzb(ezbId) _))
+              }
           }
       }
-  }
 
   /**
    * Try 2 most used encodings, and fail if none is possible
@@ -342,7 +400,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
       case err =>
         Logger.debug(s"Failed reading file as UTF8, trying ${io.Codec.ISO8859} enconding...")
         Try(f(io.Codec.ISO8859))
-    }
+  }
   }
 
   //TODO rename to simply book
@@ -594,11 +652,24 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   }
 
   def withEzoomBook(ezbId: String)(block: (Ezoombook) => Result): Result = {
-    BookDO.getEzoomBook(UUID.fromString(ezbId)).map {
-      ezb =>
-        block(ezb)
-    }.getOrElse {
-      NotFound("Oops! We couldn't find the EzoomBook you are looking for :(")
+    ezbId.toUUID.fold(
+      err => BadRequest("Oh snap! Your eZoomBook's identifier is not a valid id :("),
+      eid => BookDO.getEzoomBook(eid).map {
+        ezb => block(ezb)
+      }.getOrElse {
+        NotFound("Oops! We couldn't find the EzoomBook you are looking for :(")
+      }
+    )
+  }
+
+  def withUserAndEzb[A](request: Request[A], ezbId: String)(block: (User, Ezoombook) => Result): Result = {
+    implicit val req = request
+    withUser {
+      user =>
+        withEzoomBook(ezbId) {
+          ezb =>
+            block(user, ezb)
+        }
     }
   }
 
