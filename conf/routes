@@ -36,15 +36,16 @@ GET     /groupadmin/:id		    controllers.Community.groupadmin(id:String)
 POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 
 # Projects
-POST    /project/save/:gid              controllers.Collaboration.saveProject(gid)
-POST    /project/saveezb/:pid           controllers.Collaboration.saveProjectEzb(pid)
-POST    /project/setezb/:pid            controllers.Collaboration.setProjectEzb(pid)
-GET     /project/admin/:id              controllers.Collaboration.projectAdmin(id:String)
-POST    /projectmember/:id              controllers.Collaboration.newProjectMember(id:String)
-POST    /projectmember/update/:pid      controllers.Collaboration.editProjectMember(pid)
-POST	/project/delete/:id             controllers.Collaboration.deleteProject(id)
-POST    /collab/comment                 controllers.Collaboration.saveComment
-GET     /collab/contrib/:lid/:cid       controllers.EzoomBooks.getContribution(lid,cid)
+POST    /project/save/:gid                   controllers.Collaboration.saveProject(gid)
+POST    /project/saveezb/:pid                controllers.Collaboration.saveProjectEzb(pid)
+POST    /project/setezb/:pid                 controllers.Collaboration.setProjectEzb(pid)
+GET     /project/:id                         controllers.Collaboration.projectAdmin(id:String)
+POST    /projectmember/:id                   controllers.Collaboration.newProjectMember(id:String)
+POST    /projectmember/update/:pid           controllers.Collaboration.editProjectMember(pid)
+POST	/project/delete/:id                  controllers.Collaboration.deleteProject(id)
+POST    /collab/comment                      controllers.Collaboration.saveComment
+GET     /collab/contrib/:lid/:cid            controllers.EzoomBooks.getContribution(lid,cid)
+GET     /collab/ezbedit/:pid                 controllers.EzoomBooks.projectEzlayerEdit(pid)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
@@ -84,7 +85,7 @@ POST    /ezb/delete/:ezbid                controllers.EzoomBooks.ezoomBookDelete
 
 POST    /ezlayer/load/:bid                controllers.EzoomBooks.loadEzoomLayer(bid:String)
 POST    /ezlayer/save/:bid                controllers.EzoomBooks.saveEzoomlayer(bid:String)
-GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
+GET     /ezlayer/edit/:bid/:lid           controllers.EzoomBooks.ezoomLayerEdit(bid,lid)
 POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
 POST    /ezlayer/create/:bid/:lev/:p/:g   controllers.EzoomBooks.createEzoomLayer(bid,lev,p,g)
 GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLayer

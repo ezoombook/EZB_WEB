@@ -61,4 +61,15 @@ trait FormHelpers {
     def unbind(key: String, value: Long): Map[String, String] = Map(key -> sdf.format(new Date(value)))
   }
 
+  implicit def str2uuidable(str: String): UUIDableString = new UUIDableString(str)
+
+  class UUIDableString(str: String) {
+    def toUUID: Either[String, UUID] = {
+      Try(UUID.fromString(str)) match {
+        case Success(uid) => Right(uid)
+        case Failure(err) => Left("Invalid UUID " + str)
+      }
+    }
+  }
+
 }
