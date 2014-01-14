@@ -25,37 +25,37 @@ authenticate:User => Boolean)(implicit context:Context)
         <div class="col-md-6 title_box">
             @hidden(part("contrib_type"))
             @part("part_id").value.map{partId =>
-            @hidden(part("part_id"))
-            @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
+               @hidden(part("part_id"))
+               @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
             }.getOrElse{
-            @bookOpt.map{book =>
-            <div>
-                @select(part("part_id"),
-                options = book.bookParts.map{
-                case BookPart(id, Some(title)) => (id, title)
-                case BookPart(id, _) => (id, "- Subsection")
-                } :+ ("","Add Custom Section"),
-                '_label -> "",
-                Symbol("data-titlefield") -> part("part_title").id,
-                'class -> "part_id")
-            </div>
-            }
-            @hidden(part("part_title"), 'class -> "part_title")
+                @bookOpt.map{book =>
+                <div>
+                    @select(part("part_id"),
+                        options = book.bookParts.map{
+                            case BookPart(id, Some(title)) => (id, title)
+                            case BookPart(id, _) => (id, "- Subsection")
+                        } :+ ("","Add Custom Section"),
+                        '_label -> "",
+                        Symbol("data-titlefield") -> part("part_title").id,
+                        'class -> "part_id")
+                </div>
+                }
+                @hidden(part("part_title"), 'class -> "part_title")
             }
         </div>
-        <div class="col-md-4 btn-group">
+        <div class="col-md-4 btn-group part_actions">
             <button class="btn btn-default" data-toggle="dropdown" href="#">New<span class="caret"></span></button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu add_menu">
                 <li><a class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
                 <li><a class="btnAddPartSummary" id="btnAddSummary_@divId">Summary</a></li>
             </ul>
             @bookOpt.map{book =>
-            @part("part_id").value.map{partId =>
-            <a class="btn btn-default" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
-                Go to book...</a>
-            }
-            }.getOrElse{
-            <a class="btn hide readBtn" href="#">Go to book...</a>
+                @part("part_id").value.map{partId =>
+                    <a class="btn btn-default" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
+                        Go to book...</a>
+                }.getOrElse{
+                    <a class="btn btn-default hide readBtn" href="#" data-bookId="@book.bookId">Go to book...</a>
+                }
             }
             <a class="btn btn-default deletecontrib"
                data-contribid="part_field_@divId"><span class="glyphicon glyphicon-trash"></span></a>
@@ -233,7 +233,7 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             @hidden(ezlForm("ezoomlayer_locked"))
             <div class="row">
                 <div class="col-md-9">
-                    <input class="btn btn-default" type="submit" value="Save eZoomLayer">
+                    <input class="btn btn-default" type="submit" value="Save Changes" id="saveChangesBtn">
                 </div>
                 <div class="col-md-2">
                 @activeLayer.map{ezl =>
