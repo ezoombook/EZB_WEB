@@ -7,6 +7,17 @@
         var selectedPart = $(this).find("option[value='"+$(this).val()+"']").text();
         var partTitleId = $(this).attr('data-titlefield');
         $('#'+partTitleId).val(selectedPart);
+        //Add "go to book" button
+        var gotobutton = $(this).parents(".part_div").find(".readBtn:first");
+        gotobutton.attr("href","/bookread/"+gotobutton.attr("data-bookId")+"/"+$(this).val());
+        gotobutton.removeClass("hide");
+
+    }
+
+    function askLeaveConfirmation(){
+        if($('#ezl_form').prop('changed')){
+            return 'Are you sure you want to leave without saving?';
+        }
     }
 
     function onDeleteHoverIn(){$(this).css("opacity", "1");}
@@ -117,6 +128,8 @@
     }
 
     $(document).ready(function(){
+        window.changed = false;
+
         $('#btnAddezbSummary').click(function (e) {
             var sumSet = $("#summaries_set");
             var numSums = $(".ezb_summary").length - 1;
@@ -179,4 +192,14 @@
         });
 
         $(".part_id").change(onPartIdChange);
+
+        window.onbeforeunload = askLeaveConfirmation;
+
+        $("#saveChangesBtn").click(function(){
+            window.onbeforeunload = null;
+        });
+
+        $('#ezl_form > *').on("change", function(){
+            $('#ezl_form').prop('changed',true);
+        });
    });
