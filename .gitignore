@@ -1,9 +1,8 @@
 .DS_Store
-.idea/
-
-*.iml
-
+README
+logs/
 project/project/
 project/target/
 target/
+
 

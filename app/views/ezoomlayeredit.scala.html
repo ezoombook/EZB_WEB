@@ -44,9 +44,9 @@ canEditLayer:User => Boolean)(implicit context:Context)
             @hidden(part("part_title"), 'class -> "part_title")
             }
         </div>
-        <div class="col-md-4 btn-group">
+        <div class="col-md-4 btn-group part_actions">
             <button class="btn btn-default" data-toggle="dropdown" href="#">New<span class="caret"></span></button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu add_menu">
                 <li><a class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
                 <li><a class="btnAddPartSummary" id="btnAddSummary_@divId">Summary</a></li>
             </ul>
@@ -54,9 +54,9 @@ canEditLayer:User => Boolean)(implicit context:Context)
             @part("part_id").value.map{partId =>
             <a class="btn btn-default" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
                 Go to book...</a>
-            }
             }.getOrElse{
-            <a class="btn hide readBtn" href="#">Go to book...</a>
+                    <a class="btn btn-default hide readBtn" href="#" data-bookId="@book.bookId">Go to book...</a>
+            }
             }
             <a class="btn btn-default deletecontrib"
                data-contribid="part_field_@divId"><span class="glyphicon glyphicon-trash"></span></a>
@@ -238,7 +238,7 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             @hidden(ezlForm("ezoomlayer_locked"))
             <div class="row">
                 <div class="col-md-9">
-                    <input class="btn btn-default" type="submit" value="Save Changes">
+                    <input class="btn btn-default" type="submit" value="Save Changes" id="saveChangesBtn">
                 </div>
                 <div class="col-md-2">
                     @context.user.map{user =>
