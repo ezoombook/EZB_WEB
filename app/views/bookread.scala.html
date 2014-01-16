@@ -1,72 +1,29 @@
 @(book:Book,activeLayer:Option[EzoomLayer],partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html,bookStyles:Html)(implicit context:Context)
 
 @import ezbhelpers._
+@import play.api.libs.json._
 
 <!-- bookread.html -->
 
-@script = {
+@scripts = {
 @activeLayer.map{ezl =>
-<script src="@routes.Assets.at("javascripts/masha.js")" ></script>
-<script type="text/javascript">//<![CDATA[
-    function saveQuote(e){
-        var selRange = MaSha.instance.getLastRange();
+        <script src='@routes.Assets.at("javascripts/masha.js")'></script>
+        <script type="text/javascript" src='@routes.Assets.at("javascript/bookread.js")'></script>
+        <script type="text/javascript">
+            var quoteRanges = @Html(Json.toJson(quoteRanges).toString);
+            QUOTER.url = "@routes.EzoomBooks.addQuote";
 
-        if(selRange){
-            var quote = MaSha.instance.deserializeRange(selRange).cloneContents().textContent;
-            console.log("Saving <<"+quote+">>");
-            var quoteMsg = {"userid":"@context.user.map(_.id).getOrElse("")",
-                            "bookid":"@book.bookId",
-                            "ezbid":"@ezl.ezoombook_id",
-                            "layerid":"@ezl.ezoomlayer_id",
-                            "partid":"@partId",
-                            "content":quote,
-                            "range":selRange};
-
-            $.ajax({
-                type:"POST",
-                url:"@routes.EzoomBooks.addQuote",
-                data:JSON.stringify(quoteMsg),
-                contentType:"application/json; charset=utf-8",
-                dataType: "json",
-                success: function(data){
-                    console.log("Quote saved: " + data);
-                },
-                failure: function(xhr,ajaxOptions,trownErr){
-                    console.log("Error: " + xhr.responseText);
-                }
+            $(document).ready(function() {
+                        QUOTER.init('@context.user.map(_.id).getOrElse("")',
+                            "@book.bookId", "@ezl.ezoombook_id", "@ezl.ezoomlayer_id", "@partId", quoteRanges);
             });
-        }else{
-            console.log('Ooops it`s an empty string');
-        }
-    }
-
-    $(document).ready(function() {
-        MaSha.instance = new MaSha({
-                'selectable': 'reader',
-                //'select_message':  'quote-saved-msg',
-                'validate': true,
-                'onMark': saveQuote,
-                'marker': 'marker-bar'});
-
-        @quoteRanges.map{qr =>
-            var quoteRange = MaSha.instance.deserializeRange("@qr");
-            MaSha.instance.addSelection(quoteRange);
-        }
-
-        //Add a function to Masha prototype for getting the last selected range
-        MaSha.prototype.getLastRange = function(){
-            for(var k in this.ranges) {}
-            return this.ranges[k]; //this.deserializeRange(this.ranges[k]);
-        }
-    });
-    //]]>
 </script>
 }.getOrElse{
 @Html("")
 }
 }
 
-@main(book.bookTitle, script, styles = bookStyles){
+@main(book.bookTitle, scripts, styles = bookStyles){
 <style>
 #pop{
     background-color:   #fff;
