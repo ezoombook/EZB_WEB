@@ -588,35 +588,30 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     request =>
       request.body.validate[AtomicContrib].map {
         case contrib =>
-          val ezl = BookDO.getEzoomLayer(contrib.ezoomlayer_id).getOrElse(
-            EzoomLayer(contrib.ezoomlayer_id, contrib.ezoombook_id, 1,
-              contrib.user_id.toString, books.dal.Status.workInProgress, false, List[String](), List())
-          )
-          val partTitle: String = if (!contrib.part_id.isEmpty) {
-            BookDO.getEzoomBook(ezl.ezoombook_id).flatMap {
-              ezb =>
-                BookDO.getBook(ezb.book_id.toString).flatMap {
-                  book =>
-                    book.bookParts.find(_.partId == contrib.part_id.get).map {
-                      part =>
-                        part.title.getOrElse("")
-                    }
-                }
-            }.getOrElse("")
-          } else {
-            ""
-          }
-
+          BookDO.getEzoomLayer(contrib.ezoomlayer_id).flatMap{
+            ezl =>
+              val result:Option[play.api.mvc.Result] =
+              (for {
+                ezb <- BookDO.getEzoomBook(ezl.ezoombook_id)
+                book <- BookDO.getBook(ezb.book_id.toString)
+                part <- book.bookParts.find(_.partId == contrib.part_id.get)
+                pt <- part.title
+              } yield ( pt )) map { partTitle =>
           val modifedLayer = EzoomLayer.updatePart(ezl, contrib.part_id.getOrElse(""), partTitle, contrib)
           BookDO.saveLayer(modifedLayer)
           Ok("Quote saved!")
+              }
+              result
+          }.getOrElse{
+            Logger.error("An error occurred while saving quote: " + contrib)
+            BadRequest("An error occurred while saving quote.")
+          }
       }.recoverTotal {
-        e => {
-          println("[ERROR] Detected error:" + JsError.toFlatJson(e))
+        e =>
+          Logger.error("Json error detected while saving quote: " + JsError.toFlatJson(e))
           BadRequest("Detected error:" + JsError.toFlatJson(e))
         }
       }
-  }
 
   def ezoomLayerDelete(ezbId: String, layerLevel: Int) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
