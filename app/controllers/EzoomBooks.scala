@@ -452,6 +452,18 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
       }
   }
 
+  def goToPart(bookId: String, partId: String) = StackAction(AuthorityKey -> Guest) {
+    implicit request =>
+      BookDO.getBook(bookId).map {
+        book =>
+          Redirect(routes.EzoomBooks.readEzb(book.bookId.toString, partId)).withSession(
+            session + ("show-layer" -> "0")
+          )
+      }.getOrElse {
+        NotFound("Oops! We couldn't find the eZoomBook you are looking for")
+      }
+  }
+
   def bookResource(bookId: String, file: String) = StackAction(AuthorityKey -> Guest) {
     implicit request =>
       if (file.contains(".html")) {

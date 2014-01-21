@@ -1,3 +1,22 @@
+function setReaderHeight(){
+    var reader = $('#reader');
+    var parent = reader.parent();
+
+    var parRect = parent.get(0).getBoundingClientRect();
+    var maxHeight = $(window).innerHeight() - parRect.top;
+
+    reader.css('height', maxHeight);
+}
+
+function scrollToPart(part){
+    var reader = $('#reader');
+
+    var partDiv = $('#'+part).get(0);
+    var topPos = partDiv.offsetTop;
+
+    reader.get(0).scrollTop = topPos;
+}
+
     $(document).ready(function(){
         function zoomOut(e){
             var quote = $(this).text();
@@ -21,7 +40,7 @@
             $('.quote').collapse('show');
         });
         $('.quote-text').click(function(e){
-            var selected = $(this).children('i').text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
+            var selected = $(this).text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
             var quoteId = $(this).attr('id');
 
             for (var i = 0; i < selected.length; i++) {
@@ -45,4 +64,9 @@
             $('#commentLayer').val($(this).attr('data-contrib-layer'));
             //$('#commentPart').val();
         });
+
+        $(window).resize(setReaderHeight);
+
+        setReaderHeight();
+        scrollToPart((partDivId || "#"))
     });

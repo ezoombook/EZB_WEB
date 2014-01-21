@@ -6,7 +6,7 @@ authenticate:User => Boolean)(implicit context:Context)
 @import ezbhelpers._
 
 @scripts = {
-<script src='@routes.Assets.at("javascript/layeredit.min.js")'></script>
+<script src='@routes.Assets.at("javascript/layeredit.js")'></script>
 }
 
 @displayEzbSummary(field:Field, hide:Boolean, divId:String) = {
@@ -146,7 +146,7 @@ case _ => {
 }
 
 @styles = {
-<link rel="stylesheet" href='@routes.Assets.at("stylesheets/layeredit.min.css")'>
+<link rel="stylesheet" href='@routes.Assets.at("stylesheets/layeredit.css")'>
 }
 
 @main("Ezoombook Edition", scripts, styles){
