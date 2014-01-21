@@ -285,6 +285,9 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
             proj =>
               withUserAndEzb(request, proj.ezoombookId.map(_.toString).getOrElse("")) {
                 (user, ezb) =>
+                  val member = proj.projectTeam.find(_.userId == user.id)
+                  val bookOpt = BookDO.getBook(ezb.book_id.toString)
+
                   val layer = (((level:String) => for {
                     ezblayer <- ezb.ezoombook_layers.get(level)
                     layerId <- ezblayer.toUUID.right.toOption
@@ -293,18 +296,24 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                       if(proj.projectOwnerId == user.id)
                         "1"
                       else {
-                        proj.projectTeam.find(_.userId == user.id).map(_.assignedLayer).getOrElse("1")
+                        member.map(_.assignedLayer).getOrElse("1")
                       }
                   )).getOrElse(new EzoomLayer(ezb.ezoombook_id,"group:"+proj.groupId))
 
+                  val newLayer = (for{m <- member
+                      book <- bookOpt
+                      bookPart <- getBookPart(book, m.assignedPart)
+                      nl <- createPart(proj, m, layer, bookPart)
+                  } yield (nl)).getOrElse(layer)
+
                   Ok(views.html.ezoomlayeredit(ezb,
-                    Some(layer),
-                    ezoomlayerForm.fill(layer),
-                    BookDO.getBook(ezb.book_id.toString),
+                    Some(newLayer),
+                    ezoomlayerForm.fill(newLayer),
+                    bookOpt,
                     Some(proj),
-                    canEditProjectLayer(ezb, proj, layer.ezoomlayer_id.toString)
+                    canEditProjectLayer(ezb, proj, newLayer.ezoomlayer_id.toString)
                   )).withSession(
-                      session + (WORKING_LAYER -> layer.ezoomlayer_id.toString)
+                      session + (WORKING_LAYER -> newLayer.ezoomlayer_id.toString)
                     )
               }
           }.getOrElse(
@@ -312,6 +321,23 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
           )
         }
       )
+  }
+
+  private def createPart(proj:EzbProject, member:TeamMember, layer:EzoomLayer, bookPart:BookPart):Option[EzoomLayer] = {
+    if(layer.ezoomlayer_contribs.find(_.part_id.exists(_ == member.assignedPart)).isEmpty){
+      val partId = member.assignedPart
+      Logger.debug("Creating assigned part " + partId)
+      val newPart = EzlPart("part:"+UUID.randomUUID, layer.ezoomlayer_id, layer.ezoombook_id,
+        member.userId, Some(partId), books.dal.Status.workInProgress, false, bookPart.title.getOrElse(""),
+        None, List[AtomicContrib]())
+      val newLayer = EzoomLayer.contribsL.set(layer, layer.ezoomlayer_contribs :+ newPart)
+      BookDO.saveLayer(newLayer)
+      Some(newLayer)
+    } else None
+  }
+
+  private def getBookPart(book:Book, partId:String):Option[BookPart] = {
+    book.bookParts.find(_.partId == partId)
   }
 
   /**
@@ -597,9 +623,9 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                 part <- book.bookParts.find(_.partId == contrib.part_id.get)
                 pt <- part.title
               } yield ( pt )) map { partTitle =>
-          val modifedLayer = EzoomLayer.updatePart(ezl, contrib.part_id.getOrElse(""), partTitle, contrib)
-          BookDO.saveLayer(modifedLayer)
-          Ok("Quote saved!")
+                val modifedLayer = EzoomLayer.updatePart(ezl, contrib.part_id.getOrElse(""), partTitle, contrib)
+                BookDO.saveLayer(modifedLayer)
+                Ok("Quote saved!")
               }
               result
           }.getOrElse{
