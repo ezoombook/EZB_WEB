@@ -21,7 +21,7 @@ canEditLayer:User => Boolean)(implicit context:Context)
 }
 
 @displayPart(part:Field, hide:Boolean, divId:String) = {
-<div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId">
+<div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId" draggable=true>
     <div class="row part_div form-group">
         <div class="col-md-6 title_box">
             @hidden(part("contrib_type"))
@@ -75,7 +75,7 @@ canEditLayer:User => Boolean)(implicit context:Context)
 @defining(parent+"_"+divId+"_"){div_id =>
 @ctype match{
 case "contrib.Quote" => {
-<div class="row contrib_div quote_div form-group @if(hide){hide}" id="quote_div_@div_id">
+<div class="row contrib_div quote_div form-group @if(hide){hide}" id="quote_div_@div_id" draggable=true>
     <div class="col-md-1">
         <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
     </div>
@@ -228,6 +228,7 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             </ul>
         </div>
         }
+
         @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString),
         'id -> "ezl_form", 'role -> "form"){
         <fieldset>
