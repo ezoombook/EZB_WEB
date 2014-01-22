@@ -1,23 +1,18 @@
+//Requires utils.js
+
 function setReaderHeight(){
-    var reader = $('#reader');
-    var parent = reader.parent();
-
-    var parRect = parent.get(0).getBoundingClientRect();
-    var maxHeight = $(window).innerHeight() - parRect.top;
-
-    reader.css('height', maxHeight);
-}
-
-function scrollToPart(part){
-    var reader = $('#reader');
-
-    var partDiv = $('#'+part).get(0);
-    var topPos = partDiv.offsetTop;
-
-    reader.get(0).scrollTop = topPos;
+    calcMaxHeight('#reader');
 }
 
     $(document).ready(function(){
+        MaSha.instance = new MaSha({
+                            'selectable': 'reader',
+                            //'select_message': 'quote-saved-msg',
+                            'validate': true,
+                            'marker': 'marker-bar'});
+
+        setReaderHeight();
+
         function zoomOut(e){
             var quote = $(this).text();
             var quoteId = $(this).attr('data-origin');
@@ -39,19 +34,34 @@ function scrollToPart(part){
             $('.summary').collapse('hide');
             $('.quote').collapse('show');
         });
-        $('.quote-text').click(function(e){
-            var selected = $(this).text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
-            var quoteId = $(this).attr('id');
-
-            for (var i = 0; i < selected.length; i++) {
-                selected[i] = selected[i].trim();
-            }
+        $('.zoom-in').click(function(e){
+            var selected = $(this).text().trim();
+            var selectedRange = $(this).attr("data-range");
+console.log("zooming " + selectedRange);
 
             $('#level-tabs a:first').tab('show');
-            $('body p').highlight(selected, {element: 'a', className: 'zoom-out'});
-            $('a.zoom-out').attr('data-origin',quoteId);
-            $('a.zoom-out').attr('tabindex',-1).focus();
-            $('a.zoom-out').click(zoomOut);
+
+            if(selectedRange && MaSha.instance){
+                var quoteRange = MaSha.instance.deserializeRange(selectedRange);
+console.log("quote: " + quoteRange);
+                MaSha.instance.addSelection(quoteRange);
+                var elem = $(".user_selection_true").get(0);
+                scrollTo('#reader', elem);
+            }
+
+
+//            var selected = $(this).text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
+//            var quoteId = $(this).attr('id');
+//
+//            for (var i = 0; i < selected.length; i++) {
+//                selected[i] = selected[i].trim();
+//            }
+//
+//            $('#level-tabs a:first').tab('show');
+//            $('body p').highlight(selected, {element: 'a', className: 'zoom-out'});
+//            $('a.zoom-out').attr('data-origin',quoteId);
+//            $('a.zoom-out').attr('tabindex',-1).focus();
+//            $('a.zoom-out').click(zoomIn);
         });
         $('.comment-btn').click(function(){
             console.log('coucou!');
@@ -67,6 +77,4 @@ function scrollToPart(part){
 
         $(window).resize(setReaderHeight);
 
-        setReaderHeight();
-        scrollToPart((partDivId || "#"))
     });

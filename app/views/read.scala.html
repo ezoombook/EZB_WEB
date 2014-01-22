@@ -1,5 +1,5 @@
 @(book:Book, ezb:Ezoombook, partIndex:Int, layers:Map[String,EzoomLayer],
-  partContent:Html, bookStyles:Html, activeLayer:String)(
+  partContent:Html, bookStyles:Html, activeLevel:String, zoomTo:Option[AtomicContrib])(
 implicit session:Session, context:Context)
 
 @import ezbhelpers._
@@ -20,7 +20,7 @@ case part:EzlPart => {
     <div class="col-md-10">
         <h3>@part.part_title</h3>
         @part.part_contribs.map{partContrib =>
-        @displayAtomic(part.part_id.getOrElse(book.bookParts(partIndex).partId), partContrib, 1)
+            @displayAtomic(part.part_id.getOrElse(book.bookParts(partIndex).partId), partContrib, 1)
         }
     </div>
 </div>
@@ -58,10 +58,17 @@ case "contrib.Quote" => {
     </div>
     <div class="col-md-7" style='cursor: url(@routes.Assets.at("images/magnify.cur")), auto'>
                     <span>
-                    <a class="quote-text" id="@contrib.contrib_id"
-                       href='@routes.EzoomBooks.goToPart(book.bookId.toString,partId)'>
+                    @if(partId == book.bookParts(partIndex).partId){
+                    <a class="quote-text zoom-in" id="@contrib.contrib_id"
+                       href='#' data-range='@contrib.range.getOrElse("")'>
                         @contrib.contrib_content
                     </a>
+                    }else{
+                    <a class="quote-text" id="@contrib.contrib_id"
+                       href='@routes.EzoomBooks.zoomIn(book.bookId.toString,contrib.ezoomlayer_id.toString,partId,contrib.contrib_id)'>
+                        @contrib.contrib_content
+                    </a>
+                    }
                     </span>
                     <span>
                         <a class="comment-btn"
@@ -82,6 +89,8 @@ case "contrib.Quote" => {
 }
 @script={
 <script type="text/javascript" src='@routes.Assets.at("javascripts/jquery.highlight.js")'></script>
+<script src='@routes.Assets.at("javascripts/masha.js")'></script>
+<script type='text/javascript' src='@routes.Assets.at("javascript/read.js")'></script>
 <script type='text/javascript'>
     @defining(book.bookParts(partIndex).partId.split('#')){array =>
         @if(array.length > 1){
@@ -90,8 +99,28 @@ case "contrib.Quote" => {
             var partDivId = ""
         }
     }
+
+    //TODO Move to read.js
+    $(document).ready(function(){
+        @zoomTo.map{contrib =>
+            if(MaSha.instance){
+                @contrib.range.map{range =>
+                    var quoteRange = MaSha.instance.deserializeRange("@range");
+    console.log("Deserialized range: " + quoteRange);
+                    MaSha.instance.addSelection(quoteRange);
+                }.getOrElse{
+                    MaSha.instance.addSelection("@contrib.contrib_content");
+                }
+
+                var elem = $(".user_selection_true").get(0);
+                scrollTo('#reader', elem);
+            }
+        }.getOrElse{
+            scrollToPart('#reader', partDivId);
+        }
+    });
 </script>
-<script type='text/javascript' src='@routes.Assets.at("javascript/read.js")'></script>
+<script type='text/javascript' src='@routes.Assets.at("javascript/utils.js")'></script>
 }
 
 @style = {
@@ -133,7 +162,7 @@ formAction = Some(routes.Collaboration.saveComment)){
 <div class="row  reader">
     <div class="tabbable col-md-12">
         <ul class="nav nav-tabs" id="level-tabs">
-            <li class='@if(activeLayer == "0"){active}else{}'>
+            <li class='@if(activeLevel == "0"){active}else{}'>
                 <a href="#tab0" data-toggle="tab">@Messages("read.leveltabs.original")</a>
             </li>
             @ezb.ezoombook_layers.map{layer =>
@@ -141,7 +170,7 @@ formAction = Some(routes.Collaboration.saveComment)){
             "2"->Messages("read.leveltabs.fairlydetailed"),
             "3"->Messages("read.leveltabs.fairlyabridge"),
             "4"->Messages("read.leveltabs.highlyabridge"))){lmap =>
-            <li class='@if(activeLayer == layer._1){active}else{}'>
+            <li class='@if(activeLevel == layer._1){active}else{}'>
                 <a href="#tab@layer._1" data-toggle="tab">
                     @lmap.getOrElse(layer._1, "-")</a>
             </li>
@@ -149,7 +178,7 @@ formAction = Some(routes.Collaboration.saveComment)){
             }
         </ul>
         <div class="tab-content">
-            <div class='tab-pane @if(activeLayer == "0"){active}else{}' id='tab0'><!-- Complete book -->
+            <div class='tab-pane @if(activeLevel == "0"){active}else{}' id='tab0'><!-- Complete book -->
                 <div class="btn-group" id="toc_dropdown">
                     <a class="btn btn btn-info dropdown-toggle" data-toggle="dropdown" href="#"><i>@Messages("read.toc.dropdown")</i>
                         <span class="caret"></span> </a>
@@ -181,10 +210,10 @@ formAction = Some(routes.Collaboration.saveComment)){
                 <!-- Reader End -->
             </div>
             @ezb.ezoombook_layers.map{layer =>
-            <div class="tab-pane @if(activeLayer == layer._1){active}else{}" id="tab@layer._1">
+            <div class="tab-pane @if(activeLevel == layer._1){active}else{}" id="tab@layer._1">
                 <div class="layer">
                     @layers(layer._1).ezoomlayer_contribs.map{contrib =>
-                    @displayLayerContrib(contrib)
+                        @displayLayerContrib(contrib)
                     }
                 </div>
             </div>
