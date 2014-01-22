@@ -434,17 +434,29 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                 ezb =>
                   val partIndex = book.bookParts.indexWhere(_.partId == partId)
                   val (styles, bodyContent) = BookDO.getPartContentAndStyle(book.bookId, partId)
-                  val layer = session.get("show-layer").getOrElse("0")
+                  val level = session.get("show-layer").getOrElse("0")
                   val layers = ezb.ezoombook_layers.foldLeft(Map[String, EzoomLayer]()) {
                     (lst, layer) =>
                       BookDO.getEzoomLayer(UUID.fromString(layer._2)).
                         map(ezl => lst + (layer._1 -> ezl)).getOrElse(lst)
                   }
+
+                  val selectedQuote:Option[AtomicContrib] = (for{
+                    layerId <- session.get("from-layer")
+                    quoteId <- session.get("selected-quote")
+                    l <- layers.find(ll => ll._2.ezoomlayer_id.toString == layerId).map(_._2)
+                    part <- l.ezoomlayer_contribs.find(_.part_id.exists(_ == partId)).collect{case p:EzlPart => p}
+                    quote <- part.part_contribs.find(_.contrib_id == quoteId)
+                  } yield (quote)).collect{
+                      case ac:AtomicContrib => ac
+                    }
+Logger.debug("Selected quote: " + selectedQuote)
                   Ok(views.html.read(book,
                     ezb, partIndex, layers,
                     play.api.templates.Html(bodyContent),
                     play.api.templates.Html(""),
-                    layer))
+                    level,
+                    selectedQuote))
               }
           }
       }.getOrElse {
@@ -454,14 +466,16 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
 
   def goToPart(bookId: String, partId: String) = StackAction(AuthorityKey -> Guest) {
     implicit request =>
-      BookDO.getBook(bookId).map {
-        book =>
-          Redirect(routes.EzoomBooks.readEzb(book.bookId.toString, partId)).withSession(
-            session + ("show-layer" -> "0")
-          )
-      }.getOrElse {
-        NotFound("Oops! We couldn't find the eZoomBook you are looking for")
-      }
+      Redirect(routes.EzoomBooks.readEzb(bookId, partId)).withSession(
+        session + ("show-layer" -> "0")
+      )
+  }
+
+  def zoomIn(bookId:String, fromLayer:String, partId:String, contribId:String) = StackAction(AuthorityKey -> Guest){
+    implicit request =>
+      Redirect(routes.EzoomBooks.readEzb(bookId, partId)).withSession(
+        session + ("selected-quote" -> contribId) + ("show-layer" -> "0") + ("from-layer" -> fromLayer)
+      )
   }
 
   def bookResource(bookId: String, file: String) = StackAction(AuthorityKey -> Guest) {
