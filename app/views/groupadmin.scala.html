@@ -20,25 +20,25 @@
 
  </br>
   
-  <h1> Administration of @groupName Group</h1>
+  <h1>@Messages("groupadmin.header")</h1>
   </br></br>
   <div class="leftpannel">
 <fieldset>
-  <h4>vote to delete the group</h4>
+  <h4>@Messages("groupadmin.deletevote.h4")</h4>
 
-  <a><input type="radio" name="vote1" value="yes" >Yes</a></br></br>
-  <a><input type="radio" name="vote1" value="no" >No</a></br></br>
-  <button>Validate</button>
+  <a><input type="radio" name="vote1" value="yes" >@Messages("application.yes")</a></br></br>
+  <a><input type="radio" name="vote1" value="no" >@Messages("application.no")</a></br></br>
+  <button>@Messages("groupadmin.deletevote.button")</button>
   </br></br></br>
-  <h4>vote to kick <input type="text" placeholder="Group member"> out of the group</h4>
+  <h4>@Messages("groupadmin.kickoutvote.h4") <input type="text" placeholder='@Messages("groupadmin.kickoutvote.member.placeholder")'> @Messages("groupadmin.kickoutvote.h4.part2")</h4>
 
-  <a><input type="radio" name="vote2" value="yes" >Yes</a></br></br>
-  <a><input type="radio" name="vote2" value="no" >No</a></br></br>
-  <button>Validate</button>
+  <a><input type="radio" name="vote2" value="yes" >@Messages("application.yes")Yes</a></br></br>
+  <a><input type="radio" name="vote2" value="no" >@Messages("application.no")No</a></br></br>
+  <button>@Messages("groupadmin.kickoutvote.button")</button>
   
   </br></br></br>
-   <h4>Abdicate of this group to <input type="text" placeholder="Group member"></h4>
-    <button>Validate</button>
+   <h4>@Messages("groupadmin.abdicate.h4") <input type="text" placeholder='@Messages("groupadmin.abdicate.member.placeholder")'></h4>
+    <button>@Messages("groupadmin.abdicate.button")</button>
   </fieldset>
   </div>
   
@@ -48,13 +48,13 @@
 <table class="table table-striped">
 				<tbody>
 					<tr>
-						<th>Number</th><th>
+						<th>@Messages("groupadmin.number.th")</th><th>
 					</tr>
 					<tr>
-					<td></td><td>Yes</td>
+					<td></td><td>@Messages("application.yes")</td>
 					</tr>
 					<tr>
-					<td></td><td>No</td>
+					<td></td><td>@Messages("application.no")</td>
 					</tr>
 				</tbody>
 			</table>
@@ -63,13 +63,13 @@
 		<table class="table table-striped">
 				<tbody>
 					<tr>
-						<th>Number</th><th>
+						<th>@Messages("groupadmin.number.th")</th><th>
 					</tr>
 					<tr>
-					<td></td><td>Yes</td>
+					<td></td><td>@Messages("application.yes")</td>
 					</tr>
 					<tr>
-					<td></td><td>No</td>
+					<td></td><td>@Messages("application.no")</td>
 					</tr>
 				</tbody>
 			</table> 

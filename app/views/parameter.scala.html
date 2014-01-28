@@ -11,24 +11,24 @@
      <p>Messages("parameters.deleteaccount.confirm")</p>
 }
 
-<h1>Parameters</h1>
+<h1>@Messages("parameters.header")</h1>
 
 <div class="row">
     <div class="col-md-6">
-        <h4>Select your prefered language</h4>
+        <h4>@Messages("parameters.modifylanguage.header")</h4>
 
         @helper.form(routes.Workspace.changeLang){
             @select(langForm("locale"), options = Seq("fr" -> "French", "en" -> "English"), '_label -> "")
             <div>
-                <input type="submit" value="Change">
+                <input type="submit" value='@Messages("parameters.modifylanguage.submit")'>
             </div>
         }
 
-        <a><h5>I don't want to receive newsletter anymore.</h5></a>
+        <a><h5>@Messages("parameters.unsubscribenewsletter.link")</h5></a>
 
         @defining(MD5Util.md5Hex(context.user.map(u => u.email).getOrElse("ezoomwiki.com"))){icon =>
         <img src="https://www.gravatar.com/avatar/@icon?s=40&amp;d=identicon">
-        } <a href="http://en.gravatar.com/emails/">Change your avatar<a>
+        } <a href="http://en.gravatar.com/emails/">@Messages("parameters.modifyimage.link")<a>
 
     </div>
     <div class="col-md-6">
@@ -40,19 +40,19 @@
         </div>
         }else{}
 
-        <h4>Change Personnal information</h4>
+        <h4>@Messages("parameters.modifyinfo.header")</h4>
 
-        <p>Change your password</p>
+        <p>@Messages("parameters.modifypassword.header")</p>
 
         <div>
             @helper.form(routes.Support.changepass) {
-            @inputPassword(passwordForm("password1"), '_label -> <p>enter your new password</p>)
-            @inputPassword(passwordForm("password2"), '_label -> <p>enter your new password again</p>)
-            <input type="submit" value="submit">
+            @inputPassword(passwordForm("password1"), '_label -> <p>@Messages("parameters.modifypassword.input")</p>)
+            @inputPassword(passwordForm("password2"), '_label -> <p>@Messages("parameters.modifypassword.confirm.input")</p>)
+            <input type="submit" value='@Messages("parameters.modifypassword.submit")'>
             }
         </div>
 
-        <a class="btn btn-primary" data-toggle="modal" href="#infos">Delete my account</a>
+        <a class="btn btn-primary" data-toggle="modal" href="#infos">@Messages("parameters.deleteaccount.button")</a>
     </div>
 </div>
 

@@ -3,22 +3,22 @@
 @main("Contact us"){
 
 
-<h1>Contact</h1>
+<h1>@Messages("contact.h1")</h1>
 
 
 
-<p>The eZoomBook research team  is an inter-disciplinary team which includes researchers in the following areas:</p>
-<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-audencia-save/" >Humanities</a></br>
-<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-de-nantes-science/" >Science</a></br>
-<a href="http://ezoombook.wordpress.com/people-involved/law-and-intellectual-property/" >Law</a>
+<p>@Messages("contact.team.intro")</p>
+<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-audencia-save/" >@Messages("contact.team.humanities")</a></br>
+<a href="http://ezoombook.wordpress.com/people-involved/ecole-centrale-de-nantes-science/" >@Messages("contact.team.science")</a></br>
+<a href="http://ezoombook.wordpress.com/people-involved/law-and-intellectual-property/" >@Messages("contact.team.law")</a>
 
-<h2>Send us a message</h2>
+<h2>@Messages("contact.message.h2")</h2>
 
 <div>
             @helper.form(routes.Support.contactadmin) {
-                @inputText(contactForm("usermail"), '_label -> <p>enter your e-mail for the answer</p>)
-                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"col-md-12", 'placeholder -> "Be sure that the answer to your question isn't in the FAQ", '_label -> <p>Message</p>)
-                <input type="submit"  value="submit">
+                @inputText(contactForm("usermail"), '_label -> <p>@Messages("contact.message.form.email")</p>)
+                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"col-md-12", 'placeholder -> Messages("contact.message.form.seefaq"), '_label -> <p>@Messages("contact.message.form.text")</p>)
+                <input type="submit"  value='@Messages("contact.message.form.submit")'>
             }
         </div>
 }

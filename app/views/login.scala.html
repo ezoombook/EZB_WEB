@@ -56,11 +56,11 @@ function overlay() {
 <div class="jumbotron">
     <h1>eZoomBook</h1>
     <p>@Messages("ezoombook.presentation")</p>
-    <a href="/tutorial" class="btn btn-primary btn-large">Learn more »</a>
+    <a href="/tutorial" class="btn btn-primary btn-large">@Messages("ezoombook.learnmore.btn")</a>
 </div>
 <div class="row">
     <div class="col-md-6">
-        <h2>Sign In</h2>
+        <h2>@Messages("login.signin.header")</h2>
         @if(loginForm.hasErrors){
         <div class="alert alert-danger fade in">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -72,14 +72,14 @@ function overlay() {
         }
         <div>
             @helper.form(routes.Application.validate){
-                @inputText(loginForm("id"), '_label -> <p>Username or email</p>)
-                @inputPassword(loginForm("password"), '_label -> <p>Password</p>)
-                <input type="submit" value="Log in">
+                @inputText(loginForm("id"), '_label -> <p>@Messages("login.signin.form.username")</p>)
+                @inputPassword(loginForm("password"), '_label -> <p>@Messages("login.signin.form.password")</p>)
+                <input type="submit" value='@Messages("login.signin.form.submit")'>
             }
         </div>
         @onAllowRegister{
         <div>
-            <a href="/changepassword">Forgot your password ?</a>
+            <a href="/changepassword">@Messages("login.signin.forgotpassword.link")</a>
         </div>
         <div>
             <a href="#"><img src="http://fanshala.com/images/signup_facebook.png" id="il_fi" height="82" width="330" ></a>
@@ -88,19 +88,19 @@ function overlay() {
     </div>
     <div class="col-md-6">
         @onAllowRegister{
-            <h2>Create an Account</h2>
+            <h2>@Messages("login.createaccount.header")</h2>
             <div>
                 @helper.form(routes.Application.newUser) {
-                    @inputText(userForm("username"), '_label -> <p>Username</p>)
-                    @inputText(userForm("mail"), '_label -> <p>Mail</p>)
-                    @inputText(userForm("password"), '_label -> <p>password</p>)
-                    <a class="btn btn-primary" data-toggle="modal" href="#contract" >Contract license</a></br>
+                    @inputText(userForm("username"), '_label -> <p>@Messages("login.createaccount.form.username")</p>)
+                    @inputText(userForm("mail"), '_label -> <p>@Messages("login.createaccount.form.email")</p>)
+                    @inputText(userForm("password"), '_label -> <p>@Messages("login.createaccount.form.password")</p>)
+                    <a class="btn btn-primary" data-toggle="modal" href="#contract" >@Messages("login.createaccount.licence.link")</a></br>
                     <a>
                         <input type="checkbox"
                                onclick="if (this.checked){this.form.tr.disabled=0}else{this.form.tr.disabled=1}" >
-                        I agree with Contract License</a></br></br>
-                    <a><input type="checkbox" name="vehicle" value="Car" checked>I want to receive newsletter from eZoomBook</a>
-                    <input name="tr"type="submit" disabled="1" value="Sign In" style='float:right'>
+                        @Messages("login.createaccount.form.licence")</a></br></br>
+                    <a><input type="checkbox" name="vehicle" value="Car" checked>@Messages("login.createaccount.form.newsletter")</a>
+                    <input name="tr"type="submit" disabled="1" value='@Messages("login.createaccount.form.submit")' style='float:right'>
                 }
             </div>
         }

@@ -62,7 +62,7 @@ formAction=Some(routes.Community.newGroup)){
 
 }
 
-<center><h1>@session.get("userName")'s Workspace</h1></center>
+<center><h1>@Messages("workspace.header")</h1></center>
 
 <div class="row">
     <div class="col-md-3">
@@ -73,9 +73,9 @@ formAction=Some(routes.Community.newGroup)){
         <table class="table table-striped">
             <tbody>
             <tr>
-                <th><span class="glyphicon glyphicon-envelope"></span>&nbsp;Message</th>
-                <th>author</th>
-                <th>date</th>
+                <th><span class="glyphicon glyphicon-envelope"></span>&nbsp;@Messages("workspace.message.content.th")</th>
+                <th>@Messages("workspace.message.author.th")</th>
+                <th>@Messages("workspace.message.date.th")</th>
                 <th></th>
             </tr>
 

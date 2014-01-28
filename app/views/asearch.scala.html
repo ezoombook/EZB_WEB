@@ -43,43 +43,43 @@
 
 
     </fieldset>
-<h1>Advanced search</h1>
+<h1>@Messages("asearch.h1")Advanced search</h1>
  </br> </br>
 <fieldset>
     <center><form id="searchbox" action="" style="width:50%">
-    <input id="search" type="text" placeholder="Search"style="width:75%">
-    <input id="submit" type="submit" value="Search" style="width:15%">
+    <input id="search" type="text" placeholder='@Messages("asearch.search.input")' style="width:75%">
+    <input id="submit" type="submit" value='@Messages("asearch.search.submit")' style="width:15%">
    
 </form></center>
 <fieldset>
 <form id="searchbox" action="" class="author">
  <form id="searchbox" action="" class="author">
-    <input id="search" type="text" placeholder="Author">
-    <input id="submit" type="submit" value="Search">
+    <input id="search" type="text" placeholder='@Messages("asearch.search.author.input")'>
+    <input id="submit" type="submit" value='@Messages("asearch.search.author.submit")'>
    
 </form>
  <form id="searchbox" action="" class="category">
-    <input id="search" type="text" placeholder="Category">
-    <input id="submit" type="submit" value="Search">
+    <input id="search" type="text" placeholder='@Messages("asearch.search.category.input")'>
+    <input id="submit" type="submit" value='@Messages("asearch.search.category.submit")'>
    
 </form>
  <form id="searchbox" action="" class="year">
-    <input id="search" type="text" placeholder="Year">
-    <input id="submit" type="submit" value="Search">
+    <input id="search" type="text" placeholder='@Messages("asearch.search.year.input")'>
+    <input id="submit" type="submit" value='@Messages("asearch.search.year.submit")'>
    
 </form>
 
  <form id="searchbox" action="" class="type">
-    <input id="search" type="text" placeholder="Type">
-    <input id="submit" type="submit" value="Search">
+    <input id="search" type="text" placeholder='@Messages("asearch.search.type.input")'>
+    <input id="submit" type="submit" value='@Messages("asearch.search.type.submit")'>
    
 </form> 
  <form id="searchbox" action="" class="text">
-    <input id="search" type="text" placeholder="Text">
-    <input id="submit" type="submit" value="Search">
+    <input id="search" type="text" placeholder='@Messages("asearch.search.text.input")'>
+    <input id="submit" type="submit" value='@Messages("asearch.search.text.submit")'>
    
 </form>
-<button type="submit" class="abutton"  style="width:100px ; height: 35px">Search</button>
+<button type="submit" class="abutton"  style="width:100px ; height: 35px">@Messages("asearch.search.button")</button>
 </form>
 
 </br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
@@ -87,7 +87,7 @@
 			<table class="table table-striped">
 				<tbody>
 					<tr>
-						<th>Title</th><th>Author</th><th>Year</th><th>Tag</th><th>Rating</th><th></th>
+						<th>@Messages("asearch.results.title.th")</th><th>@Messages("asearch.results.author.th")</th><th>@Messages("asearch.results.year.th")</th><th>@Messages("asearch.results.tag.th")</th><th>@Messages("asearch.results.rating.th")</th><th></th>
 					</tr>
 					@for(abook<-listbook){
 					<tr>
@@ -95,7 +95,7 @@
 						
 						<td></td>
 						
-						<input type="submit" value="read"></td>
+						<input type="submit" value='@Messages("asearch.results.button")'></td>
 					}	
 					</tr>
 				</tbody>

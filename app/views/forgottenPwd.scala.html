@@ -5,7 +5,7 @@
 @main("I forgot my password"){
 
         @helper.form(routes.Support.sendPasswordResetLink){
-            @inputText(mailform("email"), '_label -> "Where do we send you the link?")
-            <input type="submit" value="Send it!">
+            @inputText(mailform("email"), '_label -> Messages("forgottenpwd.form.email"))
+            <input type="submit" value='@Messages("forgottenpwd.form.submit")'>
         }
 }

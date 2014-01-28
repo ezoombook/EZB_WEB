@@ -67,7 +67,7 @@ function toggle(divtag){
 }
 </style>
 
-    <h1>Add a book</h1>
+    <h1>@Messages("bookreedit.addbook.header")</h1>
 
     </br>
 <fieldset class="leftpannel">
@@ -76,44 +76,44 @@ function toggle(divtag){
    
 
     @helper.form(routes.EzoomBooks.saveEditedBook){
-	    <h4>@inputText(bookForm("title"),'_label->"title")</h4>
+	    <h4>@inputText(bookForm("title"),'_label->Messages("bookreedit.metadata.title.input"))</h4>
         @hidden(bookForm("book_id"))
         @helper.repeat(bookForm("authors")){f =>
             <div id="authors0" style="margin-bottom:4px;" class="authors">
-            <h4>@inputText(f,'_label->"author")</h4>
+            <h4>@inputText(f,'_label->Messages("bookreedit.metadata.authors.input"))</h4>
             </div>
         }
-        <input type="button" id="btnAddAuth" value="Add another author" >
+        <input type="button" id="btnAddAuth" value='@Messages("bookreedit.metadata.addauthor.button")' >
         
       </fieldset>
       <fieldset class="midlepannel">
         @helper.repeat(bookForm("languages")){f =>
             <div id="languages0" class="languages">
-                <h4>@inputText(f,'_label->"languages")</h4>
+                <h4>@inputText(f,'_label->Messages("bookreedit.metadata.languages.input"))</h4>
             </div>
         }
-        <input type="button" id="btnAddLang" value="Add another language" >
+        <input type="button" id="btnAddLang" value='@Messages("bookreedit.metadata.addlanguage.button")' >
 
         @helper.repeat(bookForm("publishers")){f =>
             <div id="publishers0" class="publishers">
-                <h4>@inputText(f,'_label->"publishers")</h4>
+                <h4>@inputText(f,'_label->Messages("bookreedit.metadata.publishers.input"))</h4>
             </div>
         }
-        <input type="button" id="btnAddPublshr" value="Add another publisher" >
+        <input type="button" id="btnAddPublshr" value='@Messages("bookreedit.metadata.addpublisher.button")' >
 
         @helper.repeat(bookForm("published_dates")){f =>
-            <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->"date of publication")</h4></div>
+            <div id="published_dates0" class="published_dates"><h4>@inputText(f,'_label->Messages("bookreedit.metadata.dates.input"))</h4></div>
         }
-        <input type="button" id="btnAddPubDate" value="Add another published date" >
+        <input type="button" id="btnAddPubDate" value='@Messages("bookreedit.metadata.adddate.button")' >
 </fieldset>
 <fieldset class="rightpannel">
         @helper.repeat(bookForm("tags")){f =>
-            <div id="tags0" class="tags"><h4>@inputText(f,'_label->"tags")</h4></div>
+            <div id="tags0" class="tags"><h4>@inputText(f,'_label->Messages("bookreedit.metadata.tags.input"))</h4></div>
         }
-        <input type="button" id="btnAddTag" value="Add another tag" >
+        <input type="button" id="btnAddTag" value='@Messages("bookreedit.metadata.addtag.button")' >
 
         <h4>@textarea(bookForm("summary"))</h4>
-        <input type="submit" value="Go!">
+        <input type="submit" value='@Messages("bookreedit.metadata.submit")'>
         </fieldset>
     }
 }

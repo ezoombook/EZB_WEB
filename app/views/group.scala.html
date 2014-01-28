@@ -120,7 +120,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h1>@groupName Group</h1>
+        <h1>@Messages("group.header")</h1>
         <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("group.addmember.button")</a>
         <a class="btn btn-primary"  href="@routes.Community.groupadmin(groupId)">@Messages("group.administrate.button")</a>
     </div>
@@ -147,7 +147,7 @@
 
     </div>
     <div class="col-md-6">
-        <h2>Message Board</h2>
+        <h2>@Messages("group.messages.h2")</h2>
         @defining(groupId.substring(0,8)){shortId =>
         <!-- Shoutbox Widget -->
         <iframe WIDTH="100%" HEIGHT="810" title="Shoutbox"
@@ -158,12 +158,12 @@
         }
     </div>
     <div class="col-md-3">
-        <h2>Group Members</h2>
+        <h2>@Messages("group.members.h2")</h2>
 
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Name</th><th>Status</th><th></th>
+                <th>@Messages("group.members.name.th")</th><th>@Messages("group.members.status.th")</th><th></th>
             </tr>
             </thead>
             <tbody>

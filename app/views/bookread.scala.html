@@ -41,14 +41,14 @@
         @activeLayer.map{ezl =>
         <li>
             <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString, true)">
-                <span class="glyphicon glyphicon-arrow-left"></span> Go back to eZoomLayer...
+                <span class="glyphicon glyphicon-arrow-left"></span> @Messages("bookread.gotoezoomlayer.button")
             </a>
         </li>
         }.getOrElse{
-        <li>Go back to ?</li>
+        <li>@Messages("bookread.gotounknown.button")</li>
         }
         <li class="divider"></li>
-        <li>Go to chapter:</li>
+        <li>@Messages("bookread.gotochapter.button")</li>
         @book.bookParts.map{bookPart =>
             <li><a href="@routes.EzoomBooks.readLayer(book.bookId.toString, bookPart.partId)">@bookPart.title.getOrElse("- Subsection")</a></li>
         }
@@ -59,11 +59,11 @@
 <div id="quote-saved-msg" style="display:none">
     <div class="upmsg-selectable-inner">
         <a class="btn close" data-dismiss="alert">&times;</a>
-        <p>Your selection has been saved to the eZoomBook.</p>
+        <p>@Messages("bookread.selectquote.confirmation")</p>
     </div>
 </div>
 <a id="marker-bar" href="#" class="masha-marker-bar">
-    <span class="masha-marker" title="mark">Select Quote</span>
+    <span class="masha-marker" title='@Messages("bookread.selectquote.marker.tooltip")'>@Messages("bookread.selectquote.marker")</span>
 </a>
 <!-- Reader -->
 <div class="row">

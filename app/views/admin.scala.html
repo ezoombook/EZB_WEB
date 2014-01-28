@@ -4,13 +4,13 @@
 
 @main("Appliction Administration"){
     @if(users.isEmpty){
-	<h1>Create some users</h1>
+	<h1>@Messages("admin.createusers.h1")</h1>
 
         @helper.form(routes.AdminApp.createUsers){
-            <input type="submit" value="Go!">
+            <input type="submit" value='@Messages("admin.createusers.submit")'>
         }
     }else{
-        <h1>Your Users:</h1>
+        <h1>@Messages("admin.displayusers.h1")</h1>
         <u1>
             @users.map { u =>
                <li>@u.id : @u.name</li>
@@ -19,16 +19,16 @@
     }
 
     @if(groups){	       
-	<h1>Create some groups</h1>
+	<h1>@Messages("admin.creategroups.h1")</h1>
         @helper.form(routes.AdminApp.createGroups){
-            <input type="submit" value="Go!">
+            <input type="submit" value='@Messages("admin.creategroups.submit")'>
         }
     }
 
     @if(books){
-	<h1>Add some books</h1>
+	<h1>@Messages("admin.addbooks.h1")</h1>
         @helper.form(routes.AdminApp.createBooks){
-            <input type="submit" value="Go!">
+            <input type="submit" value='@Messages("admin.addbooks.submit")'>
         }
     }
 }
