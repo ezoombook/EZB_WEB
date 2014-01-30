@@ -1,6 +1,6 @@
 @(listbook:List[Book])(implicit session:Session, context:Context)
 @import ezbhelpers._
-@main("advanced search"){
+@main(Messages("asearch.title")){
 <style>
 	
 
@@ -43,7 +43,7 @@
 
 
     </fieldset>
-<h1>@Messages("asearch.h1")Advanced search</h1>
+<h1>@Messages("asearch.h1")</h1>
  </br> </br>
 <fieldset>
     <center><form id="searchbox" action="" style="width:50%">

@@ -1,6 +1,6 @@
 @(contactForm: Form[(String,String)])(implicit session:Session, context:Context)
 @import ezbhelpers._
-@main("Contact us"){
+@main(Messages("contact.title")){
 
 
 <h1>@Messages("contact.h1")</h1>
@@ -16,8 +16,8 @@
 
 <div>
             @helper.form(routes.Support.contactadmin) {
-                @inputText(contactForm("usermail"), '_label -> <p>@Messages("contact.message.form.email")</p>)
-                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"col-md-12", 'placeholder -> Messages("contact.message.form.seefaq"), '_label -> <p>@Messages("contact.message.form.text")</p>)
+                @inputText(contactForm("usermail"), '_label -> Messages("contact.message.form.email"))
+                @textarea(contactForm("arequest"), args = 'rows -> 7, 'class->"col-md-12", 'placeholder -> Messages("contact.message.form.seefaq"), '_label -> Messages("contact.message.form.text"))
                 <input type="submit"  value='@Messages("contact.message.form.submit")'>
             }
         </div>

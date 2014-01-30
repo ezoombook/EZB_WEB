@@ -127,7 +127,7 @@ case "contrib.Quote" => {
 <link rel='stylesheet' type='text/css' href='@routes.Assets.at("stylesheets/read.min.css")'>
 }
 
-@main("Read", styles=style+=bookStyles, scripts=script){
+@main(Messages("read.title"), styles=style+=bookStyles, scripts=script){
 
 <!-- Comment Box Modal -->
 @modal(modalId="commentbox",

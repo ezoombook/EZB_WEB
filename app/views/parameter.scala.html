@@ -3,7 +3,7 @@
 @import ezbhelpers._
 @import utils.MD5Util
 
-@main("Parameter"){
+@main(Messages("parameters.title")){
 
 @modal(modalId = "delete_account",
         modalTitle = Messages("parameters.deleteaccount.header"), None){
@@ -46,8 +46,8 @@
 
         <div>
             @helper.form(routes.Support.changepass) {
-            @inputPassword(passwordForm("password1"), '_label -> <p>@Messages("parameters.modifypassword.input")</p>)
-            @inputPassword(passwordForm("password2"), '_label -> <p>@Messages("parameters.modifypassword.confirm.input")</p>)
+            @inputPassword(passwordForm("password1"), '_label -> Messages("parameters.modifypassword.input"))
+            @inputPassword(passwordForm("password2"), '_label -> Messages("parameters.modifypassword.confirm.input"))
             <input type="submit" value='@Messages("parameters.modifypassword.submit")'>
             }
         </div>

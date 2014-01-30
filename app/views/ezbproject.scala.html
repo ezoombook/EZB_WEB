@@ -25,7 +25,7 @@ member.assignedLayer,
 member.assignedPart,
 project.groupId.toString)){
 @ezb.ezoombook_title
-<input type="submit" class="btn" value='@Messages("ezbproject.createlayer.button")'>
+<input type="submit" class="btn" value='@Messages("ezbproject.createlayer.button") »'>
 }
 }
 }.getOrElse{
@@ -75,7 +75,7 @@ project.groupId.toString)){
 }
 }
 
-@main("Project", scripts){
+@main(Messages("ezbproject.title"), scripts){
 
 <style>
     .comment-author,contrib-author{

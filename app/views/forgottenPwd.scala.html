@@ -2,7 +2,7 @@
 
 @import ezbhelpers._
 
-@main("I forgot my password"){
+@main(Messages("forgottenpwd.title")){
 
         @helper.form(routes.Support.sendPasswordResetLink){
             @inputText(mailform("email"), '_label -> Messages("forgottenpwd.form.email"))

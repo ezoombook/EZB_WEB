@@ -1,5 +1,5 @@
 @(groupId:String, groupName:String, members:List[(User,AppDB.dal.Roles.Value)], memberForm:Form[(String,String)] )(implicit session:Session, context:Context)
-@main("Group administration"){
+@main(Messages("groupadmin.title")){
 <style>
 
 
@@ -20,7 +20,7 @@
 
  </br>
   
-  <h1>@Messages("groupadmin.header")</h1>
+  <h1>Administration of @groupName Group</h1>
   </br></br>
   <div class="leftpannel">
 <fieldset>
@@ -32,8 +32,8 @@
   </br></br></br>
   <h4>@Messages("groupadmin.kickoutvote.h4") <input type="text" placeholder='@Messages("groupadmin.kickoutvote.member.placeholder")'> @Messages("groupadmin.kickoutvote.h4.part2")</h4>
 
-  <a><input type="radio" name="vote2" value="yes" >@Messages("application.yes")Yes</a></br></br>
-  <a><input type="radio" name="vote2" value="no" >@Messages("application.no")No</a></br></br>
+  <a><input type="radio" name="vote2" value="yes" >@Messages("application.yes")</a></br></br>
+  <a><input type="radio" name="vote2" value="no" >@Messages("application.no")</a></br></br>
   <button>@Messages("groupadmin.kickoutvote.button")</button>
   
   </br></br></br>

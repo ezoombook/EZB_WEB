@@ -51,7 +51,7 @@
     }
 }
 
-@main("Group "+groupName, scripts){
+@main(Messages("group.title")+" "+groupName, scripts){
 <style>
     label[for=new_ezb]{
 //        float: right;
@@ -120,7 +120,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h1>@Messages("group.header")</h1>
+        <h1>@groupName Group</h1>
         <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("group.addmember.button")</a>
         <a class="btn btn-primary"  href="@routes.Community.groupadmin(groupId)">@Messages("group.administrate.button")</a>
     </div>
@@ -128,7 +128,7 @@
 
 <div class="row">
     <div class="col-md-3">
-        <h2> @Messages("group.projects.h2") </h2>
+        <h2>@Messages("group.projects.h2")</h2>
         <p><a data-toggle="modal" href="#new_project">@Messages("group.newproject.button")</a></p>
         <table class="table table-striped">
             <thead>

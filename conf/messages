@@ -1,5 +1,5 @@
 ezoombook.presentation=This is an innovative platform where you will be able to participate in a revolutionary reading experiment. eZoomBook is going to enhance the way you obtain, analyze, use, and share information.
-ezoombook.learnmore.btn=Learn more »
+ezoombook.learnmore.btn=Learn more
 
 topmenu.tooltip.workspace=Your workspace
 topmenu.tooltip.conf=Configure your account
@@ -35,13 +35,14 @@ index.findbook.placeholder=Enter key-word
 index.findbook.search.button=Search
 index.findbook.advancedsearch.button=Advanced search
 
+login.title=Login to eZoomBook
 login.contract.header=Contract Licence
 login.error.hd=Oh snap!
 login.signin.header=Sign In
 login.signin.form.username=Username or email
 login.signin.form.password=Password
 login.signin.form.submit=Log in
-login.signin.forgotpassword.link=Forgot your password ?
+login.signin.forgotpassword.link=Forgot your password?
 login.createaccount.header=Create an Account
 login.createaccount.form.username=Username
 login.createaccount.form.email=Mail
@@ -55,18 +56,22 @@ myaccount.email.placeholder=Email
 myaccount.password.placeholder=password
 myaccount.submit.button=Sign in
 
+forgottenpwd.title=I forgot my password
 forgottenpwd.form.email=Where do we send you the link?
 forgottenpwd.form.submit=Send it!
 
+passwordreset.title=Change your password
 passwordreset.header=Change your password here: 
 passwordreset.form.email=enter your mail
 passwordreset.form.password=enter your new password
 passwordreset.form.submit=submit
 
+listbooks.title=Read a book
 listbooks.header=Books
 listbooks.addbook.link=Add a book
 listbooks.edit.button=Edit
 
+book.title=Book page
 book.author.dt=Author
 book.publisher.dt=Publisher
 book.publisheddate.dt=Published Date
@@ -85,7 +90,6 @@ workspace.title=Welcome to your workspace
 workspace.tab.contribution.title=Contribution
 workspace.tab.community.title=Community
 workspace.tab.books.title=Books
-workspace.header=@session.get("userName")'s Workspace
 
 workspace.projects.h2=Your Projects
 workspace.projects.project.th=Project
@@ -124,6 +128,7 @@ workspace.message.content.th=Message
 workspace.message.author.th=author
 workspace.message.date.th=date
 
+parameters.title=Parameters
 parameters.deleteaccount.header=Account Removal
 parameters.deleteaccount.confirm=Are you sure you want to delete your account. (This cannot be undone)
 parameters.header=Parameters
@@ -138,6 +143,7 @@ parameters.modifypassword.confirm.input=enter your new password again
 parameters.modifypassword.submit=submit
 parameters.deleteaccount.button=Delete my account
 
+read.title=Read
 read.readoptions.showall.button=Show all
 read.readoptions.showquotes.button=Show only quotes
 read.readoptions.showsummaries.button=Show only summaries
@@ -152,7 +158,7 @@ read.contribution.comment.button.title=Send a comment
 read.comment.modal.h3=Comment this contribution
 read.comment.modal.save.btn=Send comment
 
-group.header=@groupName Group
+group.title=Group
 group.administrate.button=Administrate
 group.addmember.button=Add a member
 group.addmember.h3=Add a member
@@ -174,7 +180,7 @@ group.members.h2=Group Members
 group.members.name.th=Name
 group.members.status.th=Status
 
-groupadmin.header=Administration of @groupName Group
+groupadmin.title=Group administration
 groupadmin.deletevote.h4=vote to delete the group
 groupadmin.deletevote.button=Validate
 groupadmin.kickoutvote.h4=vote to kick
@@ -186,11 +192,13 @@ groupadmin.abdicate.member.placeholder=Group member
 groupadmin.abdicate.button=Validate
 groupadmin.number.th=Number
 
+ezbbooklist.title=Create a new eZoomBook from a book
 ezbbooklist.header=Create a new eZoomBook
 ezbbooklist.choosebook.h2=Please choose a book
 ezbbooklist.newezb.h3=New eZoomBook
 
-ezbproject.createlayer.button=Create layer >>
+ezbproject.title=Project
+ezbproject.createlayer.button=Create layer
 ezbproject.missing.ezb.message=No eZoomBook defined for this project. Please define an eZoomBook
 ezbproject.addezb.link=Add an existing eZoomBook
 ezbproject.newezb.link=Create a new eZoomBook
@@ -219,6 +227,7 @@ ezbproject.comment.on=commented on
 ezbproject.contribdetail.h3=Contribution details
 ezbproject.contrbidetail.contribtype.h4=Contribution type
 
+ezoomlayeredit.title=Ezoombook edition
 ezoomlayeredit.ezb.ezbtitle=Title
 ezoomlayeredit.writetitle.input=Write a Title Here
 ezoomlayeredit.addsection.button=Add Custom Section
@@ -254,6 +263,7 @@ ezoomlayeredit.ezlayeredit.addpart.btn=+ Part
 ezoomlayeredit.displaysummaries.legend=Book Summaries
 ezoomlayeredit.displaycontributions.legend=Contributions
 
+bookedit.title=Book upload
 bookedit.upload.header=ePub Upload
 bookedit.upload.message=In order to create a new book you have to upload the corresponding epub file.
 bookedit.upload.input=Please choose a file:
@@ -282,6 +292,7 @@ bookread.selectquote.confirmation=Your selection has been saved to the eZoomBook
 bookread.selectquote.marker=Select Quote
 bookread.selectquote.marker.tooltip=mark
 
+bookreedit.title=Reedit a book
 bookreedit.addbook.header=Add a book
 bookreedit.metadata.title.input=title
 bookreedit.metadata.authors.input=authors
@@ -296,6 +307,7 @@ bookreedit.metadata.tags.input=tags
 bookreedit.metadata.addtag.button=Add another tag
 bookreedit.metadata.submit=Go!
 
+admin.title=Application administration
 admin.createusers.h1=Create some users
 admin.createusers.submit=Go!
 admin.displayusers.h1=Your Users:
@@ -304,6 +316,7 @@ admin.creategroups.submit=Go!
 admin.addbooks.h1=Add some books
 admin.addbooks.submit=Go!
 
+asearch.title=Advanced search
 asearch.h1=Advanced search
 asearch.search.input=Search
 asearch.search.submit=Search
@@ -325,6 +338,7 @@ asearch.results.tag.th=Tag
 asearch.results.rating.th=Rating
 asearch.results.button=Read
 
+contact.title=Contact us
 contact.h1=Contact
 contact.team.intro=The eZoomBook research team  is an inter-disciplinary team which includes researchers in the following areas:
 contact.team.humanities=Humanities
@@ -336,6 +350,7 @@ contact.message.form.text=Message
 contact.message.form.seefaq="Be sure that the answer to your question isn't in the FAQ"
 contact.message.form.submit=submit
 
+faq.title=FAQ
 faq.h1=FAQ
 faq.general.subtitle=General
 faq.general.whatisezb=What is eZoomBook?
@@ -418,7 +433,7 @@ faq.buildlayers.format.answer4=# : An introductory summary (several can be added
 faq.buildlayers.format.answer5=% : A comment to add explanations (these comments will not appear in the final eZoomBook).
 faq.buildlayers.format.answer6=## : A summary to link the quotes.
 faq.buildlayers.format.answer7=** : A chapter or a section of the text followed by a title or subtitle (if it is an audio, you can use the timing to indicate the beginning of a section).
-faq.buildlayers.format.answer8=&gt;&gt; : A quote.
+faq.buildlayers.format.answer8=>> : A quote.
 faq.buildlayers.format.answer9=- None of the above tags needs to be placed to close the sections, the summaries, the quotes, the comments, etc. Simply put them at the beginning of each new element.
 faq.buildlayers.format.answer10=- Present it all in a single document (eZoomLayer).
 faq.buildlayers.controlquality=How do I know if I can submit my layer, if its quality is good enough?
@@ -457,6 +472,10 @@ faq.other.subtitle=Other Questions
 faq.other.hyperlinks=Can I link to eZoomBook from my Web page?
 faq.other.help=My question isn't in this list. How do I get help?
 
+tutorial.title=Tutorial
 tutorial.h1=Tutorial
 
+forum.title=Forum
+
+error.title=Error
 generalerror.error404.message=Wow it's burning 404
