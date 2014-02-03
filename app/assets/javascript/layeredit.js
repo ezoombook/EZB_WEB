@@ -1,3 +1,19 @@
+    String.prototype.format = (function()
+    {
+        var replacer = function(context)
+        {
+            return function(s, name)
+            {
+                return context[name];
+            };
+        };
+
+        return function(context)
+        {
+            return this.replace(/\{(\w+)\}/g, replacer(context));
+        };
+    })();
+
     function onDeleteContrib(e){
         var divId = $(this).attr("data-contribid");
         $('#'+divId).remove();
@@ -23,42 +39,108 @@
     function onDeleteHoverIn(){$(this).css("opacity", "1");}
     function onDeleteHoverOut(){$(this).css("opacity", "0.2");}
 
-    function addPart(){
-        var partsCount = $("#contribs_set > .part_field" ).length;
-        var sumCount = $("#contribs_set > .summary_div" ).length;
+    function addAtomicContrib(parent, parentId, contribType){
+
+        var numContrs = parent.find(".contrib_div").length;
+        var newId = "contrib_div_"+parentId+"_"+numContrs+"_";
+
+        var contribDiv = contribType == "contrib.Quote" ?
+                            $('#contrib_div___quote_999_').clone().attr("id",newId) :
+                            $('#contrib_div___summary_999_').clone().attr("id",newId);
+
+        var fmt = {
+            parentId: parentId,
+            numContrs: numContrs
+        }
+
+        var contribTypeFieldId = "ezoomlayer_contribs_{parentId}__part_contribs_{numContrs}__contrib_contrib_type".format(fmt);
+        var contribTypeFieldName = "ezoomlayer_contribs[{parentId}].part_contribs[{numContrs}].contrib.contrib_type".format(fmt);
+        var contribContentFieldId = "ezoomlayer_contribs_{parentId}__part_contribs_{numContrs}__contrib_contrib_content".format(fmt);
+        var contribContentFieldName = "ezoomlayer_contribs[{parentId}].part_contribs[{numContrs}].contrib.contrib_content".format(fmt);
+        var contribIndexFieldId = "ezoomlayer_contribs_{parentId}__part_contribs_{numContrs}__contrib_index".format(fmt);
+        var contribIndexFieldName = "ezoomlayer_contribs[{parentId}].part_contribs[{numContrs}].contrib_index".format(fmt);
+
+        contribDiv.find('[data-field-key="contrib_type"]').first()
+            .attr("id", contribTypeFieldId)
+            .attr("name", contribTypeFieldName)
+            .attr("value", contribType);
+
+        contribDiv.find('[data-field-key="contrib_content"]').first()
+            .attr("id", contribContentFieldId)
+            .attr("name", contribContentFieldName);
+
+        contribDiv.find('[data-field-key="contrib_index"]').first()
+            .attr("id", contribIndexFieldId)
+            .attr("name", contribIndexFieldName)
+            .attr("value", numContrs);
+
+        contribDiv.find(".deletecontrib").attr("data-contribid",newId)
+            .click(onDeleteContrib);
+
+        contribDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
+
+        contribDiv.removeClass("hide");
+
+        parent.append(contribDiv);
+    }
+
+    function onAddQuote(e){
+        var divId = $(this).attr("data-part-div-id");
+        var parentDiv = $('#part_field_'+divId).find(".part-contribs");
+        if(parentDiv){
+            addAtomicContrib(parentDiv, divId, "contrib.Quote");
+        }
+    }
+
+    function onAddPartSummary(e){
+        var divId = $(this).attr("data-part-div-id");
+        var parentDiv = $('#part_field_'+divId).find(".part-contribs");
+        if(parentDiv){
+            addAtomicContrib(parentDiv, divId, "contrib.Summary");
+        }
+    }
+
+    function onAddPart(e){
+        var partsCount = $("#contribs_set").find(".part_field").length;
+        var sumCount = $("#contribs_set").find(".summary_div").length;
         var contribTotal = partsCount+sumCount;
 
         var newId = "part_field_"+(partsCount);
         var newPartField = $("#part_field_999").clone().attr("id", newId);
 
+        var fmt = {
+            contribTotal: partsCount+sumCount
+        }
+
+        var contribPartFieldId = "ezoomlayer_contribs_{contribTotal}__part_id".format(fmt);
+        var contribPartFieldName = "ezoomlayer_contribs[{contribTotal}].part_id".format(fmt);
+        var contribTitleFieldId = "ezoomlayer_contribs_{contribTotal}__part_title".format(fmt);
+        var contribTitleFieldName = "ezoomlayer_contribs[{contribTotal}].part_title".format(fmt);
+        var contribTypeFieldId = "ezoomlayer_contribs_{contribTotal}__contrib_type".format(fmt);
+        var contribTypeFieldName = "ezoomlayer_contribs[{contribTotal}].contrib_type".format(fmt);
+
         newPartField.find(".part_id:first")
-             .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_id")
-             .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_id");
+             .attr("id", contribPartFieldId)
+             .attr("name", contribPartFieldName);
 
         newPartField.find(".part_title:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__part_title")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].part_title");
+            .attr("id", contribTitleFieldId)
+            .attr("name", contribTitleFieldName);
 
         newPartField.find("#ezoomlayer_contribs_contrib_type:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_type")
+            .attr("id", contribTypeFieldId)
+            .attr("name", contribTypeFieldName)
             .attr("value","contrib.Part");
 
-        //Change buttons' id
-        newPartField.find("#btnAddQuote_999").attr("id","btnAddQuote_"+contribTotal)
-            .click(function(e){
-                var divId = e.target.id.split("_")[1];
-                addAtomicContrib(divId, "contrib.Quote");
-            });
-        newPartField.find("#btnAddSummary_999").attr("id","btnAddSummary_"+contribTotal)
-            .click(function(e){
-                var divId = e.target.id.split("_")[1];
-                addAtomicContrib(divId, "contrib.Summary");
-            });
-        newPartField.find(".deletecontrib").attr("data-contribid",newId)
+        //Change buttons target
+        newPartField.find(".btnAddQuote").attr("data-part-div-id", newId)
+            .click(onAddQuote);
+        newPartField.find(".btnAddSummary").attr("data-part-div-id", newId)
+            .click(onAddPartSummary);
+        newPartField.find(".deletecontrib").attr("data-contribid", newId)
             .click(onDeleteContrib);
         newPartField.find(".part_id")
-            .attr("data-titlefield","ezoomlayer_contribs_"+contribTotal+"__part_title")
+            .attr("data-titlefield",contribTitleFieldId)
             .change(onPartIdChange);
 
         newPartField.removeClass("hide");
@@ -70,18 +152,27 @@
         var partsCount = $("#contribs_set > .part_field" ).length;
         var sumCount = $("#contribs_set > .summary_div" ).length;
         var newId = "summary_div_"+sumCount;
-        var contribTotal = partsCount+sumCount;
+        //var contribTotal = partsCount+sumCount;
 
         var newSummaryDiv = $("#summary_div___999_").clone().attr("id", newId);
 
+        var fmt = {
+            contribTotal : partsCount+sumCount
+        }
+
+        var contribTypeFieldId = "ezoomlayer_contribs_{contribTotal}__contrib_type".format(fmt);
+        var contribTypeFieldName = "ezoomlayer_contribs[{contribTotal}].contrib_type".format(fmt);
+        var contribContentId = "ezoomlayer_contribs_{contribTotal}__contrib_content".format(fmt);
+        var contribContentName = "ezoomlayer_contribs[{contribTotal}].contrib_content".format(fmt);
+
         newSummaryDiv.find("#ezoomlayer_contribs_contrib_type:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_type")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_type")
+            .attr("id", contribTypeFieldId)
+            .attr("name", contribTypeFieldName)
             .attr("value", "contrib.Summary");
 
         newSummaryDiv.find("#ezoomlayer_contribs_contrib_content:first")
-            .attr("id", "ezoomlayer_contribs_"+contribTotal+"__contrib_content")
-            .attr("name", "ezoomlayer_contribs["+contribTotal+"].contrib_content");
+            .attr("id", contribContentId)
+            .attr("name", contribContentName);
 
         newSummaryDiv.find(".deletecontrib").attr("data-contribid",newId)
             .click(onDeleteContrib);
@@ -94,79 +185,68 @@
         $("#contribs_set").append(newSummaryDiv);
     }
 
-    function addAtomicContrib(parentId, contribType){
+    function addEzbSummary(e){
+        var sumSet = $("#summaries_set");
+        //var numSums = $(".ezb_summary").length - 1;
 
-        var parent = $("#part_field_"+parentId);
+        var fmt = {numSums: $(".ezb_summary").length - 1};
 
-        var numContrs = parent.children(".quote_div").length +
-                        parent.children(".summary_div").length;
+        var sumDiv = $("#ezb_summary_999").clone().attr("id", "ezb_summary_"+numSums);
 
-        var newId =  contribType == "contrib.Quote" ?
-                        "quote_div_" +parentId+"_"+numContrs+"_" :
-                        "summary_div_" +parentId+"_"+numContrs+"_"
-        var contribDiv = contribType == "contrib.Quote" ?
-                            $("#quote_div___999_").clone().attr("id",newId) :
-                            $("#summary_div___999_").clone().attr("id",newId);
+        var summaryFieldId = "ezoomlayer_summaries_{numSums}_".format(fmt);
+        var summaryFieldName = "ezoomlayer_summaries[{numSums}]".format(fmt);
 
-        contribDiv.find("#ezoomlayer_contribs_contrib_type:first")
-            .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_type")
-            .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_type")
-            .attr("value", contribType);
+        sumDiv.find(".ezb_summary")
+            .attr("id",summaryFieldId)
+            .attr("name",summaryFieldName);
 
-        contribDiv.find("#ezoomlayer_contribs_contrib_content:first")
-            .attr("id", "ezoomlayer_contribs_"+parentId+"__part_contribs_"+numContrs+"__contrib_content")
-            .attr("name", "ezoomlayer_contribs["+parentId+"].part_contribs["+numContrs+"].contrib_content");
-
-        contribDiv.find(".deletecontrib").attr("data-contribid",newId)
+        sumDiv.find(".deletecontrib").attr("data-contribid","ezb_summary_"+numSums)
             .click(onDeleteContrib);
 
-        contribDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
+        sumDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
-        contribDiv.removeClass("hide");
+        sumDiv.removeClass("hide");
 
-        parent.append(contribDiv);
+        sumSet.append(sumDiv);
+    }
+
+    function sortContribs(contribParent){
+        var contribs = contribParent.children('.contrib_div');
+        var i = 0;
+        contribs.each(function(){
+            $(this).find('[data-field-key="contrib_index"]').first().val(i);
+            i=i+1;
+        });
+    }
+
+    function handleSort(event, ui){
+        var parent = ui.item.parents(".sortable").first();
+        sortContribs(parent);
+    }
+
+    function onMoveUp(e){
+        var divId = $(this).attr("data-move-target");
+        var div = $("#"+divId);
+        var prev = div.prev();
+        if(div.size() > 0 && prev.size() > 0){
+console.log("swapping " + div.attr("id") + " and " + prev.attr("id"));
+            prev.before(div);
+        }
+        sortContribs(div.parents(".sortable").first());
     }
 
     $(document).ready(function(){
         window.changed = false;
 
-        $('#btnAddezbSummary').click(function (e) {
-            var sumSet = $("#summaries_set");
-            var numSums = $(".ezb_summary").length - 1;
+        $('#btnAddezbSummary').click(addEzbSummary);
 
-            var sumDiv = $("#ezb_summary_999").clone().attr("id", "ezb_summary_"+numSums);
+        $('#btnAddPart').click(onAddPart);
 
-            sumDiv.find(".ezb_summary")
-                .attr("id","ezoomlayer_summaries_"+numSums+"_")
-                .attr("name","ezoomlayer_summaries["+numSums+"]");
+        $('.btnAddQuote').click(onAddQuote);
 
-            sumDiv.find(".deletecontrib").attr("data-contribid","ezb_summary_"+numSums)
-                .click(onDeleteContrib);
+        $('.btnAddPartSummary').click(onAddPartSummary);
 
-            sumDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
-
-            sumDiv.removeClass("hide");
-
-            sumSet.append(sumDiv);
-        });
-        $('#btnAddPart').click(function () {
-            addPart();
-        });
-        $('.btnAddQuote').click(function (e){
-            var divId = e.target.id.split("_")[1];
-            if(divId){
-                addAtomicContrib(divId, "contrib.Quote");
-            }
-        });
-        $('.btnAddPartSummary').click(function (e) {
-            var divId = e.target.id.split("_")[1];
-            if(divId){
-                addAtomicContrib(divId, "contrib.Summary");
-            }
-        });
-        $('#btnAddSummary').click(function (e){
-            addSummary();
-        });
+        $('#btnAddSummary').click(addSummary);
 
         $(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
@@ -202,4 +282,12 @@
         $('#ezl_form > *').on("change", function(){
             $('#ezl_form').prop('changed',true);
         });
+
+        $(".sortable").sortable({
+            cancel:".title_box, .part_actions",
+            handle:".drag-handle",
+            stop: handleSort
+        });
+
+        $(".move-up").click(onMoveUp);
    });

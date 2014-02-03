@@ -6,6 +6,7 @@ authenticate:User => Boolean)(implicit context:Context)
 @import ezbhelpers._
 
 @scripts = {
+<script src='@routes.Assets.at("javascripts/jquery-ui-1.10.4.custom.min.js")'></script>
 <script src='@routes.Assets.at("javascript/layeredit.js")'></script>
 }
 
@@ -20,9 +21,14 @@ authenticate:User => Boolean)(implicit context:Context)
 }
 
 @displayPart(part:Field, hide:Boolean, divId:String) = {
-<div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId">
+<div class="part_field contrib_div hl_contrib @if(hide){hide}" id="part_field_@divId" data-contrib-index="@divId">
     <div class="row part_div form-group">
+        <div class="col-md-1 ">
+            <a title="Move up" class="move-up" data-move-target="part_field_@divId"><span class="glyphicon glyphicon-arrow-up"></span></a>
+            <span class="glyphicon glyphicon-sort drag-handle"></span>
+        </div>
         <div class="col-md-6 title_box">
+            @hidden(part("contrib_index"), Symbol("data-field-key") -> "contrib_index")
             @hidden(part("contrib_type"))
             @part("part_id").value.map{partId =>
                @hidden(part("part_id"))
@@ -46,8 +52,8 @@ authenticate:User => Boolean)(implicit context:Context)
         <div class="col-md-4 btn-group part_actions">
             <button class="btn btn-default" data-toggle="dropdown" href="#">New<span class="caret"></span></button>
             <ul class="dropdown-menu add_menu">
-                <li><a class="btnAddQuote" id="btnAddQuote_@divId">Quote</a></li>
-                <li><a class="btnAddPartSummary" id="btnAddSummary_@divId">Summary</a></li>
+                <li><a class="btnAddQuote" data-part-div-id="@divId">Quote</a></li>
+                <li><a class="btnAddPartSummary" data-part-div-id="@divId">Summary</a></li>
             </ul>
             @bookOpt.map{book =>
                 @part("part_id").value.map{partId =>
@@ -61,49 +67,61 @@ authenticate:User => Boolean)(implicit context:Context)
                data-contribid="part_field_@divId"><span class="glyphicon glyphicon-trash"></span></a>
         </div>
     </div>
+    <div class="part-contribs sortable" id="part-contribs-@divId">
     @for(i <- part("part_contribs").indexes;
-    pc = part("part_contribs")("["+i+"]")){
-    @pc("contrib_type").value.map{ct =>
-    @displayAtomic(ct,pc,"part_", divId, i.toString, false)
-    }.getOrElse{ <!-- Cannot display part content --> }
+        pc = part("part_contribs")("["+i+"]")){
+            @pc("contrib")("contrib_type").value.map{ct =>
+                    @displayAtomic(ct,pc,"part_", divId, i.toString, false)
+            }.getOrElse{ <!-- Cannot display part content --> }
     }
+    </div>
 </div>
 }
 
-@displayAtomic(ctype:String, c:Field, level:String, parent:String, divId:String, hide:Boolean) = {
-@defining(parent+"_"+divId+"_"){div_id =>
-@ctype match{
-case "contrib.Quote" => {
-<div class="row contrib_div quote_div form-group @if(hide){hide}" id="quote_div_@div_id">
-    <div class="col-md-1">
-        <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
-    </div>
-    <div class="col-md-10 text_box">
-        <a class="deletecontrib"
-           data-contribid="quote_div_@div_id"><span class="glyphicon glyphicon-trash delete-icon"></span></a>
-        @textarea(c("contrib_content"), '_label -> "", 'class -> "quote contrib")
-        @hidden(c("contrib_id"))
-        @hidden(c("contrib_type"))
-        @hidden(c("range"))
-    </div>
+@displayAtomic(ctype:String, c:Field, level:String, parent:String, divId:String, hide:Boolean) ={
+@defining("contrib_div_"+parent+"_"+divId+"_"){div_id =>
+<div class='row contrib_div form-group @if(hide){hide} @if(level=="contrib_"){hl_contrib}'
+     data-contrib_type="@ctype" data-contrib-index="@divId" id='@div_id'>
+    @ctype match{
+    case "contrib.Quote" => {
+        <div class="col-md-1">
+            <span class="badge badge-inverse" style="font-size:20px; float: right;">&ldquo;</span>
+        </div>
+        <div class="col-md-10 text_box">
+            <div class="row">
+                <a title="Move up" class="move-up" data-move-target="@div_id"><span class="glyphicon glyphicon-arrow-up"></span></a>
+                <span class="glyphicon glyphicon-sort drag-handle"></span>
+                <a class="deletecontrib"
+                   data-contribid='@div_id'><span class="glyphicon glyphicon-trash delete-icon"></span></a>
+            </div>
+            <div class="row">
+                @textarea(c("contrib")("contrib_content"), '_label -> "", 'class -> "quote contrib", Symbol("data-field-key") -> "contrib_content")
+                @hidden(c("contrib")("contrib_id"))
+                @hidden(c("contrib")("contrib_type"), Symbol("data-field-key") -> "contrib_type")
+                @hidden(c("contrib")("range"))
+                @hidden(c("contrib_index"), Symbol("data-field-key") -> "contrib_index")
+            </div>
+        </div>
+    }
+    case "contrib.Summary" => {
+        <div class="col-md-11 text_box summary_box">
+            <div class="row">
+                <a title="Move up" class="move-up" data-move-target="@div_id"><span class="glyphicon glyphicon-arrow-up"></span></a>
+                <span class="glyphicon glyphicon-sort drag-handle"></span>
+                <a class="deletecontrib"
+                   data-contribid='@div_id'><span class="glyphicon glyphicon-trash delete-icon"></span></a>
+            </div>
+            <div class="row">
+                @hidden(c("contrib_index"), Symbol("data-field-key") -> "contrib_index")
+                @hidden(c("contrib")("contrib_type"), Symbol("data-field-key") -> "contrib_type")
+                @hidden(c("contrib")("contrib_id"))
+                @textarea(c("contrib")("contrib_content"), '_label -> "", 'class -> (level+"summary contrib"), Symbol("data-field-key") -> "contrib_content")
+            </div>
+        </div>
+    }
+    case _ =>  { <p>Could not display contribution. Unknown type @ctype</p> }
+    }
 </div>
-}
-case "contrib.Summary" => {
-<div class='row contrib_div summary_div form-group @if(level=="contrib_"){hl_contrib} @if(hide){hide}'
-     id="summary_div_@div_id">
-    <div class="col-md-11 text_box">
-        @hidden(c("contrib_type"))
-        @hidden(c("contrib_id"))
-        <a class="deletecontrib"
-           data-contribid="summary_div_@div_id"><span class="glyphicon glyphicon-trash delete-icon"></span></a>
-        @textarea(c("contrib_content"), '_label -> "", 'class -> (level+"summary contrib") )
-    </div>
-</div>
-}
-case _ => {
-<p>Could not display contribution. Unknown type @ctype</p>
-}
-}
 }
 }
 
@@ -155,10 +173,10 @@ case _ => {
 @displayPart(ezlForm("ezoomlayer_contribs"), true, "999")
 
 <!-- Another template for quotes -->
-@displayAtomic("contrib.Quote", ezlForm("ezoomlayer_contribs"), "part_", "_", "999", true)
+@displayAtomic("contrib.Quote", ezlForm("ezoomlayer_contribs"), "part_", "_", "quote_999", true)
 
 <!-- And another template for summaries -->
-@displayAtomic("contrib.Summary", ezlForm("ezoomlayer_contribs"), "part_", "_", "999", true)
+@displayAtomic("contrib.Summary", ezlForm("ezoomlayer_contribs"), "part_", "_", "summary_999", true)
 
 <!-- A simple textarea for EZB Summaries -->
 @displayEzbSummary(ezlForm("ezoomlayer_summaries"), true, "999")
@@ -218,7 +236,7 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             <p>It seems there are some errors in your request...</p>
             <ul>
                 @ezlForm.errors.map{err =>
-                <li>@err.message</li>
+                    <li>@err.key : @err.message</li>
                 }
             </ul>
         </div>
@@ -281,16 +299,16 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             @displayEzbSummary(f, false, "@f.id")
             }
         </fieldset>
-        <fieldset id="contribs_set">
+        <fieldset id="contribs_set" class="sortable">
             <legend>Contributions</legend>
             @for(i <- ezlForm("ezoomlayer_contribs").indexes;
-            f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
-            @f("contrib_type").value.map{cf =>
-            @cf match{
-            case "contrib.Part" => { @displayPart(f, false, i.toString) }
-            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
-            }
-            }.getOrElse{ }
+                f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
+                    @f("contrib_type").value.map{cf =>
+                        @cf match{
+                        case "contrib.Part" => { @displayPart(f, false, i.toString) }
+                        case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
+                        }
+                    }
             }
         </fieldset>
 
