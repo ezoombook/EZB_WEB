@@ -5,17 +5,6 @@ fieldset{
     border-radius:8px;
     padding: 5px;
 }
-/*
-.del_button{
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 20;
-  line-height: 20px;
-  float: right;
-  opacity: 0.2;
-}
-*/
 .hl_contrib{
     padding-top: 10px;
     border: 0;
@@ -25,6 +14,12 @@ fieldset{
 {
   position: relative;
 }
+
+.text_box.summary_box
+{
+  padding-left: 50px;
+}
+
 textarea.contrib
 {
   width: 100%;
@@ -42,37 +37,21 @@ textarea.contrib
     border-left: 4px solid rgba(0, 0, 0, 0);
     border-bottom: 0 dotted;
     opacity: 0.2;
-}
-/*
-.title_box
-{
-  padding-left: 5px;
-}
-.part_id
-{
-  width: 100%;
+    cursor: pointer;
 }
 
-label{
-  //float: left;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-.padded_field{
-    padding-left: 5px;
-    padding-top: 16px;
-    padding-bottom: 10px;
+.move-up{
+    cursor: pointer;
 }
 
-//Editable dropdown list
-.select-editable {
-    position:relative; background-color:white; border:solid grey 1px;  width:120px; height:18px;
+.drag-handle{
+    cursor: move;
 }
-.select-editable select {
-    position:absolute; top:0px; left:0px; font-size:14px; border:none; width:120px; margin:0;
+
+.drag-handle.right{
+    float: right;
 }
-.select-editable input {
-    position:absolute; top:0px; left:0px; width:100px; padding:1px; font-size:12px; border:none;
+
+.contrib-row.over{
+    border: 2px dashed #000;
 }
-.select-editable select:focus, .select-editable input:focus { outline:none; }
-*/
