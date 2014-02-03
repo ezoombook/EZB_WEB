@@ -562,9 +562,9 @@ Logger.debug("Selected quote: " + selectedQuote)
                 part <- book.bookParts.find(_.partId == contrib.part_id.get)
                 pt <- part.title
               } yield ( pt )) map { partTitle =>
-          val modifedLayer = EzoomLayer.updatePart(ezl, contrib.part_id.getOrElse(""), partTitle, contrib)
-          BookDO.saveLayer(modifedLayer)
-          Ok("Quote saved!")
+                  val modifedLayer = EzoomLayer.updatePart(ezl, contrib.part_id.getOrElse(""), partTitle, contrib)
+                  BookDO.saveLayer(modifedLayer)
+                  Ok("Quote saved!")
               }
               result
           }.getOrElse{
