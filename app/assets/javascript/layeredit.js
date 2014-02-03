@@ -79,6 +79,10 @@
 
         contribDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
 
+        contribDiv.find(".move-up")
+            .attr("data-move-target",newId)
+            .click(onMoveUp);
+
         contribDiv.removeClass("hide");
 
         parent.append(contribDiv);
@@ -118,6 +122,8 @@
         var contribTitleFieldName = "ezoomlayer_contribs[{contribTotal}].part_title".format(fmt);
         var contribTypeFieldId = "ezoomlayer_contribs_{contribTotal}__contrib_type".format(fmt);
         var contribTypeFieldName = "ezoomlayer_contribs[{contribTotal}].contrib_type".format(fmt);
+        var contribIndexFieldId = "ezoomlayer_contribs[{contribTotal}].contrib_index".format(fmt);
+        var contribIndexFieldName = "ezoomlayer_contribs[{contribTotal}].contrib_index".format(fmt);
 
         newPartField.find(".part_id:first")
              .attr("id", contribPartFieldId)
@@ -132,6 +138,11 @@
             .attr("name", contribTypeFieldName)
             .attr("value","contrib.Part");
 
+        newPartField.find('[data-field-key="contrib_index"]').first()
+            .attr("id", contribIndexFieldId)
+            .attr("name", contribIndexFieldName)
+            .val(contribTotal);
+
         //Change buttons target
         newPartField.find(".btnAddQuote").attr("data-part-div-id", newId)
             .click(onAddQuote);
@@ -142,6 +153,10 @@
         newPartField.find(".part_id")
             .attr("data-titlefield",contribTitleFieldId)
             .change(onPartIdChange);
+
+        newPartField.find(".move-up")
+            .attr("data-move-target",newId)
+            .click(onMoveUp);
 
         newPartField.removeClass("hide");
 
