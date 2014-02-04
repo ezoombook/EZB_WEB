@@ -20,9 +20,6 @@ import play.api.libs.json.JsValue
 
 object EzbForms extends FormHelpers {
 
-  //private implicit val atomicContribOrdering:Ordering[(Int, AtomicContrib)] = Ordering.by(_._1)
-  //private implicit val contribOrdering:Ordering[(Int, A)] = Ordering.by(_._1)
-
   val bookForm = Form[Book](
     mapping(
       "book_id" -> of[UUID],

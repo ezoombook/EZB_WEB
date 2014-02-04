@@ -1,6 +1,7 @@
 @(ezb:Ezoombook, activeLayer:Option[EzoomLayer], ezlForm:Form[EzoomLayer],
 bookOpt:Option[Book],
-authenticate:User => Boolean)(implicit context:Context)
+projOpt:Option[EzbProject],
+canEditLayer:User => Boolean)(implicit context:Context)
 
 @import utils.ezbhelpers.EzbHelpers._
 @import ezbhelpers._
@@ -126,20 +127,24 @@ authenticate:User => Boolean)(implicit context:Context)
 }
 
 @levelMap(body: (Map[String,String]) => Html ) = {
-@defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
-@body(lmap)
-}
+    @defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
+        @body(lmap)
+    }
 }
 
 @displayEzbInfo = {
 <dl>
     <dt>Title:</dt>
     <dd>@ezb.ezoombook_title</dd>
+    @projOpt.map{project =>
+        <dt>Project:</dt>
+        <dd><a href="@routes.Collaboration.projectAdmin(project.projectId.toString)">@project.projectName</a></dd>
+    }
     <dt>Is Public:</dt>
     <dd>@if(ezb.ezoombook_public){
-        @Messages("application.yes")
+            @Messages("application.yes")
         }else{
-        @Messages("application.no")
+            @Messages("application.no")
         }
     </dd>
     <dt>Status:</dt>
@@ -147,18 +152,16 @@ authenticate:User => Boolean)(implicit context:Context)
     <dt>Layers</dt>
     <ul>
         @ezb.ezoombook_layers.map{layer =>
-        @levelMap{lmap =>
-        <li><a href="/ezlayer/edit/@ezb.ezoombook_id/@layer._2/false">@lmap.getOrElse(layer._1, "undef")</a></li>
-        }
+            @levelMap{lmap =>
+                <li><a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer._2)">@lmap.getOrElse(layer._1, "undef")</a></li>
+            }
         }
     </ul>
-    @context.user.map{user =>
-    @if(authenticate(user)){
-    <dt>
-        <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">Add a layer...</a>
-    </dt>
-    <dd></dd>
-    }
+    @if(context.user.exists(canEditLayer(_))){
+        <dt>
+            <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">Add a layer...</a>
+        </dt>
+        <dd></dd>
     }
 </dl>
 }
@@ -204,11 +207,13 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             <h3 id="ezoombook_title">eZoomBook Info</h3>
             @displayEzbInfo
 
+            @if(context.user.exists(canEditLayer(_))){
             <p>Load a layer from a file: </p>
             @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString),
             'enctype -> "multipart/form-data"){
             <input type="file" name="ezlfile"></br>
             <input type="submit">
+            }
             }
         </div>
         @bookOpt.map{book =>
@@ -254,11 +259,15 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
                     <input class="btn btn-default" type="submit" value="Save Changes" id="saveChangesBtn">
                 </div>
                 <div class="col-md-2">
+                    @context.user.map{user =>
+                        @if(canEditLayer(user)){
                 @activeLayer.map{ezl =>
                     <button class="btn btn-default" href="#deleteAlert" role="button" data-toggle="modal">Delete
                         eZoomLayer
                     </button>
-                    }.getOrElse{}
+                            }
+                        }
+                    }
                 </div>
             </div>
             <div class="row">
@@ -267,16 +276,23 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
                 </div>
             </div>
             <div class="row">
+                @if(context.user.exists(canEditLayer(_))){
                 <div class="col-md-9 btn-group" data-toggle="buttons">
-                    @if(context.user.exists(authenticate(_))){
                     @radioButtonGroup(ezlForm("ezoomlayer_status"),
                     options = Seq(Status.published.toString -> Status.published.toString,
                     Status.workInProgress.toString -> Status.workInProgress.toString),
                     '_label -> "")
+                </div>
+                } else{
+                <div class="col-md-9">
+                    @activeLayer.map{ezl =>
+                        @ezl.ezoomlayer_status
                     }
                 </div>
+                }
             </div>
             <div class="row">
+                @if(context.user.exists(canEditLayer(_))){
                 <div class="col-md-9 padded_field form-group">
                     @levelMap{lmap =>
                     @select(ezlForm("ezoomlayer_level"), options = for(i <- 1 to 4) yield(i.toString ->
@@ -284,7 +300,22 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
                     '_label -> "Choose the detail level of your layer:")
                     }
                 </div>
+                }else{
+                <div class="col-md-9">
+                    <label for="ezoomlayer_level">
+                        Level of detail:
+                    </label>
             </div>
+                <div class="col-md-9">
+                    @activeLayer.map{ezl =>
+                        @levelMap{lmap =>
+                            @lmap(ezl.ezoomlayer_level.toString)
+                        }
+                    }
+                </div>
+                }
+            </div>
+            @if(context.user.exists(canEditLayer(_))){
             <div class="row">
                 <div class="btn-group col-md-9">
                     <input type="button" class="btn btn-default" id="btnAddezbSummary" value="+ Book Summary">
@@ -292,6 +323,7 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
                     <input type="button" class="btn btn-default" id="btnAddPart" value="+ Part">
                 </div>
             </div>
+            }
         </fieldset>
         <fieldset id="summaries_set">
             <legend>Book Summaries</legend>

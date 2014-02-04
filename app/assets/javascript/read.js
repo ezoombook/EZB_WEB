@@ -48,20 +48,6 @@ console.log("quote: " + quoteRange);
                 var elem = $(".user_selection_true").get(0);
                 scrollTo('#reader', elem);
             }
-
-
-//            var selected = $(this).text().replace(/\[[^]\]|\«|\»/g,'').split('\n');
-//            var quoteId = $(this).attr('id');
-//
-//            for (var i = 0; i < selected.length; i++) {
-//                selected[i] = selected[i].trim();
-//            }
-//
-//            $('#level-tabs a:first').tab('show');
-//            $('body p').highlight(selected, {element: 'a', className: 'zoom-out'});
-//            $('a.zoom-out').attr('data-origin',quoteId);
-//            $('a.zoom-out').attr('tabindex',-1).focus();
-//            $('a.zoom-out').click(zoomIn);
         });
         $('.comment-btn').click(function(){
             console.log('coucou!');
