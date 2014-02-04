@@ -20,6 +20,9 @@ import play.api.libs.json.JsValue
 
 object EzbForms extends FormHelpers {
 
+  //private implicit val atomicContribOrdering:Ordering[(Int, AtomicContrib)] = Ordering.by(_._1)
+  //private implicit val contribOrdering:Ordering[(Int, A)] = Ordering.by(_._1)
+
   val bookForm = Form[Book](
     mapping(
       "book_id" -> of[UUID],
@@ -64,7 +67,7 @@ object EzbForms extends FormHelpers {
       "ezoomlayer_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezoomlayer_locked" -> default(boolean, false),
       "ezoomlayer_summaries" -> list(text),
-      "ezoomlayer_contribs" -> list(contribMapping("", layerid, ezoombookid, userid))
+      "ezoomlayer_contribs" -> list(contribMapping("", layerid, ezoombookid, userid)).transform(sort, zipWithIndex2)
     )(EzoomLayer.apply)(EzoomLayer.unapply)
   )
 
@@ -77,23 +80,13 @@ object EzbForms extends FormHelpers {
       "ezoomlayer_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezoomlayer_locked" -> default(boolean, false),
       "ezoomlayer_summaries" -> list(text),
-      "ezoomlayer_contribs" -> list(contribMapping)
+      "ezoomlayer_contribs" -> list(contribMapping).transform(sort, zipWithIndex2)
     )(EzoomLayer.apply)
       (EzoomLayer.unapply)
   )
 
-  //  private def contribMappingAlt:Mapping[] = mapping(
-  //    "contrib_type" -> nonEmptyText,
-  //    "contrib_part" -> optional(text),
-  //    "contrib_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
-  //    "contrib_locked" -> default(boolean, false),
-  //    "contrib_content" -> default(text, ""),
-  //    "part_title" -> optional(text),
-  //    "part_summary" -> optional(text),
-  //    "part_contribs" -> optional(list(atomicContribMapping(ezlId,ezbId,uid,partId)))
-  //  )
-
-  private def contribMapping(partId: String, ezlId: UUID, ezbId: UUID, uid: UUID): Mapping[Contrib] = mapping(
+  private def contribMapping(partId: String, ezlId: UUID, ezbId: UUID, uid: UUID): Mapping[(Int,Contrib)] = mapping(
+    "contrib_index" -> number,
     "contrib_id" -> lazydefaut(text, UUID.randomUUID().toString),
     "contrib_type" -> nonEmptyText,
     "ezoomlayer_id" -> default(of[UUID], ezlId),
@@ -105,10 +98,11 @@ object EzbForms extends FormHelpers {
     "contrib_content" -> default(text, ""),
     "part_title" -> optional(text),
     "part_summary" -> optional(text),
-    "part_contribs" -> optional(list(atomicContribMapping(ezlId, ezbId, uid, partId)))
+    "part_contribs" -> optional(list(pairedAtomicContribMapping(ezlId, ezbId, uid, partId)).transform(sort, zipWithIndex))
   )(contribApply)(contribUnapply)
 
-  private def contribMapping: Mapping[Contrib] = mapping(
+  private def contribMapping: Mapping[(Int,Contrib)] = mapping(
+    "contrib_index" -> number,
     "contrib_id" -> text,
     "contrib_type" -> text,
     "ezoomlayer_id" -> of[UUID],
@@ -120,8 +114,24 @@ object EzbForms extends FormHelpers {
     "contrib_content" -> text,
     "part_title" -> optional(text),
     "part_summary" -> optional(text),
-    "part_contribs" -> optional(list(atomicContribMapping))
+    "part_contribs" -> optional(list(pairedAtomicContribMapping).transform(sort, zipWithIndex))
   )(contribApply)(contribUnapply)
+
+  private def pairedAtomicContribMapping:Mapping[(Int,AtomicContrib)] = tuple(
+    "contrib_index" -> number,
+    "contrib" -> atomicContribMapping
+  )
+
+  private def pairedAtomicContribMapping(ezlId: UUID, ezbId: UUID, uid: UUID, partId: String):Mapping[(Int,AtomicContrib)] = tuple(
+    "contrib_index" -> number,
+    "contrib" -> atomicContribMapping(ezlId, ezbId, uid, partId)
+  )
+
+  private def sort[A](lst:List[(Int,A)]):List[A] = lst.sorted(Ordering.by[(Int,A),Int](_._1)).map(_._2)
+
+  private def zipWithIndex(lst:List[AtomicContrib]):List[(Int,AtomicContrib)] = lst.zipWithIndex.map(_.swap)
+
+  private def zipWithIndex2(lst:List[Contrib]):List[(Int,Contrib)] = lst.zipWithIndex.map(_.swap)
 
   private def atomicContribMapping: Mapping[AtomicContrib] = mapping(
     "contrib_id" -> text,
@@ -150,45 +160,48 @@ object EzbForms extends FormHelpers {
   )(AtomicContrib.apply)(AtomicContrib.unapply)
 
   private def contribApply(
-                            contrib_id: String,
-                            contrib_type: String,
-                            ezoomlayer_id: UUID,
-                            ezoombook_id: UUID,
-                            user_id: UUID,
-                            part_id: Option[String],
-                            contrib_status: Status.Value,
-                            contrib_locked: Boolean,
-                            contrib_content: String,
-                            part_title: Option[String],
-                            part_summary: Option[String],
-                            part_contribs: Option[List[AtomicContrib]]): Contrib = contrib_type match {
-    case "contrib.Part" =>
-      EzlPart(contrib_id, ezoomlayer_id, ezoombook_id, user_id, part_id, contrib_status, contrib_locked,
-        part_title.getOrElse(""), part_summary, part_contribs.getOrElse(List[AtomicContrib]()))
-    case _ =>
-      AtomicContrib(contrib_id, contrib_type, ezoomlayer_id, ezoombook_id,
-        user_id, part_id, None, contrib_status, contrib_locked, contrib_content)
-  }
+    contrib_index: Int,
+    contrib_id: String,
+    contrib_type: String,
+    ezoomlayer_id: UUID,
+    ezoombook_id: UUID,
+    user_id: UUID,
+    part_id: Option[String],
+    contrib_status: Status.Value,
+    contrib_locked: Boolean,
+    contrib_content: String,
+    part_title: Option[String],
+    part_summary: Option[String],
+    part_contribs: Option[List[AtomicContrib]]): (Int,Contrib) = (contrib_index, contrib_type match {
+      case "contrib.Part" =>
+        EzlPart(contrib_id, ezoomlayer_id, ezoombook_id, user_id, part_id, contrib_status, contrib_locked,
+          part_title.getOrElse(""), part_summary, part_contribs.getOrElse(List[AtomicContrib]()))
+      case _ =>
+        AtomicContrib(contrib_id, contrib_type, ezoomlayer_id, ezoombook_id,
+          user_id, part_id, None, contrib_status, contrib_locked, contrib_content)
+    }
+    )
 
-  private def contribUnapply(contrib: Contrib) = Some(
-    contrib.contrib_id,
-    contrib.contrib_type,
-    contrib.ezoomlayer_id,
-    contrib.ezoombook_id,
-    contrib.user_id,
-    contrib.part_id,
-    contrib.contrib_status,
-    contrib.contrib_locked,
-    contrib.contrib_content,
-    contrib match {
+  private def contribUnapply(contrib: (Int,Contrib)) = Some(
+    contrib._1,
+    contrib._2.contrib_id,
+    contrib._2.contrib_type,
+    contrib._2.ezoomlayer_id,
+    contrib._2.ezoombook_id,
+    contrib._2.user_id,
+    contrib._2.part_id,
+    contrib._2.contrib_status,
+    contrib._2.contrib_locked,
+    contrib._2.contrib_content,
+    contrib._2 match {
       case part: EzlPart => Some(part.part_title)
       case _ => None
     },
-    contrib match {
+    contrib._2 match {
       case part: EzlPart => part.part_summary
       case _ => None
     },
-    contrib match {
+    contrib._2 match {
       case part: EzlPart => Some(part.part_contribs)
       case _ => None
     }
@@ -196,4 +209,5 @@ object EzbForms extends FormHelpers {
 
   private def lazydefaut[A](mapping: Mapping[A], gimmeval: => A): Mapping[A] =
     OptionalMapping(mapping).transform(_.getOrElse(gimmeval), Some(_))
+
 }

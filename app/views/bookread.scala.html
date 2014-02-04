@@ -8,6 +8,7 @@
 @scripts = {
 @activeLayer.map{ezl =>
         <script src='@routes.Assets.at("javascripts/masha.js")'></script>
+        <script src='@routes.Assets.at("javascript/utils.js")'></script>
         <script type="text/javascript" src='@routes.Assets.at("javascript/bookread.js")'></script>
         <script type="text/javascript">
             var quoteRanges = @Html(Json.toJson(quoteRanges).toString);
@@ -39,7 +40,7 @@
     <ul class="dropdown-menu">
         @activeLayer.map{ezl =>
         <li>
-            <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString)">
+            <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString, true)">
                 <span class="glyphicon glyphicon-arrow-left"></span> Go back to eZoomLayer...
             </a>
         </li>
@@ -72,9 +73,13 @@
             <span class="glyphicon glyphicon-chevron-left"></span></a>
         }
     </div>
-    <div class="col-md-10" id="reader">
-        @partContent
-    </div>
+    @defining(book.bookParts(partIndex).partId.split('#')){array =>
+        @defining(if(array.length > 1){ array(1) } else { "" } ){ partId =>
+            <div class="col-md-10" id="reader" data-partid="@partId" style="overflow:auto;">
+                @partContent
+            </div>
+        }
+    }
     <div class="col-md-1">
         @if(partIndex < book.bookParts.size-1){
         <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex+1).partId)'>

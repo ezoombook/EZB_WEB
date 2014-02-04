@@ -67,3 +67,17 @@ var QUOTER = function(){
     return my;
 
 }();
+
+//Requires utils.js
+function setReaderHeight(){
+    calcMaxHeight('#reader');
+}
+
+$(document).ready(function() {
+    $(window).resize(setReaderHeight);
+
+    setReaderHeight();
+
+    var partDivId = ($("#reader").attr("data-partid") || "");
+    scrollToPart('#reader', partDivId);
+});

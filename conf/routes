@@ -93,6 +93,8 @@ GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLay
 GET     /read/:bid/:ezbid/:pid/:layer     controllers.EzoomBooks.setReadingEzbPart(bid,ezbid,pid,layer)
 GET     /read/:bid/:ezbid/:layer          controllers.EzoomBooks.setReadingEzb(bid,ezbid,layer)
 GET     /ezbread/:bid/:pid                controllers.EzoomBooks.readEzb(bid,pid)
+GET     /ezbreadpart/:bid/:pid            controllers.EzoomBooks.goToPart(bid,pid)
+GET     /ezbreadzoom/:bid/:lid/:pid/:qid       controllers.EzoomBooks.zoomIn(bid,lid,pid,qid)
 # Book resources
 GET     /bookres/:bid/*file               controllers.EzoomBooks.bookResource(bid:String,file)
 
