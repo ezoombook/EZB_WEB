@@ -4,3 +4,8 @@ logs/
 project/project/
 project/target/
 target/
+
+.idea
+*.iml
+conf/ehcache.xml
+conf/lancouch.conf
