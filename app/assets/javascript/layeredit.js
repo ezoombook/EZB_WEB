@@ -144,9 +144,9 @@
             .val(contribTotal);
 
         //Change buttons target
-        newPartField.find(".btnAddQuote").attr("data-part-div-id", newId)
+        newPartField.find(".btnAddQuote").attr("data-part-div-id", partsCount)
             .click(onAddQuote);
-        newPartField.find(".btnAddSummary").attr("data-part-div-id", newId)
+        newPartField.find(".btnAddPartSummary").attr("data-part-div-id", partsCount)
             .click(onAddPartSummary);
         newPartField.find(".deletecontrib").attr("data-contribid", newId)
             .click(onDeleteContrib);

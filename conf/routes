@@ -36,15 +36,18 @@ GET     /groupadmin/:id		    controllers.Community.groupadmin(id:String)
 POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
 
 # Projects
-POST    /project/save/:gid              controllers.Collaboration.saveProject(gid)
-POST    /project/saveezb/:pid           controllers.Collaboration.saveProjectEzb(pid)
-POST    /project/setezb/:pid            controllers.Collaboration.setProjectEzb(pid)
-GET     /project/admin/:id              controllers.Collaboration.projectAdmin(id:String)
-POST    /projectmember/:id              controllers.Collaboration.newProjectMember(id:String)
-POST    /projectmember/update/:pid      controllers.Collaboration.editProjectMember(pid)
-POST	/project/delete/:id             controllers.Collaboration.deleteProject(id)
-POST    /collab/comment                 controllers.Collaboration.saveComment
-GET     /collab/contrib/:lid/:cid       controllers.EzoomBooks.getContribution(lid,cid)
+POST    /project/save/:gid                   controllers.Collaboration.saveProject(gid)
+POST    /project/saveezb/:pid                controllers.Collaboration.saveProjectEzb(pid)
+POST    /project/setezb/:pid                 controllers.Collaboration.setProjectEzb(pid)
+GET     /project/:id                         controllers.Collaboration.projectAdmin(id:String)
+POST    /projectmember/:id                   controllers.Collaboration.newProjectMember(id:String)
+POST    /projectmember/update/:pid           controllers.Collaboration.editProjectMember(pid)
+POST	/project/delete/:id                  controllers.Collaboration.deleteProject(id)
+POST    /collab/comment                      controllers.Collaboration.saveComment
+GET     /collab/contrib/:lid/:cid            controllers.EzoomBooks.getContribution(lid,cid)
+GET     /collab/ezbedit/:pid                 controllers.EzoomBooks.projectEzlayerEdit(pid)
+GET     /collab/readlayer/:projid/:bid/:pid      controllers.EzoomBooks.readProjLayer(projid,bid,pid)
+POST    /collab/savelayer/:projid/:ezbid         controllers.EzoomBooks.saveProjEzoomLayer(projid,ezbid)
 
 # Books
 GET	    /listbooks			controllers.EzoomBooks.listbooks
@@ -82,12 +85,12 @@ GET     /ezb/edit/:id                     controllers.EzoomBooks.ezoomBookEdit(i
 POST    /ezb/save/:bookid                 controllers.EzoomBooks.saveEzoomBook(bookid:String)
 POST    /ezb/delete/:ezbid                controllers.EzoomBooks.ezoomBookDelete(ezbid)
 
-POST    /ezlayer/load/:bid                controllers.EzoomBooks.loadEzoomLayer(bid:String)
+POST    /ezlayer/load/:bid/:pid           controllers.EzoomBooks.loadEzoomLayer(bid:String, pid:String)
 POST    /ezlayer/save/:bid                controllers.EzoomBooks.saveEzoomlayer(bid:String)
-GET     /ezlayer/edit/:bid/:lid/:refr     controllers.EzoomBooks.ezoomLayerEdit(bid,lid,refr:Boolean)
+GET     /ezlayer/edit/:bid/:lid           controllers.EzoomBooks.ezoomLayerEdit(bid,lid)
 POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
 POST    /ezlayer/create/:bid/:lev/:p/:g   controllers.EzoomBooks.createEzoomLayer(bid,lev,p,g)
-GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLayer
+#GET     /workingezlayer                   controllers.EzoomBooks.workingEzoomLayer
 
 GET     /read/:bid/:ezbid/:pid/:layer     controllers.EzoomBooks.setReadingEzbPart(bid,ezbid,pid,layer)
 GET     /read/:bid/:ezbid/:layer          controllers.EzoomBooks.setReadingEzb(bid,ezbid,layer)

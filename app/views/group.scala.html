@@ -1,4 +1,4 @@
-@(groupId:String, groupName:String,
+@(group:Group,
     members:List[(User,AppDB.dal.Roles.Value)],
     projects:List[EzbProject],
     memberForm:Form[(String,String)],
@@ -51,7 +51,7 @@
     }
 }
 
-@main("Group "+groupName, scripts){
+@main("Group "+group.name, scripts){
 <style>
     label[for=new_ezb]{
 //        float: right;
@@ -62,7 +62,7 @@
 <!-- Add Group Member Modal Window -->
 @modal(modalId = "new_member",
         modalTitle = Messages("group.addmember.h3"),
-        formAction = Some(routes.Community.newGroupMember(groupId))){
+        formAction = Some(routes.Community.newGroupMember(group.id.toString))){
 
     @inputText(memberForm("member_email"),
         Symbol("data-provider") -> "typehead",
@@ -70,14 +70,18 @@
         Symbol("data-source") -> "?",
         '_label -> Messages("group.addmember.membermail"))
 
-    @select(memberForm("role"), UserDO.getGroupMemberRole,
-        '_label -> Messages("group.addmember.role"))
+    @if(context.user.exists(user => user.id == group.ownerId)){
+        @select(memberForm("role"), UserDO.getGroupMemberRole,
+            '_label -> Messages("group.addmember.role"))
+    }else{
+        @hidden(memberForm("role"), '_value -> AppDB.dal.Roles.collaborator.toString, '_label -> Messages("group.addmember.role"))
+    }
 }
 
 <!-- New Project Modal Window -->
 @modal(modalId = "new_project",
         modalTitle = Messages("group.newproject.h3"),
-        formAction = Some(routes.Collaboration.saveProject(groupId))
+        formAction = Some(routes.Collaboration.saveProject(group.id.toString))
 ){
     @hidden(projectForm("project_id"))
     @hidden(projectForm("project_owner"))
@@ -120,16 +124,22 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h1>@groupName Group</h1>
-        <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("group.addmember.button")</a>
-        <a class="btn btn-primary"  href="@routes.Community.groupadmin(groupId)">@Messages("group.administrate.button")</a>
+        <h1>@group.name Group</h1>
+        @if(context.user.exists(user => user.id == group.ownerId || members.exists(m => m._1.id == user.id && m._2 == AppDB.dal.Roles.coordinator))){
+            <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("group.addmember.button")</a>
+@**
+            <a class="btn btn-primary"  href="@routes.Community.groupadmin(group.id.toString)">@Messages("group.administrate.button")</a>
+**@
+        }
     </div>
 </div>
 
-<div class="row">
+<div class="row" id="projectList">
     <div class="col-md-3">
         <h2> @Messages("group.projects.h2") </h2>
-        <p><a data-toggle="modal" href="#new_project">@Messages("group.newproject.button")</a></p>
+        @if(context.user.exists(user => user.id == group.ownerId)){
+            <p><a data-toggle="modal" href="#new_project">@Messages("group.newproject.button")</a></p>
+        }
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -139,7 +149,7 @@
             <tbody>
             @projects.map{project =>
             <tr>
-                <td><a href="/project/admin/@project.projectId">@project.projectName</a></td>
+                <td><a href="@routes.Collaboration.projectAdmin(project.projectId.toString)">@project.projectName</a></td>
             </tr>
             }
             </tbody>
@@ -148,7 +158,7 @@
     </div>
     <div class="col-md-6">
         <h2>Message Board</h2>
-        @defining(groupId.substring(0,8)){shortId =>
+        @defining(group.id.toString.substring(0,8)){shortId =>
         <!-- Shoutbox Widget -->
         <iframe WIDTH="100%" HEIGHT="810" title="Shoutbox"
                 src="http://shoutbox.widget.me/window.html?uid=@shortId" frameborder="0" scrolling="auto">

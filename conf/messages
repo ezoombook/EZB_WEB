@@ -157,6 +157,7 @@ ezbproject.assigment.modal.submit=Submit changes
 ezbproject.comment.on=commented on
 ezbproject.contribdetail.h3=Contribution details
 ezbproject.contrbidetail.contribtype.h4=Contribution type
+ezbproject.missing.layer.message=This layer has not been created yet
 
 ezoomlayeredit.ezb.ezbtitle=Title
 ezoomlayeredit.ezlayerdelete.header=EzoomLayer Elimination
