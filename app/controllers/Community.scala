@@ -59,7 +59,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
     withUser{user =>
       cachedGroup(gid).map{group =>
         val members = UserDO.getGroupMembers(groupId)
-        Ok(views.html.group(group.id.toString, group.name, members,
+        Ok(views.html.group(group, members,
           BookDO.getGroupProjects(groupId),
           memberForm,
           BookDO.getUserEzoombooks(user.id),
@@ -79,7 +79,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
       memberForm.bindFromRequest.fold(
         errors => cachedGroup(gid).map{group =>
           println("[ERROR] Errors found while trying to create group member : " + errors)
-          BadRequest(views.html.group(gid, group.name,
+          BadRequest(views.html.group(group,
             UserDO.getGroupMembers(groupId),
             BookDO.getGroupProjects(groupId),
             errors,
@@ -92,7 +92,7 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
             Redirect(routes.Community.group(gid))
           }.getOrElse{
             cachedGroup(gid).map{group =>
-              BadRequest(views.html.group(gid, group.name,
+              BadRequest(views.html.group(group,
                 UserDO.getGroupMembers(groupId),
                 BookDO.getGroupProjects(groupId),
                 memberForm.withGlobalError(Messages("group.memberfrom.error.usernotfound",member._1)),

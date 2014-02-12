@@ -3,6 +3,7 @@ members:List[User],
 ezbook:Option[Ezoombook],
 memberForm:Form[TeamMember],
 comments:List[Comment],
+canAdmin:User => Boolean,
 bookparts:List[BookPart] = List[BookPart](),
 ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
@@ -11,27 +12,40 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 @import utils.DateFormatter._
 @import utils.MD5Util
 
+@levelMap(body: (Map[String,String]) => Html ) = {
+    @defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
+        @body(lmap)
+    }
+}
+
 @displayEzb = {
 @ezbook.map{ezb =>
-@withUser{user =>
-@project.projectTeam.find(_.userId == user.id).map{member =>
-@ezb.ezoombook_layers.get(member.assignedLayer).map{layer =>
-<a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer,false)">
-    @ezb.ezoombook_title
-</a>
-}.getOrElse{
-@helper.form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
-member.assignedLayer,
-member.assignedPart,
-project.groupId.toString)){
-@ezb.ezoombook_title
-<input type="submit" class="btn" value="Create layer >>">
-}
-}
-}.getOrElse{
-<a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
-}
-}
+    @withUser{user =>
+        @project.projectTeam.find(_.userId == user.id).map{member =>
+            @ezb.ezoombook_layers.get(member.assignedLayer).map{ layerid =>
+            <a href="@routes.EzoomBooks.projectEzlayerEdit(project.projectId.toString)">
+                @ezb.ezoombook_title
+            </a>
+                @levelMap{lmap =>
+                    ( @lmap(member.assignedLayer) Level )
+                }
+            }.getOrElse{
+                @if(project.isMultiLevel || project.projectOwnerId == user.id){
+                    @helper.form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
+                        member.assignedLayer,
+                        member.assignedPart,
+                        project.groupId.toString)){
+                            @ezb.ezoombook_title
+                            <input type="submit" class="btn" value="Create layer >>">
+                    }
+                }else{
+                    <i>@Messages("ezbproject.missing.layer.message")</i>
+                }
+            }
+        }.getOrElse{
+            <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
+        }
+    }
 }.getOrElse{
 <p>
     <i>@Messages("ezbproject.missing.ezb.message")</i>
@@ -67,12 +81,6 @@ project.groupId.toString)){
 
 @scripts = {
 <script type='text/javascript' src='@routes.Assets.at("javascript/projectedit.min.js")'></script>
-}
-
-@levelMap(body: (Map[String,String]) => Html ) = {
-@defining((for(i <- 1 to 4) yield (i.toString -> Messages("application.ezlayer.level."+i))).toMap ){lmap =>
-@body(lmap)
-}
 }
 
 @main("Project", scripts){
@@ -176,7 +184,7 @@ None){
 <div class="row">
     <div class="col-md-7"> <!-- Left Pannel -->
         @withUser{user =>
-        @if(user.id == project.projectOwnerId){
+        @if(canAdmin(user)){
         <p>
             <a class="btn btn-primary" data-toggle="modal"
                href="#new_member">@Messages("ezbproject.addmember.button")</a>
@@ -216,7 +224,7 @@ None){
                     }
                 </td>
                 <td> <!-- Change chapter/level assignment -->
-                    @if(context.user.exists(_.id == project.projectOwnerId)){
+                    @if(context.user.exists(canAdmin(_))){
                     <a href="#assigmentModal"
                        data-toggle="modal"
                        class="btn changeAssignmentBtn"
