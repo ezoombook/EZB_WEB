@@ -13,7 +13,7 @@ canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
 }
 
 @displayEzbSummary(field:Field, hide:Boolean, divId:String) = {
-<div class="row contrib_div @if(hide){hide}" id="ezb_summary_@divId">
+<div class="row contrib_div @if(hide){hide} ezb_summary" id="ezb_summary_@divId">
     <div class="col-md-11 text_box">
         <a class="deletecontrib" data-contribid="ezb_summary_@divId"><span
                 class="glyphicon glyphicon-trash delete-icon"></span></a>
@@ -120,9 +120,11 @@ canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
             </div>
             <div class="row">
                 @hidden(c("contrib_index"), Symbol("data-field-key") -> "contrib_index")
-                @hidden(c("contrib")("contrib_type"), Symbol("data-field-key") -> "contrib_type")
-                @hidden(c("contrib")("contrib_id"))
-                @textarea(c("contrib")("contrib_content"), '_label -> "", 'class -> (level+"summary contrib"), Symbol("data-field-key") -> "contrib_content")
+                @defining(if(level == "part_") c("contrib") else c){ contrib =>
+                    @hidden(contrib("contrib_type"), Symbol("data-field-key") -> "contrib_type")
+                    @hidden(contrib("contrib_id"))
+                    @textarea(contrib("contrib_content"), '_label -> "", 'class -> (level+"summary contrib"), Symbol("data-field-key") -> "contrib_content")
+                }
             </div>
         </div>
     }

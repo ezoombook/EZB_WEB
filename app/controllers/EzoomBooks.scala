@@ -207,7 +207,9 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                   ezoomlayerForm.fill(modifedLayer), BookDO.getBook(ezb.book_id.toString), projOpt,
                   canEditProjectLayer(ezb, projOpt, modifedLayer.ezoomlayer_id.toString) _,
                   canEditProjContrib(ezb, Some(modifedLayer), projOpt) _)
-                )
+                ).withSession(
+                    session + (WORKING_LAYER -> modifedLayer.ezoomlayer_id.toString)
+                  )
               }
             )
         }
