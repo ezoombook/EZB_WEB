@@ -107,13 +107,15 @@
     function onAddPart(e){
         var partsCount = $("#contribs_set").find(".part_field").length;
         var sumCount = $("#contribs_set").find(".summary_div").length;
-        var contribTotal = partsCount+sumCount;
+        var contribTotal = $("#contribs_set > .contrib_div").length;
 
         var newId = "part_field_"+(partsCount);
-        var newPartField = $("#part_field_999").clone().attr("id", newId);
+        var newPartField = $("#part_field_999").clone()
+            .attr("id", newId)
+            .attr("data-contrib-index",contribTotal);
 
         var fmt = {
-            contribTotal: partsCount+sumCount
+            contribTotal: contribTotal
         }
 
         var contribPartFieldId = "ezoomlayer_contribs_{contribTotal}__part_id".format(fmt);
@@ -166,26 +168,31 @@
     function addSummary(){
         var partsCount = $("#contribs_set > .part_field" ).length;
         var sumCount = $("#contribs_set > .summary_div" ).length;
-        var newId = "summary_div_"+sumCount;
-        //var contribTotal = partsCount+sumCount;
+        var contribTotal = $("#contribs_set > .contrib_div").length; //partsCount+sumCount;
 
-        var newSummaryDiv = $("#summary_div___999_").clone().attr("id", newId);
+        var newId = "summary_div_"+sumCount;
+
+        var newSummaryDiv = $("#contrib_div___summary_999_").clone()
+            .attr("id", newId)
+            .attr("data-contrib-index",contribTotal);
 
         var fmt = {
-            contribTotal : partsCount+sumCount
+            contribTotal : contribTotal
         }
 
         var contribTypeFieldId = "ezoomlayer_contribs_{contribTotal}__contrib_type".format(fmt);
         var contribTypeFieldName = "ezoomlayer_contribs[{contribTotal}].contrib_type".format(fmt);
         var contribContentId = "ezoomlayer_contribs_{contribTotal}__contrib_content".format(fmt);
         var contribContentName = "ezoomlayer_contribs[{contribTotal}].contrib_content".format(fmt);
+        var contribIndexFieldId = "ezoomlayer_contribs[{contribTotal}].contrib_index".format(fmt);
+        var contribIndexFieldName = "ezoomlayer_contribs[{contribTotal}].contrib_index".format(fmt);
 
-        newSummaryDiv.find("#ezoomlayer_contribs_contrib_type:first")
+        newSummaryDiv.find('[data-field-key="contrib_type"]:first')
             .attr("id", contribTypeFieldId)
             .attr("name", contribTypeFieldName)
             .attr("value", "contrib.Summary");
 
-        newSummaryDiv.find("#ezoomlayer_contribs_contrib_content:first")
+        newSummaryDiv.find('[data-field-key="contrib_content"]:first')
             .attr("id", contribContentId)
             .attr("name", contribContentName);
 
@@ -193,6 +200,15 @@
             .click(onDeleteContrib);
 
         newSummaryDiv.find(".delete-icon").hover(onDeleteHoverIn, onDeleteHoverOut);
+
+        newSummaryDiv.find('[data-field-key="contrib_index"]').first()
+            .attr("id", contribIndexFieldId)
+            .attr("name", contribIndexFieldName)
+            .val(contribTotal);
+
+        newSummaryDiv.find(".move-up")
+            .attr("data-move-target",newId)
+            .click(onMoveUp);
 
         newSummaryDiv.removeClass("hide");
         newSummaryDiv.addClass("hl_contrib");
@@ -202,7 +218,7 @@
 
     function addEzbSummary(e){
         var sumSet = $("#summaries_set");
-        //var numSums = $(".ezb_summary").length - 1;
+        var numSums = $("div.ezb_summary").length - 1;
 
         var fmt = {numSums: $(".ezb_summary").length - 1};
 
@@ -211,7 +227,7 @@
         var summaryFieldId = "ezoomlayer_summaries_{numSums}_".format(fmt);
         var summaryFieldName = "ezoomlayer_summaries[{numSums}]".format(fmt);
 
-        sumDiv.find(".ezb_summary")
+        sumDiv.find("textarea.ezb_summary")
             .attr("id",summaryFieldId)
             .attr("name",summaryFieldName);
 
@@ -244,7 +260,6 @@
         var div = $("#"+divId);
         var prev = div.prev();
         if(div.size() > 0 && prev.size() > 0){
-console.log("swapping " + div.attr("id") + " and " + prev.attr("id"));
             prev.before(div);
         }
         sortContribs(div.parents(".sortable").first());
