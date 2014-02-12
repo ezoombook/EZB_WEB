@@ -1,7 +1,8 @@
 @(ezb:Ezoombook, activeLayer:Option[EzoomLayer], ezlForm:Form[EzoomLayer],
 bookOpt:Option[Book],
 projOpt:Option[EzbProject],
-canEditLayer:User => Boolean)(implicit context:Context)
+canEditLayer:User => Boolean,
+canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
 
 @import utils.ezbhelpers.EzbHelpers._
 @import ezbhelpers._
@@ -58,8 +59,13 @@ canEditLayer:User => Boolean)(implicit context:Context)
             </ul>
             @bookOpt.map{book =>
                 @part("part_id").value.map{partId =>
-                    <a class="btn btn-default" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
-                        Go to book...</a>
+                    @projOpt.map{proj =>
+                        <a class="btn btn-default" href='@routes.EzoomBooks.readProjLayer(proj.projectId.toString, book.bookId.toString,partId)'>
+                            Go to book...</a>
+                    }.getOrElse{
+                        <a class="btn btn-default" href='@routes.EzoomBooks.readLayer(book.bookId.toString,partId)'>
+                            Go to book...</a>
+                    }
                 }.getOrElse{
                     <a class="btn btn-default hide readBtn" href="#" data-bookId="@book.bookId">Go to book...</a>
                 }
@@ -153,7 +159,15 @@ canEditLayer:User => Boolean)(implicit context:Context)
     <ul>
         @ezb.ezoombook_layers.map{layer =>
             @levelMap{lmap =>
-                <li><a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer._2)">@lmap.getOrElse(layer._1, "undef")</a></li>
+                <li>
+                @projOpt.map{proj =>
+                    <a href="@routes.EzoomBooks.projectEzlayerEdit(proj.projectId.toString)">
+                        @lmap.getOrElse(layer._1, "undef")</a>
+                }.getOrElse{
+                    <a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer._2)">
+                        @lmap.getOrElse(layer._1, "undef")</a>
+                }
+                </li>
             }
         }
     </ul>
@@ -208,12 +222,12 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             @displayEzbInfo
 
             @if(context.user.exists(canEditLayer(_))){
-            <p>Load a layer from a file: </p>
-            @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString),
-            'enctype -> "multipart/form-data"){
-            <input type="file" name="ezlfile"></br>
-            <input type="submit">
-            }
+                <p>Load a layer from a file: </p>
+                @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString, projOpt.map(_.projectId.toString).getOrElse("0")),
+                    'enctype -> "multipart/form-data"){
+                    <input type="file" name="ezlfile"></br>
+                    <input type="submit">
+                }
             }
         </div>
         @bookOpt.map{book =>
@@ -246,7 +260,8 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             </ul>
         </div>
         }
-        @helper.form(routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString),
+        @helper.form(projOpt.map(proj => routes.EzoomBooks.saveProjEzoomLayer(proj.projectId.toString, ezb.ezoombook_id.toString)).getOrElse(
+            routes.EzoomBooks.saveEzoomlayer(ezb.ezoombook_id.toString)),
         'id -> "ezl_form", 'role -> "form"){
         <fieldset>
             <legend>eZoomLayer</legend>
@@ -259,13 +274,11 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
                     <input class="btn btn-default" type="submit" value="Save Changes" id="saveChangesBtn">
                 </div>
                 <div class="col-md-2">
-                    @context.user.map{user =>
-                        @if(canEditLayer(user)){
-                @activeLayer.map{ezl =>
-                    <button class="btn btn-default" href="#deleteAlert" role="button" data-toggle="modal">Delete
-                        eZoomLayer
-                    </button>
-                            }
+                    @if(context.user.exists(canEditLayer(_))){
+                        @activeLayer.map{ezl =>
+                            <button class="btn btn-default" href="#deleteAlert" role="button" data-toggle="modal">Delete
+                                eZoomLayer
+                            </button>
                         }
                     }
                 </div>
@@ -335,16 +348,20 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             <legend>Contributions</legend>
             @for(i <- ezlForm("ezoomlayer_contribs").indexes;
                 f = ezlForm("ezoomlayer_contribs")("["+ i +"]") ){
-                    @f("contrib_type").value.map{cf =>
-                        @cf match{
-                        case "contrib.Part" => { @displayPart(f, false, i.toString) }
-                        case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
+                    @if(context.user.exists(u => canEditContrib(u, f("part_id").value.getOrElse(""), f("contrib_id").value.getOrElse("")))){
+                        @f("contrib_type").value.map{cf =>
+                            @cf match{
+                            case "contrib.Part" => { @displayPart(f, false, i.toString) }
+                            case _ => { @displayAtomic(cf, f, "contrib_", "_", i.toString, false) }
+                            }
                         }
+                    }else{
+                        <!-- Part @f("part_id").value.getOrElse("") not showed, not enought privileges -->
                     }
             }
         </fieldset>
 
-        }
+        } <!-- form end -->
     </div>
 </div>
 }

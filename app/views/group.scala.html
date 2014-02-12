@@ -70,8 +70,12 @@
         Symbol("data-source") -> "?",
         '_label -> Messages("group.addmember.membermail"))
 
-    @select(memberForm("role"), UserDO.getGroupMemberRole,
-        '_label -> Messages("group.addmember.role"))
+    @if(context.user.exists(user => user.id == group.ownerId)){
+        @select(memberForm("role"), UserDO.getGroupMemberRole,
+            '_label -> Messages("group.addmember.role"))
+    }else{
+        @hidden(memberForm("role"), '_value -> AppDB.dal.Roles.collaborator.toString, '_label -> Messages("group.addmember.role"))
+    }
 }
 
 <!-- New Project Modal Window -->
@@ -121,9 +125,11 @@
 <div class="row">
     <div class="col-md-12">
         <h1>@group.name Group</h1>
-        @if(context.user.exists(user => user.id == group.ownerId)){
+        @if(context.user.exists(user => user.id == group.ownerId || members.exists(m => m._1.id == user.id && m._2 == AppDB.dal.Roles.coordinator))){
             <a class="btn btn-primary" data-toggle="modal" href="#new_member" >@Messages("group.addmember.button")</a>
+@**
             <a class="btn btn-primary"  href="@routes.Community.groupadmin(group.id.toString)">@Messages("group.administrate.button")</a>
+**@
         }
     </div>
 </div>

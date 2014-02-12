@@ -3,6 +3,7 @@ members:List[User],
 ezbook:Option[Ezoombook],
 memberForm:Form[TeamMember],
 comments:List[Comment],
+canAdmin:User => Boolean,
 bookparts:List[BookPart] = List[BookPart](),
 ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
@@ -183,7 +184,7 @@ None){
 <div class="row">
     <div class="col-md-7"> <!-- Left Pannel -->
         @withUser{user =>
-        @if(user.id == project.projectOwnerId){
+        @if(canAdmin(user)){
         <p>
             <a class="btn btn-primary" data-toggle="modal"
                href="#new_member">@Messages("ezbproject.addmember.button")</a>
@@ -223,7 +224,7 @@ None){
                     }
                 </td>
                 <td> <!-- Change chapter/level assignment -->
-                    @if(context.user.exists(_.id == project.projectOwnerId)){
+                    @if(context.user.exists(canAdmin(_))){
                     <a href="#assigmentModal"
                        data-toggle="modal"
                        class="btn changeAssignmentBtn"

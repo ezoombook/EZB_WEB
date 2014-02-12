@@ -17,6 +17,7 @@ import Play.current
 import java.util.UUID
 import play.api.cache.Cache
 import jp.t2v.lab.play2.auth.AuthElement
+import models.ListedProject
 
 /**
  * Created with IntelliJ IDEA.
@@ -160,6 +161,13 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
       }
   }
 
+  private def canEditProject(project:EzbProject)(user:User):Boolean = {
+    UserDO.getGroupById(project.groupId).exists(_.ownerId == user.id) ||
+    UserDO.getGroupMembers(project.groupId).exists{
+      case (usr, role) => usr.id == user.id && role == AppDB.dal.Roles.coordinator
+    }
+  }
+
   /**
    * Displays the project administration page
    * @param projId
@@ -181,6 +189,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
                 ezbopt,
                 Form(memberMapping),
                 ezbopt.map(ezb => BookDO.getCommetsByEzb(ezb.ezoombook_id)).getOrElse(List[Comment]()),
+                canEditProject(project),
                 bookParts,
                 if(project.ezoombookId.isEmpty){BookDO.getUserEzoombooks(user.id)} else {List[Ezoombook]()}))
           }.getOrElse {

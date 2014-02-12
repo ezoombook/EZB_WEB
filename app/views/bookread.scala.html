@@ -1,4 +1,4 @@
-@(book:Book,activeLayer:Option[EzoomLayer],partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html,bookStyles:Html)(implicit context:Context)
+@(book:Book,projectId:Option[String], activeLayer:Option[EzoomLayer],partIndex:Int,partId:String,quoteRanges:List[String],partContent:Html,bookStyles:Html)(implicit context:Context)
 
 @import ezbhelpers._
 @import play.api.libs.json._
@@ -38,19 +38,37 @@
 <div class="btn-group">
     <a href="#" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></a>
     <ul class="dropdown-menu">
-        @activeLayer.map{ezl =>
-        <li>
-            <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString)">
-                <span class="glyphicon glyphicon-arrow-left"></span> Go back to eZoomLayer...
-            </a>
-        </li>
+        @projectId.map{pid =>
+            <li>
+                <a href="@routes.EzoomBooks.projectEzlayerEdit(pid)">
+                    <span class="glyphicon glyphicon-arrow-left"></span> Go back to eZoomLayer...
+                </a>
+            </li>
         }.getOrElse{
-        <li>Go back to ?</li>
+            @activeLayer.map{ezl =>
+                <li>
+                    <a href="@routes.EzoomBooks.ezoomLayerEdit(ezl.ezoombook_id.toString, ezl.ezoomlayer_id.toString)">
+                        <span class="glyphicon glyphicon-arrow-left"></span> Go back to eZoomLayer...
+                    </a>
+                </li>
+            }.getOrElse{
+                <li>Go back to ?</li>
+            }
         }
         <li class="divider"></li>
         <li>Go to chapter:</li>
         @book.bookParts.map{bookPart =>
-            <li><a href="@routes.EzoomBooks.readLayer(book.bookId.toString, bookPart.partId)">@bookPart.title.getOrElse("- Subsection")</a></li>
+            <li>
+                @projectId.map{pid =>
+                    <a href="@routes.EzoomBooks.readProjLayer(pid, book.bookId.toString, bookPart.partId)">
+                        @bookPart.title.getOrElse("- Subsection")
+                    </a>
+                }.getOrElse{
+                    <a href="@routes.EzoomBooks.readLayer(book.bookId.toString, bookPart.partId)">
+                        @bookPart.title.getOrElse("- Subsection")
+                    </a>
+                }
+            </li>
         }
     </ul>
 </div>
