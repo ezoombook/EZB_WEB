@@ -43,7 +43,9 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
                 }
             }
         }.getOrElse{
-            <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">@ezb.ezoombook_title</a>
+            @if(project.projectOwnerId == user.id){
+                <a href="@routes.EzoomBooks.projectEzlayerEdit(project.projectId.toString)">@ezb.ezoombook_title</a>
+            }
         }
     }
 }.getOrElse{

@@ -150,12 +150,14 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Stores an ezoomlayer in the databasse
    */
-  def saveEzoomlayer(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  //def saveEzoomlayer(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  def saveEzoomlayer(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       saveEzoomLayerAction(None, ezbId)
   }
 
-  def saveProjEzoomLayer(projId:String, ezbId: String) = StackAction(AuthorityKey -> canEditProjectEzb(projId) _){
+  //def saveProjEzoomLayer(projId:String, ezbId: String) = StackAction(AuthorityKey -> canEditProjectEzb(projId) _){
+  def saveProjEzoomLayer(projId:String, ezbId: String) = StackAction(AuthorityKey -> RegisteredUser){
     implicit request =>
       saveEzoomLayerAction(Some(projId), ezbId)
   }
@@ -246,7 +248,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * creating by default a new empty ezoomlayer.
    */
   //TODO Verify this works well without project
-  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  //def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -270,8 +273,11 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Creates a new empty eZoomLayer with a given level,
    * then redirects the user to the ezb edition page.
    */
+//  def createEzoomLayer(ezbId: String, layerLevel: String, assignedPart: String, groupId: String) =
+//    StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+
   def createEzoomLayer(ezbId: String, layerLevel: String, assignedPart: String, groupId: String) =
-    StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+    StackAction(AuthorityKey -> RegisteredUser) {
       implicit request =>
         withUser {
           user =>
@@ -295,7 +301,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Displays the ezoomlayer edit form for an existing ezoomlayer
    */
-  def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  //def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
           withEzoomBook(ezbId) {
             ezb =>
@@ -372,7 +379,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     }
   }
 
-  def projectEzlayerEdit(projId: String) = StackAction(AuthorityKey -> canEditProjectEzb(projId) _) {
+  //def projectEzlayerEdit(projId: String) = StackAction(AuthorityKey -> canEditProjectEzb(projId) _) {
+  def projectEzlayerEdit(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       projId.toUUID.fold(
         err => BadRequest("Invalid projectId..."),
