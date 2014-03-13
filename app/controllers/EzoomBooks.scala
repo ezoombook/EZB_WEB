@@ -10,6 +10,8 @@ import books.dal._
 import project.dal._
 
 import scala.util._
+import scala.concurrent._
+import duration._
 import play.api._
 import Play.current
 import cache.Cache
@@ -27,6 +29,9 @@ import org.apache.commons.io.IOUtils
 import scala.xml.XML
 import jp.t2v.lab.play2.auth.AuthElement
 
+import scala.concurrent.{ExecutionContext, Future}
+import org.reactivecouchbase.play.PlayCouchbase
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
@@ -39,6 +44,8 @@ import jp.t2v.lab.play2.auth.AuthElement
  * Manage ezoombook related operations: book upload, ezoombook creation and edition, etc
  */
 object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with ContextProvider {
+
+  implicit val ec = PlayCouchbase.couchbaseExecutor
 
   val loadFile = parse.raw
 
@@ -150,7 +157,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   /**
    * Stores an ezoomlayer in the databasse
    */
-  //def saveEzoomlayer(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+  //def saveEzoomlayer(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId, BookDO.getEzbProject(ezbId)) _) {
   def saveEzoomlayer(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       saveEzoomLayerAction(None, ezbId)
@@ -167,10 +174,18 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
       user =>
         withEzoomBook(ezbId) {
           ezb =>
-            val projOpt = projId.flatMap{pid => BookDO.getProject(UUID.fromString(pid))}
+            val projOpt:Option[EzbProject] = projId.flatMap(pid =>
+              Try(Await.result(BookDO.getProject(UUID.fromString(pid)), Duration(5, SECONDS)))
+                .recover{
+                  case err => Logger.error(s"Could not retrieve project $projId : $err")
+                    None
+                }.getOrElse(None)
+            )
+          Logger.debug(s"Active project: $projId : " + projOpt)
             val activeLayer = context.activeLayer.flatMap(BookDO.getEzoomLayer(_))
+            val layerId = activeLayer.map(_.ezoomlayer_id).getOrElse(UUID.randomUUID)
 
-            ezoomlayerForm(ezb.ezoombook_id, UUID.randomUUID, user.id).bindFromRequest.fold(
+            ezoomlayerForm(ezb.ezoombook_id, layerId, user.id).bindFromRequest.fold(
               errors => {
                 BadRequest(views.html.ezoomlayeredit(ezb, activeLayer,
                   errors, BookDO.getBook(ezb.book_id.toString), projOpt,
@@ -185,22 +200,22 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                 }
                 BookDO.saveEzoomBook(newezb)
 
-                //Save whole layer or only assigned part(s) according to the role of the user
+                 //Save whole layer or only assigned part(s) according to the role of the user
                 val modifedLayer =
                   if(canEditProjectLayer(ezb, projOpt, ezl.ezoomlayer_id.toString)(user)){
                     ezl
                   }else{
-                    (for{
-                      proj <- projOpt
-                      member <- proj.projectTeam.find(_.userId == user.id)
-                      layer <- BookDO.getEzoomLayer(ezl.ezoomlayer_id, true)
-                      contrib <- ezl.ezoomlayer_contribs.find(_.part_id.exists(_ == member.assignedPart))
-                    } yield (contrib match{
-                        case modifiedPart:EzlPart => updateEzlPart(layer, modifiedPart)
-                        case _ =>
-                          Logger.debug("Could not find part with id " + member.assignedPart)
-                          layer
-                      })).getOrElse(ezl)
+                    val oldLayer = BookDO.getEzoomLayer(ezl.ezoomlayer_id, true)
+
+                    val changes = for{
+                      proj <- projOpt.toSeq
+                      member <- proj.projectTeam.find(_.userId == user.id).toSeq
+                      assignment <- member.assignedParts
+                      contrib <- ezl.ezoomlayer_contribs.find(_.part_id.exists(_ == assignment)) if contrib.isInstanceOf[EzlPart]
+                    } yield (contrib.asInstanceOf[EzlPart])
+Logger.debug("EZL Changes:" + changes)
+                    changes.foldLeft(oldLayer.getOrElse(ezl))(updateEzlPart _)
+
                   }
 
                 BookDO.saveLayer(modifedLayer)
@@ -226,6 +241,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
         case contrib::rest =>
           contrib match{
             case part:EzlPart if part.contrib_id == newPart.contrib_id =>
+              Logger.debug(s"Updating contrib $part.contrib_id")
               (acumList :+ newPart) ++ rest
             case _ => updateContribList(rest, acumList :+ contrib)
           }
@@ -235,11 +251,13 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     EzoomLayer.contribsL.set(ezl, updateContribList(ezl.ezoomlayer_contribs, List[Contrib]()))
   }
 
-  private def canEditEzb(ezbId: String)(user: User): Boolean = {
+  private def canEditEzb(ezbId: String, projOpt:Option[EzbProject])(user: User): Boolean = {
     BookDO.getEzoomBook(UUID.fromString(ezbId)).exists {
       ezb =>
         ezb.ezoombook_owner == user.id.toString ||
-          Collaboration.getProjectsByUser(user.id).exists(_.ezbId.exists(_ == ezb.ezoombook_id))
+          projOpt.exists(
+            proj => proj.projectOwnerId == user.id || proj.projectTeam.exists(_.userId == user.id)
+          )
     }
   }
 
@@ -248,8 +266,8 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * creating by default a new empty ezoomlayer.
    */
   //TODO Verify this works well without project
-  //def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
-  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId, BookDO.getEzbProject(ezbId)) _) {
+  //def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -263,7 +281,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
                 ezoomlayerForm,
                 BookDO.getBook(ezb.book_id.toString),
                 None,
-                canEditEzb(ezbId) _,
+                canEditEzb(ezbId,BookDO.getEzbProject(ezbId)) _,
                 canEditProjContrib(ezb, None, None) _ ))
           }
       }
@@ -273,16 +291,16 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
    * Creates a new empty eZoomLayer with a given level,
    * then redirects the user to the ezb edition page.
    */
-//  def createEzoomLayer(ezbId: String, layerLevel: String, assignedPart: String, groupId: String) =
-//    StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
+//  def createEzoomLayer(ezbId: String, layerLevel: String, groupId: String) =
+//    StackAction(AuthorityKey -> canEditEzb(ezbId, BookDO.getEzbProject(ezbId)) _) {
 
-  def createEzoomLayer(ezbId: String, layerLevel: String, assignedPart: String, groupId: String) =
+  def createEzoomLayer(ezbId: String, layerLevel: String, groupId: String, projId: String) =
     StackAction(AuthorityKey -> RegisteredUser) {
       implicit request =>
         withUser {
           user =>
             val layerid = UUID.randomUUID()
-            val owner = if (assignedPart.isEmpty) user.id.toString else "group:" + groupId
+            val owner = if(!groupId.isEmpty) "group:" + groupId else user.id.toString
             val newEzLayer = EzoomLayer(
               ezoomlayer_id = layerid,
               ezoombook_id = UUID.fromString(ezbId),
@@ -294,15 +312,19 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
               ezoomlayer_contribs = List[Contrib]()
             )
             BookDO.saveLayer(newEzLayer)
-            Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, layerid.toString))
+            if(groupId.isEmpty)
+              Redirect(routes.EzoomBooks.ezoomLayerEdit(ezbId, layerid.toString))
+            else
+              Redirect(routes.EzoomBooks.projectEzlayerEdit(projId))
+
         }
     }
 
   /**
    * Displays the ezoomlayer edit form for an existing ezoomlayer
    */
-  //def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId) _) {
   def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  //def ezoomLayerEdit(ezbId: String, ezlId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId, BookDO.getEzbProject(ezbId)) _) {
     implicit request =>
           withEzoomBook(ezbId) {
             ezb =>
@@ -344,6 +366,9 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
   private def canEditProjectLayer(ezb: Ezoombook, projOpt: Option[EzbProject], layerId: String)(user: User): Boolean = {
     ezb.ezoombook_owner == user.id.toString ||
     projOpt.exists(proj =>
+      proj.projectTeam.exists(m => m.userId == user.id && m.hasAllParts)
+    ) ||
+    projOpt.exists(proj =>
       proj.projectOwnerId.toString == user.id.toString ||
         proj.isMultiLevel &&
           proj.projectTeam.exists(m => m.userId == user.id &&
@@ -356,89 +381,113 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
         Logger.error(err); false
       },
       pid =>
-        BookDO.getProject(pid).map{
-          proj =>
+        BookDO.getProject(pid).value.exists{
+          case Success(projOpt) => projOpt.exists{ proj =>
             (proj.projectOwnerId == user.id) ||
-             proj.projectTeam.find(_.userId == user.id).nonEmpty
-        }.getOrElse(false)
+             proj.projectTeam.exists(_.userId == user.id)
+          }
+          case _ => false
+        }
     )
   }
 
   private def canEditProjContrib(ezb: Ezoombook, ezlOpt:Option[EzoomLayer], projOpt:Option[EzbProject])(user:User,
     partId:String, contribId:String):Boolean = {
 
+    val coordinators = projOpt.map(_.groupId).map(groupCoordinators(_)).getOrElse(List[UUID]())
+    lazy val assignedParts = projOpt.flatMap(_.projectTeam.find(_.userId == user.id))
+      .map(_.assignedParts).getOrElse(List[String]())
+
     ezb.ezoombook_owner == user.id.toString ||
     ezlOpt.flatMap(ezl => findContrib(ezl, partId, contribId)).exists{contrib =>
       contrib.user_id == user.id ||
       projOpt.exists( proj =>
         proj.projectOwnerId.toString == user.id.toString ||
-        UserDO.getGroupMembers(proj.groupId).exists{
-          case (usr, role) => usr.id == user.id && role == AppDB.dal.Roles.coordinator
-        } ||
-        proj.projectTeam.find(_.userId == user.id).exists(_.assignedPart == partId))
+          coordinators.exists(_ == user.id) ||
+            assignedParts.exists(_ == partId))
     }
   }
 
-  //def projectEzlayerEdit(projId: String) = StackAction(AuthorityKey -> canEditProjectEzb(projId) _) {
-  def projectEzlayerEdit(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  def groupCoordinators(groupId:UUID):List[UUID] = {
+    for {
+      (usr, role) <- UserDO.getGroupMembers(groupId) if role == AppDB.dal.Roles.coordinator
+    } yield (usr.id)
+  }
+
+  //def projectEzlayerEdit(projId: String) = AsyncStack(AuthorityKey -> canEditProjectEzb(projId) _) {
+  def projectEzlayerEdit(projId: String) = AsyncStack(AuthorityKey -> RegisteredUser) {
     implicit request =>
       projId.toUUID.fold(
-        err => BadRequest("Invalid projectId..."),
+        err => Future.successful(BadRequest("Invalid projectId...")),
         pid => {
           BookDO.getProject(pid).map {
-            proj =>
-              withUserAndEzb(request, proj.ezoombookId.map(_.toString).getOrElse("")) {
-                (user, ezb) =>
-                  val member = proj.projectTeam.find(_.userId == user.id)
-                  val bookOpt = BookDO.getBook(ezb.book_id.toString)
+            projOpt =>
+              projOpt.map{ proj =>
+                withUserAndEzb(request, proj.ezoombookId.map(_.toString).getOrElse("")) {
+                  (user, ezb) =>
+                    val member = proj.projectTeam.find(_.userId == user.id)
+                    val bookOpt = BookDO.getBook(ezb.book_id.toString)
 
-                  val layer = (((level:String) => for {
-                    ezblayer <- ezb.ezoombook_layers.get(level)
-                    layerId <- ezblayer.toUUID.right.toOption
-                    layr <- BookDO.getEzoomLayer(layerId, true)
-                  } yield layr)(
-                      if(proj.projectOwnerId == user.id)
-                        "1"
-                      else {
-                        member.map(_.assignedLayer).getOrElse("1")
-                      }
-                  )).getOrElse(new EzoomLayer(ezb.ezoombook_id,"group:"+proj.groupId))
+                    val layer = (((level:String) => for {
+                      ezblayer <- ezb.ezoombook_layers.get(level)
+                      layerId <- ezblayer.toUUID.right.toOption
+                      layr <- BookDO.getEzoomLayer(layerId, true)
+                    } yield layr)(
+                        if(proj.projectOwnerId == user.id)
+                          "1"
+                        else {
+                          member.map(_.assignedLayer).getOrElse("1")
+                        }
+                    )).getOrElse(new EzoomLayer(ezb.ezoombook_id,"group:"+proj.groupId))
 
-                  val newLayer = (for{m <- member
-                      book <- bookOpt
-                      bookPart <- getBookPart(book, m.assignedPart)
-                      nl <- createPart(proj, m, layer, bookPart)
-                  } yield (nl)).getOrElse(layer)
+                    val newLayer = (for{m <- member
+                        book <- bookOpt
+                        nl <- createParts(m, layer, book)
+                    } yield (nl)).getOrElse(layer)
 
-                  Ok(views.html.ezoomlayeredit(ezb,
-                    Some(newLayer),
-                    ezoomlayerForm.fill(newLayer),
-                    bookOpt,
-                    Some(proj),
-                    canEditProjectLayer(ezb, Some(proj), newLayer.ezoomlayer_id.toString),
-                    canEditProjContrib(ezb, Some(newLayer), Some(proj))
-                  )).withSession(
-                      session + (WORKING_LAYER -> newLayer.ezoomlayer_id.toString)
-                    )
-              }
-          }.getOrElse(
-            NotFound("Oops! We couldn't find the project you are looking for :(")
-          )
+                    Ok(views.html.ezoomlayeredit(ezb,
+                      Some(newLayer),
+                      ezoomlayerForm.fill(newLayer),
+                      bookOpt,
+                      Some(proj),
+                      canEditProjectLayer(ezb, Some(proj), newLayer.ezoomlayer_id.toString),
+                      canEditProjContrib(ezb, Some(newLayer), Some(proj))
+                    )).withSession(
+                        session + (WORKING_LAYER -> newLayer.ezoomlayer_id.toString)
+                      )
+                }
+              }.getOrElse(
+                  NotFound("Oops! We couldn't find the project you are looking for :(")
+                )
+          }
         }
       )
   }
 
-  private def createPart(proj:EzbProject, member:TeamMember, layer:EzoomLayer, bookPart:BookPart):Option[EzoomLayer] = {
-    if(layer.ezoomlayer_contribs.find(_.part_id.exists(_ == member.assignedPart)).isEmpty){
-      val partId = member.assignedPart
-      Logger.debug("Creating assigned part " + partId)
-      val newPart = EzlPart("part:"+UUID.randomUUID, layer.ezoomlayer_id, layer.ezoombook_id,
-        member.userId, Some(partId), books.dal.Status.workInProgress, false, bookPart.title.getOrElse(""),
+  private def createParts(member:TeamMember, layer:EzoomLayer, book:Book):Option[EzoomLayer] = {
+    def createPart(partId:String) = {
+      val title = getBookPart(book, partId).flatMap(_.title).getOrElse("")
+      Logger.debug(s"Creating assigned part $partId : $title")
+      EzlPart("part:"+UUID.randomUUID, layer.ezoomlayer_id, layer.ezoombook_id,
+        member.userId, Some(partId), books.dal.Status.workInProgress, false, title,
         None, List[AtomicContrib]())
-      val newLayer = EzoomLayer.contribsL.set(layer, layer.ezoomlayer_contribs :+ newPart)
-      BookDO.saveLayer(newLayer)
-      Some(newLayer)
-    } else None
+    }
+
+    if(member.hasAllParts){
+      None
+    }else{
+      val newParts = for {
+        partId <- member.assignedParts if (!layer.ezoomlayer_contribs.exists(_.part_id.exists(_ == partId)))
+      } yield(
+        createPart(partId)
+      )
+
+      if(!newParts.isEmpty){
+        val newLayer = EzoomLayer.contribsL.set(layer, layer.ezoomlayer_contribs ++ newParts)
+        BookDO.saveLayer(newLayer)
+        Some(newLayer)
+      } else None
+    }
   }
 
   private def getBookPart(book:Book, partId:String):Option[BookPart] = {
@@ -483,14 +532,14 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
               }
               val projOpt = projId.toUUID.fold(
                 err => None ,
-                pid => BookDO.getProject(pid)
+                pid => BookDO.getProject(pid).value.flatMap(_.toOption).flatten
               )
               Ok(views.html.ezoomlayeredit(ezb,
                 None,
                 ezlform,
                 BookDO.getBook(ezb.book_id.toString),
                 projOpt,
-                canEditEzb(ezbId) _,
+                canEditEzb(ezbId,BookDO.getEzbProject(ezbId)) _,
                 canEditProjContrib(ezb, None, projOpt) _))
           }
       }
@@ -565,7 +614,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     implicit request =>
       BookDO.getBook(id).map {
         book =>
-          val ezb = Ezoombook(UUID.randomUUID, UUID.fromString(id), context.user.get.id.toString, books.dal.Status.workInProgress, "", false)
+          val ezb = Ezoombook(UUID.randomUUID, UUID.fromString(id), None, context.user.get.id.toString, books.dal.Status.workInProgress, "", false)
           Ok(views.html.book(book, ezoomBookForm.fill(ezb), BookDO.getEzoomBooks(UUID.fromString(id))))
       }.getOrElse {
         println("[ERROR] Could not load book " + id)
@@ -837,7 +886,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
       }
   }
 
-  def withEzoomBook(ezbId: String)(block: (Ezoombook) => Result): Result = {
+  def withEzoomBook(ezbId: String)(block: (Ezoombook) => SimpleResult): SimpleResult = {
     ezbId.toUUID.fold(
       err => BadRequest("Oh snap! Your eZoomBook's identifier is not a valid id :("),
       eid => BookDO.getEzoomBook(eid).map {
@@ -848,7 +897,7 @@ object EzoomBooks extends Controller with AuthElement with AuthConfigImpl with C
     )
   }
 
-  def withUserAndEzb[A](request: Request[A], ezbId: String)(block: (User, Ezoombook) => Result): Result = {
+  def withUserAndEzb[A](request: Request[A], ezbId: String)(block: (User, Ezoombook) => SimpleResult): SimpleResult = {
     implicit val req = request
     withUser {
       user =>

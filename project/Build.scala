@@ -13,16 +13,19 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     jdbc,
     //cache,
-    ("ezb-dal-play" % "ezb-dal-play_2.10" % "1.0-SNAPSHOT")
+    ("ezb-dal-play" % "ezb-dal-play_2.10" % "2.0-SNAPSHOT")
       .exclude("org.scala-stm", "scala-stm_2.10.0")
-      .exclude("play", "play-json_2.10"),
-    "jp.t2v" %% "play2.auth"      % "0.10.1",
-    "jp.t2v" %% "play2.auth.test" % "0.10.1" % "test",
+      .exclude("com.typesafe.play", "*"),
+    ("jp.t2v" %% "play2-auth"      % "0.11.0").exclude("com.typesafe.play", "*"),
+    //("jp.t2v" %% "play2-auth-test" % "0.11.0" % "test").exclude("play", "*"),
+    ("org.reactivecouchbase" %% "reactivecouchbase-play" % "0.2-SNAPSHOT").exclude("com.typesafe.play", "*"),
     "org.postgresql" % "postgresql" % "9.3-1100-jdbc41"
   )
 
   val appResolvers = Seq(
-    "eZoomBook repoisitory" at "https://github.com/ezoombook/ezb-mvn/raw/master"
+    "eZoomBook repoisitory" at "https://github.com/ezoombook/ezb-mvn/raw/master",
+    "ReactiveCouchbase" at "https://raw.github.com/ReactiveCouchbase/repository/master/snapshots",
+    "ReactiveCouchbase Releases" at "https://raw.github.com/ReactiveCouchbase/repository/master/releases/"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(

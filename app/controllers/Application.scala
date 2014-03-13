@@ -28,6 +28,9 @@ import java.util.Properties._
 
 import jp.t2v.lab.play2.auth.{LoginLogout, OptionalAuthElement}
 
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
+
 object Application extends Controller with LoginLogout with OptionalAuthElement with AuthConfigImpl with ContextProvider {
 
   val HOME_URL = "/"
@@ -40,24 +43,24 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
   /**
    * Validates the user login form and creates a session
    */
-  def validate = Action {
+  def validate = Action.async {
     implicit request =>
       Logger.debug("Login validation...")
       loginForm.bindFromRequest.fold(
         errors => {
           Logger.error("Form error while validating user: " + errors)
-          BadRequest(views.html.login(errors, userForm))
+          Future.successful(BadRequest(views.html.login(errors, userForm)))
         },
         user => {
           Logger.debug("Validation Succeeded")
           val prefs = UserDO.getUserPreferences(user.get.id)
-          gotoLoginSucceeded(user.get.id).withSession(
-            "userId" -> user.get.id.toString,
-            "userName" -> user.get.name,
-            "userMail" -> user.get.email,
-            "maxHistory" -> prefs.map(_.maxHistory.toString).getOrElse("10"),
-            "language" -> prefs.map(_.language).getOrElse("")
-          )
+            gotoLoginSucceeded(user.get.id).map(_.withSession(
+              "userId" -> user.get.id.toString,
+              "userName" -> user.get.name,
+              "userMail" -> user.get.email,
+              "maxHistory" -> prefs.map(_.maxHistory.toString).getOrElse("10"),
+              "language" -> prefs.map(_.language).getOrElse("")
+            ))
         }
       )
   }
@@ -73,10 +76,10 @@ object Application extends Controller with LoginLogout with OptionalAuthElement 
   /**
    * Logout the user
    */
-  def logout = Action {
+  def logout = Action.async {
     implicit request =>
       Cache.remove("logged-user")
-      gotoLogoutSucceeded
+        gotoLogoutSucceeded
   }
 
   /**

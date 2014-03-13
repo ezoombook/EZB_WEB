@@ -27,6 +27,9 @@ import jp.t2v.lab.play2.auth.AuthElement
 import books.dal.Book
 import models.{UserDO, AppDB}
 
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen

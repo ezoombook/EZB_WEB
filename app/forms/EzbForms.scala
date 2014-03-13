@@ -45,13 +45,14 @@ object EzbForms extends FormHelpers {
     mapping(
       "ezb_id" -> of[UUID],
       "book_id" -> of[UUID],
+      "ezb_project" -> optional(text),
       "ezb_owner" -> text,
       "ezb_status" -> default[Status.Value](of[Status.Value], Status.workInProgress),
       "ezb_title" -> text,
       "ezb_public" -> default(boolean, false),
       "ezb_layers" -> seq(tuple("level" -> text, "ezl_id" -> text))
-    )((ezbid, bid, owner, status, title, public, layers) => Ezoombook(ezbid, bid, owner, status, title, public, layers.toMap))
-      (ezb => Some(ezb.ezoombook_id, ezb.book_id, ezb.ezoombook_owner, ezb.ezoombook_status, ezb.ezoombook_title,
+    )((ezbid, bid, pid, owner, status, title, public, layers) => Ezoombook(ezbid, bid, pid, owner, status, title, public, layers.toMap))
+      (ezb => Some(ezb.ezoombook_id, ezb.book_id, ezb.ezb_project_id, ezb.ezoombook_owner, ezb.ezoombook_status, ezb.ezoombook_title,
         ezb.ezoombook_public, ezb.ezoombook_layers.toSeq))
   )
 

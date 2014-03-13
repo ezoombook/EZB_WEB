@@ -21,6 +21,10 @@ import Forms._
 import java.util.UUID
 import jp.t2v.lab.play2.auth.AuthElement
 
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
+import utils.FormHelpers
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
@@ -33,7 +37,7 @@ import jp.t2v.lab.play2.auth.AuthElement
  * Manage community related operations: groups, etc
  *
  */
-object Community extends Controller with AuthElement with AuthConfigImpl  with ContextProvider{
+object Community extends Controller with AuthElement with AuthConfigImpl  with ContextProvider with FormHelpers{
 
   val memberForm = Form(
     tuple(
@@ -54,18 +58,19 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
   /**
    * Displays the deails of a group
    */
-  def group(gid:String) = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
-    val groupId = UUID.fromString(gid)
-    withUser{user =>
-      cachedGroup(gid).map{group =>
-        val members = UserDO.getGroupMembers(groupId)
+  def group(gid:String) = AsyncStack(AuthorityKey -> RegisteredUser){ implicit request =>
+    withUserAsync{user =>
+      for {
+        groupId <- gid.toUUID.fold(err => Future.failed(new Exception(err)), id => Future.successful(id))
+        group <- UserDO.getGroupById(groupId).map(Future.successful(_)).getOrElse(Future.failed(new Exception(s"Group $groupId not found")))
+        members <- Future(UserDO.getGroupMembers(groupId))
+        groupProjects <- BookDO.getGroupProjects(groupId)
+      } yield(
         Ok(views.html.group(group, members,
-          BookDO.getGroupProjects(groupId),
+          groupProjects,
           memberForm,
           BookDO.getUserEzoombooks(user.id),
           Collaboration.projectFrm(user.id, groupId)))
-      }.getOrElse(
-        NotFound("Oops, the group you're looking for does not exists :(")
       )
     }
   }
@@ -73,36 +78,68 @@ object Community extends Controller with AuthElement with AuthConfigImpl  with C
   /**
    * Adds a new member to a group
    */
-  def newGroupMember(gid:String) = StackAction(AuthorityKey -> RegisteredUser){ implicit request =>
+  def newGroupMember(gid:String) = AsyncStack(AuthorityKey -> RegisteredUser){ implicit request =>
     val groupId = UUID.fromString(gid)
-    withUser{ user =>
-      memberForm.bindFromRequest.fold(
-        errors => cachedGroup(gid).map{group =>
-          println("[ERROR] Errors found while trying to create group member : " + errors)
-          BadRequest(views.html.group(group,
-            UserDO.getGroupMembers(groupId),
-            BookDO.getGroupProjects(groupId),
-            errors,
-            BookDO.getUserEzoombooks(user.id),
-            Collaboration.projectForm.fill(Collaboration.emptyProject(user.id,groupId))))
-        }.get,
-        member => {
-          UserDO.getUserId(member._1).map{userId =>
-            UserDO.newGroupMember(groupId, userId, member._2)
-            Redirect(routes.Community.group(gid))
-          }.getOrElse{
-            cachedGroup(gid).map{group =>
-              BadRequest(views.html.group(group,
-                UserDO.getGroupMembers(groupId),
-                BookDO.getGroupProjects(groupId),
-                memberForm.withGlobalError(Messages("group.memberfrom.error.usernotfound",member._1)),
-                BookDO.getUserEzoombooks(user.id),
-                Collaboration.projectForm))
-            }.get
-          }
-        }
-      )
+    withUserAsync{ user =>
+      for{
+        groupId <- gid.toUUID.fold(err => Future.failed(new Exception(err)), id => Future.successful(id))
+        group <- UserDO.getGroupById(groupId).map(Future.successful(_)).getOrElse(Future.failed(new Exception(s"Group $groupId not found")))
+        groupMembers <- Future.successful(UserDO.getGroupMembers(groupId))
+        groupProjects <- BookDO.getGroupProjects(groupId)
+      } yield (
+          memberForm.bindFromRequest.fold(
+            errors => BadRequest(views.html.group(group,
+              groupMembers,
+              groupProjects,
+              errors,
+              BookDO.getUserEzoombooks(user.id),
+              Collaboration.projectFrm(user.id, groupId)
+            )),
+            member => {
+              UserDO.getUserId(member._1).map{userId =>
+                UserDO.newGroupMember(groupId, userId, member._2)
+                Redirect(routes.Community.group(gid))
+              }.getOrElse{
+                BadRequest(views.html.group(group,
+                  groupMembers,
+                  groupProjects,
+                  memberForm.withGlobalError(Messages("group.memberfrom.error.usernotfound",member._1)),
+                  BookDO.getUserEzoombooks(user.id),
+                  Collaboration.projectFrm(user.id, groupId)))
+              }
+            }
+          )
+       )
     }
+
+//    memberForm.bindFromRequest.fold(
+//        errors => cachedGroup(gid).flatMap{group =>
+//          BookDO.getGroupProjects(groupId).map{
+//          println("[ERROR] Errors found while trying to create group member : " + errors)
+//          BadRequest(views.html.group(group,
+//            UserDO.getGroupMembers(groupId),
+//            BookDO.getGroupProjects(groupId),
+//            errors,
+//            BookDO.getUserEzoombooks(user.id),
+//            Collaboration.projectForm.fill(Collaboration.emptyProject(user.id,groupId))))
+//        }.get,
+//        member => {
+//          UserDO.getUserId(member._1).map{userId =>
+//            UserDO.newGroupMember(groupId, userId, member._2)
+//            Redirect(routes.Community.group(gid))
+//          }.getOrElse{
+//            cachedGroup(gid).map{group =>
+//              BadRequest(views.html.group(group,
+//                UserDO.getGroupMembers(groupId),
+//                BookDO.getGroupProjects(groupId),
+//                memberForm.withGlobalError(Messages("group.memberfrom.error.usernotfound",member._1)),
+//                BookDO.getUserEzoombooks(user.id),
+//                Collaboration.projectForm))
+//            }.get
+//          }
+//        }
+//      )
+//    }
   }
 
   /**
