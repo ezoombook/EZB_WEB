@@ -3,6 +3,8 @@ package controllers
 import models._
 import users.dal._
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.i18n.Messages
 import play.api.mvc._
 import play.api.mvc.Results._
@@ -51,42 +53,45 @@ trait AuthConfigImpl extends AuthConfig {
    * A function that returns a `User` object from an `Id`.
    * You can alter the procedure to suit your application.
    */
-  def resolveUser(id: Id): Option[User] = {
-    Cache.getOrElse[Option[User]]("logged-user") {
-      Logger.debug("Resolving user " + id + "...")
-      UserDO.getUser(id)
-    }
+  def resolveUser(id: Id)(implicit ctx:ExecutionContext): Future[Option[User]] = {
+    Future.successful(UserDO.getUser(id))
   }
 
   /**
    * Where to redirect the user after a successful login.
    */
-  def loginSucceeded(request: RequestHeader): Result = Redirect(routes.Workspace.home)
+  def loginSucceeded(request: RequestHeader)(implicit ctx: ExecutionContext): Future[SimpleResult] =
+    Future.successful(Redirect(routes.Workspace.home))
 
   /**
    * Where to redirect the user after logging out
    */
-  def logoutSucceeded(request: RequestHeader): Result = Redirect(routes.Application.login).withNewSession
+  def logoutSucceeded(request: RequestHeader)(implicit ctx: ExecutionContext): Future[SimpleResult] =
+    Future.successful(Redirect(routes.Application.login).withNewSession)
 
   /**
    * If the user is not logged in and tries to access a protected resource then redirct them as follows:
    */
-  def authenticationFailed(request: RequestHeader): Result = Redirect(routes.Application.login).withNewSession
+  def authenticationFailed(request: RequestHeader)(implicit ctx: ExecutionContext): Future[SimpleResult] =
+    Future.successful(Redirect(routes.Application.login).withNewSession)
 
   /**
    * If authorization failed (usually incorrect password) redirect the user as follows:
    */
-  def authorizationFailed(request: RequestHeader): Result = Unauthorized(views.html.error(Messages("application.errorpage.unauthorized")))
+  def authorizationFailed(request: RequestHeader)(implicit ctx: ExecutionContext): Future[SimpleResult] =
+    Future.successful(Unauthorized(views.html.error(Messages("application.errorpage.unauthorized"))))
 
   /**
    * A function that determines what `Authority` a user has.
    */
-  def authorize(user: User, authority: Authority): Boolean = authority(user)
+  def authorize(user: User, authority: Authority)(implicit ctx: ExecutionContext): Future[Boolean] = Future.successful {
+    authority(user)
+  }
 
   /**
    * Whether use the secure option or not use it in the cookie.
    * However default is false, I strongly recommend using true in a production.
    */
-  override lazy val cookieSecureOption: Boolean =
-    play.api.Play.current.configuration.getBoolean("auth.cookie.secure").getOrElse(true)
+  override lazy val cookieSecureOption: Boolean = play.api.Play.isProd(play.api.Play.current)
+
 }

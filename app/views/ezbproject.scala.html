@@ -9,6 +9,7 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 
 @import ezbhelpers._
 @import utils.ezbhelpers.bootstrapHelper._
+@import utils.ezbhelpers.formHelper
 @import utils.DateFormatter._
 @import utils.MD5Util
 
@@ -30,11 +31,11 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
                     ( @lmap(member.assignedLayer) Level )
                 }
             }.getOrElse{
-                @if(project.isMultiLevel || project.projectOwnerId == user.id){
+                @if(project.isMultiLevel || canAdmin(user)){
                     @helper.form(action=routes.EzoomBooks.createEzoomLayer(ezb.ezoombook_id.toString,
                         member.assignedLayer,
-                        member.assignedPart,
-                        project.groupId.toString)){
+                        project.groupId.toString,
+                        project.projectId.toString)){
                             @ezb.ezoombook_title
                             <input type="submit" class="btn" value="Create layer >>">
                     }
@@ -43,7 +44,7 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
                 }
             }
         }.getOrElse{
-            @if(project.projectOwnerId == user.id){
+            @if(canAdmin(user)){
                 <a href="@routes.EzoomBooks.projectEzlayerEdit(project.projectId.toString)">@ezb.ezoombook_title</a>
             }
         }
@@ -82,27 +83,14 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
 }
 
 @scripts = {
-<script type='text/javascript' src='@routes.Assets.at("javascript/projectedit.min.js")'></script>
+<script type='text/javascript' src='@routes.Assets.at("javascript/projectedit.js")'></script>
 }
 
-@main("Project", scripts){
+@style = {
+<link href='@routes.Assets.at("stylesheets/ezbproject.css")' media="screen" rel="stylesheet"></link>
+}
 
-<style>
-    .comment-author,contrib-author{
-    font-weight: 600;
-    color: #08C;
-    }
-    .comment-timeago{
-    font-weight: 500;
-    font-size: 95%;
-    color: rgba(30, 55, 70, 0.4);
-    }
-    .comment-on{
-    font-style: normal;
-    font-weight: 400;
-    color: #42474A;
-    }
-</style>
+@main("Project", scripts, style){
 
 <!-- Select eZoomBook Modal -->
 @modal(modalId = "ezblist",
@@ -122,20 +110,38 @@ formAction = Some(routes.Collaboration.setProjectEzb(project.projectId.toString)
 modalTitle = Messages("ezbproject.addmember.modal.h3"),
 formAction = Some(routes.Collaboration.newProjectMember(project.projectId.toString))
 ){
-@select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
-'_label -> Messages("ezbproject.addmember.form.selectmember"))
-@if(project.isMultiLevel){
-@levelMap{lmap =>
-@select(memberForm("assigned_layer"),
-options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-'_label -> Messages("ezbproject.addmember.form.assignedlayer"))
-}
-}else{
-@hidden(memberForm("assigned_layer"), '_value ->  project.level.map(_.toString).getOrElse("1"))
-}
-@select(memberForm("assigned_part"),
-bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
-'_label -> Messages("ezbproject.addmember.form.assignedpart"))
+    @select(memberForm("user_id"), UserDO.getGroupMembers(project.groupId).map(gm=> gm._1.id.toString -> gm._1.name),
+        '_label -> Messages("ezbproject.addmember.form.selectmember"))
+    @if(project.isMultiLevel){
+        @levelMap{lmap =>
+        @select(memberForm("assigned_layer"),
+            options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+            '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+    }
+    }else{
+        @hidden(memberForm("assigned_layer"), '_value ->  project.level.map(_.toString).getOrElse("1"))
+    }
+
+    <div id="assigned_parts" class="assignment-list">
+        @hidden(memberForm("has_all_parts"), 'class -> "all-parts")
+        @for(i <- formHelper.completeIndexes(memberForm("assigned_parts"));
+             f = memberForm("assigned_parts")("["+ i +"]")){
+            @if(i == 0){
+                @select(f,
+                    ("all-parts" -> "All") +: bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+                    '_label -> Messages("ezbproject.addmember.form.assignedpart"),
+                    'class -> "part-list first_list")
+            }else{
+                @select(f,
+                    bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+                    '_label -> Messages("ezbproject.addmember.form.assignedpart"),
+                    'class -> "part-list")
+            }
+        }
+    </div>
+    <div>
+        <a href="#" id="add-assignment-btn" class="hide add-assignment-btn">Add assignment</a>
+    </div>
 }
 
 <!-- Change ezb assigment modal -->
@@ -144,19 +150,38 @@ Messages("ezbproject.assigment.modal.h3"),
 Some(routes.Collaboration.editProjectMember(project.projectId.toString)),
 'id -> "modifMemberForm"){
 
-@hidden(memberForm("user_id"))
-@if(project.isMultiLevel){
-@levelMap{lmap =>
-@select(memberForm("assigned_layer"),
-options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
-'_label -> Messages("ezbproject.addmember.form.assignedlayer"))
-}
-}else{
-@hidden(memberForm("assigned_layer"))
-}
-@select(memberForm("assigned_part"),
-bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
-'_label -> Messages("ezbproject.addmember.form.assignedpart"))
+    @hidden(memberForm("user_id"))
+    @if(project.isMultiLevel){
+        @levelMap{lmap =>
+            @select(memberForm("assigned_layer"),
+                options = for(i <- 1 to 4) yield(i.toString -> lmap(i.toString)),
+                '_label -> Messages("ezbproject.addmember.form.assignedlayer"))
+        }
+    }else{
+        @hidden(memberForm("assigned_layer"))
+    }
+
+    <div id="assigned_parts-modif" class="assignment-list">
+        @hidden(memberForm("has_all_parts"), 'class -> "all-parts-modif")
+        @for(i <- formHelper.completeIndexes(memberForm("assigned_parts"));
+            f = memberForm("assigned_parts")("["+ i +"]")){
+            @if(i == 0){
+                @select(f,
+                    ("all-parts" -> "All") +: bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+                    '_label -> Messages("ezbproject.addmember.form.assignedpart"),
+                    'class -> "part-list first_list")
+            }else{
+                @select(f,
+                    bookparts.map(bp => bp.partId -> bp.title.getOrElse("-subsection")),
+                    '_label -> Messages("ezbproject.addmember.form.assignedpart"),
+                    'class -> "part-list")
+            }
+        }
+    </div>
+    <div>
+        <a href="#" id="add-assignment-btn-modif" class="hide add-assignment-btn">Add assignment</a>
+    </div>
+
 }
 
 <!-- Contribution details modal -->
@@ -165,6 +190,23 @@ Messages("ezbproject.contribdetail.h3"),
 None){
 <h4>@Messages("ezbproject.contrbidetail.contribtype.h4"): <span class="contrib-type"></span></h4>
 <p class="contrib-content"></p>
+}
+
+<!-- Delete project modal -->
+@modal(modalId="delete_project",
+modalTitle=Messages("ezbproject.alert.deleteproject.title"),
+formAction= Some(routes.Collaboration.deleteProject(project.projectId.toString)),
+'id -> "deleteProjectForm"){
+   <h4>@Messages("ezbproject.alert.deleteproject.message")</h4>
+}
+
+<!-- Remove member modal -->
+@modal( modalId = "remove_member_modal",
+modalTitle=Messages("ezbproject.alert.removemember.title"),
+formAction = Some(routes.Collaboration.removeProjMember(project.projectId.toString,"")),
+'id -> "remove_member_form"
+){
+   <h4>@Messages("ezbproject.alert.removemember.message")</h4>
 }
 
 <div class="row"> <!-- Project Header -->
@@ -190,12 +232,15 @@ None){
         <p>
             <a class="btn btn-primary" data-toggle="modal"
                href="#new_member">@Messages("ezbproject.addmember.button")</a>
+            <a class="btn btn-primary" data-toggle="modal"
+               href="#delete_project">@Messages("ezbproject.deleteproject.button")</a>
+
         </p>
         }
         }
 
         <h3>@Messages("ezbproject.team.h3")</h3>
-        <table class="table table-striped">
+        <table class="table table-striped" id="team-members">
             <thead>
             <tr>
                 <th>@Messages("ezbproject.member.name.th")</th>
@@ -211,14 +256,22 @@ None){
             <tbody>
             @project.projectTeam.map{member =>
             <tr>
-                <td>@members.find(_.id == member.userId).map(_.name).getOrElse("<span class='error'>Undefined</span>")
+                <td>@members.find(_.id == member.userId).map(_.name).getOrElse(<span class='error'>Undefined</span>)
                 </td>
                 <td>
-                    @bookparts.find(_.partId == member.assignedPart).map{part =>
-                    <a href='@routes.EzoomBooks.setReadingEzbPart(ezbook.map(_.book_id.toString).getOrElse(""),ezbook.map(_.ezoombook_id.toString).getOrElse(""),part.partId,member.assignedLayer)'>
-                        @part.title
-                    </a>
-                    }.getOrElse("<span class='error'>Undefined</span>")
+                    @if(member.hasAllParts){
+                        <a href='@routes.EzoomBooks.setReadingEzb(ezbook.map(_.book_id.toString).getOrElse(""),ezbook.map(_.ezoombook_id.toString).getOrElse(""),member.assignedLayer)'>
+                            All
+                        </a>
+                    }else{
+                        @member.assignedParts.map{assignedPart =>
+                            @bookparts.find(_.partId == assignedPart).map{bookPart =>
+                        <a href='@routes.EzoomBooks.setReadingEzbPart(ezbook.map(_.book_id.toString).getOrElse(""),ezbook.map(_.ezoombook_id.toString).getOrElse(""),bookPart.partId,member.assignedLayer)'>
+                            @bookPart.title
+                        </a> <br>
+                            }.getOrElse(<span class='error'>Undefined part @assignedPart</span>)
+                        }
+                    }
                 </td>
                 <td>
                     @levelMap{lmap =>
@@ -234,6 +287,13 @@ None){
                        data-layer="@member.assignedLayer"
                        title='@Messages("ezbproject.member.change.btn")'>
                         <span class="glyphicon glyphicon-pencil"></span>
+                    </a>
+                    <a href="#remove_member_modal"
+                        data-toggle="modal"
+                        class="btn remove_member_btn"
+                        data-memberid = "@member.userId"
+                        title='@Messages("ezbproject.member.remove.btn")'>
+                        <span class="glyphicon glyphicon-remove"></span>
                     </a>
                     }
                 </td>

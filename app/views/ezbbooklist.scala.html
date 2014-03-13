@@ -26,6 +26,7 @@ formAction = Some(routes.Collaboration.saveProjectEzb(projectId))
 @hidden(ezoomBookForm("ezb_owner"))
 @hidden(ezoomBookForm("book_id"))
 @hidden(ezoomBookForm("ezb_id"))
+        @hidden(ezoomBookForm("ezb_project"))
 @inputText(ezoomBookForm("ezb_title"), '_label->"Title:")
 }
 

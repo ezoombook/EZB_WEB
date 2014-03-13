@@ -19,6 +19,10 @@ import play.api.cache.Cache
 import jp.t2v.lab.play2.auth.AuthElement
 import models.ListedProject
 
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Try}
+import ExecutionContext.Implicits.global
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
@@ -30,8 +34,9 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
 
   val memberMapping = mapping(
     "user_id" -> of[UUID],
-    "assigned_part" -> text,
-    "assigned_layer" -> text
+    "assigned_parts" -> list(text),
+    "assigned_layer" -> text,
+    "has_all_parts" -> default(boolean, true)
   )(TeamMember.apply)(TeamMember.unapply)
 
   val projectForm = Form[EzbProject](
@@ -71,7 +76,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
   )
 
   /**
-   * Creates an empty project for pre-filling the project form
+   * Creates an empty project pre-filled  form
    * @return
    */
    def emptyProject(ownerId:UUID,groupId:UUID) =
@@ -88,7 +93,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
         user =>
           projectForm.bindFromRequest.fold(
             errors => {
-              println("[ERROR] Could not create project from form: " + errors.errors.map(err => err.key + " " + err.message))
+              Logger.debug("[ERROR] Could not create project from form: " + errors.errors.map(err => err.key + " " + err.message))
               Redirect(routes.Workspace.home)
             },
             ezbProject => {
@@ -127,6 +132,7 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
     withUser{user =>
       val ezbform = EzbForms.ezoomBookForm.bind(Map(
         "ezb_id" -> UUID.randomUUID().toString,
+        "ezb_project" -> projectId,
         "ezb_owner" -> owner,
         "ezb_status" -> books.dal.Status.workInProgress.toString,
         "ezb_title" -> "",
@@ -142,20 +148,29 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * and updates the project
    * @param projectId Id of the project
    */
-  def saveProjectEzb(projectId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  def saveProjectEzb(projectId: String) = AsyncStack(AuthorityKey -> RegisteredUser) {
     implicit request =>
-      withUser {
+      withUserAsync {
         user =>
           EzbForms.ezoomBookForm.bindFromRequest.fold(
             errors => {
-              println("[ERROR] Could not create eZoomBook for project " + projectId +
+              Logger.error("Could not create eZoomBook for project " + projectId +
                 errors.errors.map(err => err.key + " -> " + err.message).mkString("\n"))
-              Redirect(routes.Collaboration.projectAdmin(projectId))
+              Future.successful(Redirect(routes.Collaboration.projectAdmin(projectId)))
             },
             ezb => {
               BookDO.saveEzoomBook(ezb)
-              BookDO.updateProjectEzb(UUID.fromString(projectId), ezb.ezoombook_id)
-              Redirect(routes.Collaboration.projectAdmin(projectId))
+              BookDO.updateProjectEzb(UUID.fromString(projectId), ezb.ezoombook_id).map{projtry =>
+                projtry.map{
+                  proj =>
+                    Logger.debug(s"Project $proj successfully updated!")
+                    Redirect(routes.Collaboration.projectAdmin(projectId))
+                }.recover{
+                  case err =>
+                  Logger.error(s"Could not update project $projectId: " + err)
+                  Redirect(routes.Collaboration.projectAdmin(projectId))
+                }.get
+              }
             }
           )
       }
@@ -173,12 +188,12 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * @param projId
    * @return
    */
-  def projectAdmin(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  def projectAdmin(projId: String) = AsyncStack(AuthorityKey -> RegisteredUser) {
     implicit request =>
-      withUser {
+      withUserAsync {
         user =>
-          BookDO.getProject(UUID.fromString(projId)).map {
-            project =>
+          BookDO.getProject(UUID.fromString(projId)).map {opt =>
+            opt.map{ project =>
               val ezbopt = project.ezoombookId.flatMap(BookDO.getEzoomBook(_))
               val bookParts = ezbopt.flatMap(ezb => BookDO.getBook(ezb.book_id.toString)).map{book =>
                 book.bookParts
@@ -192,9 +207,10 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
                 canEditProject(project),
                 bookParts,
                 if(project.ezoombookId.isEmpty){BookDO.getUserEzoombooks(user.id)} else {List[Ezoombook]()}))
-          }.getOrElse {
-            println("[ERROR] Project " + projId + " not found")
-            Redirect(routes.Workspace.home)
+            }.getOrElse {
+              println("[ERROR] Project " + projId + " not found")
+              Redirect(routes.Workspace.home)
+            }
           }
       }
   }
@@ -204,24 +220,26 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
    * @param projId The id of the project that is modified.
    *               Note that this action has no effect on a project with an already defined eZoomBook.
    */
-  def setProjectEzb(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  def setProjectEzb(projId: String) = AsyncStack(AuthorityKey -> RegisteredUser) {
     implicit request =>
-      withUser {
+      withUserAsync {
         user =>
-          BookDO.getProject(UUID.fromString(projId)).map {
-            case project if (project.ezoombookId.isEmpty) =>
-              Form("ezbId" -> of[UUID]).bindFromRequest.fold(
-                errors => {
-                  println("[ERROR] An error occurred while trying to save project's ezb: " + errors)
-                  Redirect(routes.Collaboration.projectAdmin(projId))
-                },
-                ezbId => {
-                  BookDO.saveProject(project.copy(ezoombookId = Some(ezbId)))
-                  Redirect(routes.Collaboration.projectAdmin(projId))
-                }
-              )
-          }.getOrElse {
-            Redirect(routes.Collaboration.projectAdmin(projId))
+          BookDO.getProject(UUID.fromString(projId)).map {opt =>
+            opt.map{
+              case project if (project.ezoombookId.isEmpty) =>
+                Form("ezbId" -> of[UUID]).bindFromRequest.fold(
+                  errors => {
+                    println("[ERROR] An error occurred while trying to save project's ezb: " + errors)
+                    Redirect(routes.Collaboration.projectAdmin(projId))
+                  },
+                  ezbId => {
+                    BookDO.saveProject(project.copy(ezoombookId = Some(ezbId)))
+                    Redirect(routes.Collaboration.projectAdmin(projId))
+                  }
+                )
+            }.getOrElse {
+              Redirect(routes.Collaboration.projectAdmin(projId))
+            }
           }
       }
   }
@@ -266,12 +284,32 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
     }
   }
 
-  def deleteProject(projId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  def removeProjMember(projId:String, memId:String) = AsyncStack(AuthorityKey -> RegisteredUser){
     implicit request =>
-      withUser {
-        user =>
-          BookDO.deleteProject(UUID.fromString(projId))
-          Redirect(routes.Workspace.home)
+      for{
+        pid <- projId.toUUID.fold(err => Future.failed(new Exception(err)), ok => Future.successful(ok))
+        mem <- memId.toUUID.fold(err => Future.failed(new Exception(err)), ok => Future.successful(ok))
+        _ <- BookDO.deleteProjectMember(pid,mem)
+      }yield(
+        Redirect(routes.Collaboration.projectAdmin(projId))
+       )
+  }
+
+  def deleteProject(projId: String) = AsyncStack(AuthorityKey -> RegisteredUser) {
+    implicit request =>
+      withUserAsync{user =>
+        for{
+          pid <- projId.toUUID.fold(err => Future.failed(new Exception(err)), ok => Future.successful(ok))
+          olds <- getProjectsByUser(user.id)
+          _ <- BookDO.deleteProject(UUID.fromString(projId))
+        } yield(
+          Ok(views.html.workspace(
+            olds.filterNot(_.projId.toString == projId),
+            BookDO.getUserEzoombooks(user.id),
+            BookDO.getUserBooks(user.id),
+            UserDO.userOwnedGroups(user.id),
+            UserDO.userIsMemberGroups(user.id), Workspace.groupForm))
+        )
       }
   }
 
@@ -292,27 +330,36 @@ object Collaboration extends Controller with AuthElement with AuthConfigImpl wit
   /**
    * Returns the list of projects the user owns or participates into
    */
-  def getProjectsByUser(userId:UUID):List[ListedProject] =
-    (BookDO.getOwnedProjects(userId).toSet ++ BookDO.getProjectsByMember(userId)).map {
-      proj =>
-        proj.ezoombookId.flatMap(BookDO.getEzoomBook(_)).map {
-          ezb =>
-            ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
-              proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
-        }.getOrElse {
-          ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
-            proj.projectCreationDate, None, "")
-        }
-    }.toList
+  def getProjectsByUser(userId:UUID):Future[List[ListedProject]] = {
+      val projSetFuture = for {
+        owned <- BookDO.getOwnedProjects(userId)
+        others <- BookDO.getProjectsByMember(userId)
+      } yield (owned.toSet ++ others.toSet)
+
+
+      projSetFuture.map{projSet =>
+        projSet.map{
+          proj =>
+            proj.ezoombookId.flatMap(BookDO.getEzoomBook(_)).map {
+              ezb =>
+                ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
+                  proj.projectCreationDate, Some(ezb.ezoombook_id), ezb.ezoombook_title)
+            }.getOrElse {
+              ListedProject(proj.projectId, proj.projectName, proj.projectOwnerId,
+                proj.projectCreationDate, None, "")
+            }
+        }.toList
+      }
+  }
 
   /**
    * Gets a group from the cache if it is there.
    * Otherwise it gets it from the database and store it in the cache
    */
-  private def cachedProject(projId: String): Option[EzbProject] = {
-    Cache.getOrElse("project:" + projId, 0) {
-      BookDO.getProject(UUID.fromString(projId))
-    }
-  }
+//  private def cachedProject(projId: String): Option[EzbProject] = {
+//    Cache.getOrElse("project:" + projId, 0) {
+//      BookDO.getProject(UUID.fromString(projId))
+//    }
+//  }
 
 }

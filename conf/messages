@@ -158,6 +158,12 @@ ezbproject.comment.on=commented on
 ezbproject.contribdetail.h3=Contribution details
 ezbproject.contrbidetail.contribtype.h4=Contribution type
 ezbproject.missing.layer.message=This layer has not been created yet
+ezbproject.alert.deleteproject.title=Confirm Removal
+ezbproject.alert.deleteproject.message=Are you sure you want to delete this project?
+ezbproject.deleteproject.button=Delete project
+ezbproject.alert.removemember.title=Confirm Member Removal
+ezbproject.alert.removemember.message=You are about to remove a member of your team. Are you sure you want to continue?
+ezbproject.member.remove.btn=Remove member
 
 ezoomlayeredit.ezb.ezbtitle=Title
 ezoomlayeredit.ezlayerdelete.header=EzoomLayer Elimination

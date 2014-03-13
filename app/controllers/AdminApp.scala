@@ -9,6 +9,9 @@ import play.api.data._
 import Forms._
 import jp.t2v.lab.play2.auth.AuthElement
 
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
+
 import java.util.UUID
 
 object AdminApp extends Controller with AuthElement with AuthConfigImpl with ContextProvider{

@@ -32,6 +32,7 @@ canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
         <div class="col-md-6 title_box">
             @hidden(part("contrib_index"), Symbol("data-field-key") -> "contrib_index")
             @hidden(part("contrib_type"))
+            @hidden(part("contrib_id"))
             @part("part_id").value.map{partId =>
                @hidden(part("part_id"))
                @inputText(part("part_title"), '_label->"", 'class-> "part_title" ,'placeholder -> "Write a Title Here")
@@ -143,7 +144,9 @@ canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
 @displayEzbInfo = {
 <dl>
     <dt>Title:</dt>
-    <dd>@ezb.ezoombook_title</dd>
+    <dd>@ezb.ezoombook_title <a
+            title = "Preview"
+            href='@routes.EzoomBooks.setReadingEzb(ezb.book_id.toString,ezb.ezoombook_id.toString,activeLayer.map(_.ezoomlayer_level.toString).getOrElse("1"))'><span class="glyphicon glyphicon-eye-open"></span></a></dd>
     @projOpt.map{project =>
         <dt>Project:</dt>
         <dd><a href="@routes.Collaboration.projectAdmin(project.projectId.toString)">@project.projectName</a></dd>

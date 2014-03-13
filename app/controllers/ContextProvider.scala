@@ -4,12 +4,13 @@ import users.dal._
 import books.dal.{Ezoombook, EzoomLayer}
 import models.Context
 
-import play.api.mvc.{Result, Request, Controller}
+import play.api.mvc.{SimpleResult, Request, Controller}
 import play.api.cache
 import cache.Cache
 import play.api.Play.current
 
 import java.util.UUID
+import scala.concurrent.Future
 
 /**
  * Created with IntelliJ IDEA.
@@ -52,12 +53,21 @@ trait ContextProvider {
     Context(user, prefs, request.acceptLanguages, ezb, layer)
   }
 
-  def withUser[A](block: (User) => Result)(implicit request: Request[A]): Result = {
+  def withUser[A](block: (User) => SimpleResult)(implicit request: Request[A]): SimpleResult = {
     context.user.map {
       user =>
         block(user)
     }.getOrElse {
       Unauthorized("Oops! you need to be connected to acccess this page.")
+    }
+  }
+
+  def withUserAsync[A](block: (User) => Future[SimpleResult])(implicit request: Request[A]): Future[SimpleResult] = {
+    context.user.map {
+      user =>
+        block(user)
+    }.getOrElse {
+      Future.successful(Unauthorized("Oops! you need to be connected to acccess this page."))
     }
   }
 

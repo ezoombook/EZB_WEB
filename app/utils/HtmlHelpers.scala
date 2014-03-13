@@ -27,4 +27,16 @@ object bootstrapHelper{
   implicit val formFields = FieldConstructor(ezbhelpers.bootstrap3template.f)
 }
 
+object formHelper{
+  def completeIndexes(field: play.api.data.Field, min:Int = 1):Seq[Int] = field.indexes match {
+    case Nil => 0 until min
+    case complete if complete.size >= min => field.indexes
+    case partial =>
+      // We don't have enough elements, append indexes starting from the largest
+      val start = field.indexes.max + 1
+      val needed = min - field.indexes.size
+      field.indexes ++ (start until (start + needed))
+  }
+}
+
 }

@@ -22,6 +22,9 @@ import java.util.Properties._
 
 import jp.t2v.lab.play2.auth.AuthElement
 
+import scala.concurrent.{ExecutionContext, Future}
+import ExecutionContext.Implicits.global
+
 /**
  * Created with IntelliJ IDEA.
  * User: mayleen
@@ -41,16 +44,18 @@ object Workspace extends Controller with AuthElement with AuthConfigImpl with Co
   /**
    * Displays the user home page
    */
-  def home = StackAction(AuthorityKey -> RegisteredUser) {
+  def home = AsyncStack(AuthorityKey -> RegisteredUser) {
     implicit request =>
-      withUser {
+      withUserAsync {
         user =>
-          Ok(views.html.workspace(
-            Collaboration.getProjectsByUser(user.id),
-            BookDO.getUserEzoombooks(user.id),
-            BookDO.getUserBooks(user.id),
-            UserDO.userOwnedGroups(user.id),
-            UserDO.userIsMemberGroups(user.id), groupForm))
+          Collaboration.getProjectsByUser(user.id).map{projects =>
+            Ok(views.html.workspace(
+              projects,
+              BookDO.getUserEzoombooks(user.id),
+              BookDO.getUserBooks(user.id),
+              UserDO.userOwnedGroups(user.id),
+              UserDO.userIsMemberGroups(user.id), groupForm))
+          }
       }
   }
 
@@ -75,9 +80,16 @@ object Workspace extends Controller with AuthElement with AuthConfigImpl with Co
         },
         locale => {
           println("[INFO] Language changed to " + locale)
-          Redirect(referer).withLang(play.api.i18n.Lang(locale)).withSession(
+          //Had to to this because the withLang method in SimpleRequest returns a PlainResult
+          Redirect(referer).withCookies(Cookie(Play.langCookieName, play.api.i18n.Lang(locale).code)).withSession(
             session + ("language" -> locale)
           )
+
+            //.withLang(play.api.i18n.Lang(locale)).withSession(
+            //session + ("language" -> locale)
+          //)
+          //withCookies(Cookie(Play.langCookieName, lang.code))
+          //withHeaders(SET_COOKIE -> Cookies.merge(header.headers.get(SET_COOKIE).getOrElse(""), cookies))
         }
       )
   }
