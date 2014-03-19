@@ -251,7 +251,7 @@ Logger.debug("EZL Changes:" + changes)
     EzoomLayer.contribsL.set(ezl, updateContribList(ezl.ezoomlayer_contribs, List[Contrib]()))
   }
 
-  private def canEditEzb(ezbId: String, projOpt:Option[EzbProject])(user: User): Boolean = {
+  def canEditEzb(ezbId: String, projOpt:Option[EzbProject])(user: User): Boolean = {
     BookDO.getEzoomBook(UUID.fromString(ezbId)).exists {
       ezb =>
         ezb.ezoombook_owner == user.id.toString ||
@@ -261,13 +261,21 @@ Logger.debug("EZL Changes:" + changes)
     }
   }
 
+  def canEditEzb(ezb:Ezoombook)(user:User):Boolean = {
+
+    ezb.ezoombook_owner == user.id.toString ||
+    ezb.ezb_project_id.exists(
+      projId => canEditProjectEzb(projId)(user)
+    )
+  }
+
   /**
    * Displays the ezoomlayer edit form without specifying a ezoomlayer,
    * creating by default a new empty ezoomlayer.
    */
   //TODO Verify this works well without project
-  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId, BookDO.getEzbProject(ezbId)) _) {
-  //def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
+  //def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> canEditEzb(ezbId, BookDO.getEzbProject(ezbId)) _) {
+  def ezoomBookEdit(ezbId: String) = StackAction(AuthorityKey -> RegisteredUser) {
     implicit request =>
       withUser {
         user =>
@@ -366,27 +374,28 @@ Logger.debug("EZL Changes:" + changes)
   private def canEditProjectLayer(ezb: Ezoombook, projOpt: Option[EzbProject], layerId: String)(user: User): Boolean = {
     ezb.ezoombook_owner == user.id.toString ||
     projOpt.exists(proj =>
-      proj.projectTeam.exists(m => m.userId == user.id && m.hasAllParts)
-    ) ||
-    projOpt.exists(proj =>
+      proj.projectTeam.exists(m => m.userId == user.id && m.hasAllParts) ||
       proj.projectOwnerId.toString == user.id.toString ||
-        proj.isMultiLevel &&
+        (proj.isMultiLevel &&
           proj.projectTeam.exists(m => m.userId == user.id &&
             ezb.ezoombook_layers.get(m.assignedLayer).exists(_ == layerId)))
+    )
   }
 
-  private def canEditProjectEzb(projId: String)(user: User): Boolean = {
+  def canEditProjectEzb(projId: String)(user: User): Boolean = {
     projId.toUUID.fold(
       err => {
         Logger.error(err); false
       },
       pid =>
-        BookDO.getProject(pid).value.exists{
-          case Success(projOpt) => projOpt.exists{ proj =>
+        Try(
+        Await.result(BookDO.getProject(pid), Duration(5, SECONDS)).exists{
+          proj =>
             (proj.projectOwnerId == user.id) ||
-             proj.projectTeam.exists(_.userId == user.id)
-          }
-          case _ => false
+              groupCoordinators(proj.groupId).exists(_ == user.id)
+        }) match{
+          case Success(r) => r
+          case Failure(err) => Logger.error(err.toString); false
         }
     )
   }
@@ -399,13 +408,13 @@ Logger.debug("EZL Changes:" + changes)
       .map(_.assignedParts).getOrElse(List[String]())
 
     ezb.ezoombook_owner == user.id.toString ||
-    ezlOpt.flatMap(ezl => findContrib(ezl, partId, contribId)).exists{contrib =>
-      contrib.user_id == user.id ||
-      projOpt.exists( proj =>
-        proj.projectOwnerId.toString == user.id.toString ||
-          coordinators.exists(_ == user.id) ||
-            assignedParts.exists(_ == partId))
-    }
+    projOpt.exists( proj =>
+      proj.projectOwnerId.toString == user.id.toString ||
+        coordinators.exists(_ == user.id) ||
+        assignedParts.exists(_ == partId)) ||
+    ezlOpt.flatMap(ezl => findContrib(ezl, partId, contribId)).exists(contrib =>
+      contrib.user_id == user.id
+    )
   }
 
   def groupCoordinators(groupId:UUID):List[UUID] = {
@@ -462,6 +471,36 @@ Logger.debug("EZL Changes:" + changes)
           }
         }
       )
+  }
+
+  /**
+   * Controller for the owner of the project
+   */
+  def projectEzbEdit(projId: String, layerId: String) = AsyncStack(AuthorityKey -> RegisteredUser) {
+  implicit request =>
+    projId.toUUID.fold(
+      err => Future.successful(BadRequest("Invalid projectId...")),
+      pid => BookDO.getProject(pid).map { projOpt =>
+        projOpt.map{ proj =>
+          withEzoomBook(proj.ezoombookId.map(_.toString).getOrElse("")){ezb =>
+            val layerOpt = layerId.toUUID.fold(err => None, id => BookDO.getEzoomLayer(id))
+
+            Ok(views.html.ezoomlayeredit(ezb,
+              layerOpt,
+              layerOpt.map(ezoomlayerForm.fill(_)).getOrElse(ezoomlayerForm),
+              BookDO.getBook(ezb.book_id.toString),
+              Some(proj),
+              user => true,
+              (u,s1,s2) => true
+            )).withSession(
+                session + (WORKING_LAYER -> layerId)
+              )
+          }
+        }.getOrElse(
+            NotFound("Oops! We couldn't find the project you are looking for :(")
+          )
+      }
+    )
   }
 
   private def createParts(member:TeamMember, layer:EzoomLayer, book:Book):Option[EzoomLayer] = {
@@ -531,15 +570,23 @@ Logger.debug("EZL Changes:" + changes)
                 ezoomlayerForm.withGlobalError(Messages("ezoomlayeredit.loadfile.err.nofile"))
               }
               val projOpt = projId.toUUID.fold(
-                err => None ,
-                pid => BookDO.getProject(pid).value.flatMap(_.toOption).flatten
+                err => {
+                  Logger.error("Invalid uuid-"+err)
+                  None
+                },
+                pid => Try(
+                    Await.result(BookDO.getProject(pid), Duration(5, SECONDS))
+                  ) match{
+                    case Success(proj) => proj
+                    case Failure(err) => Logger.error(err.toString); None
+                  }
               )
               Ok(views.html.ezoomlayeredit(ezb,
                 None,
                 ezlform,
                 BookDO.getBook(ezb.book_id.toString),
                 projOpt,
-                canEditEzb(ezbId,BookDO.getEzbProject(ezbId)) _,
+                canEditProjectLayer(ezb, projOpt, "") _,
                 canEditProjContrib(ezb, None, projOpt) _))
           }
       }
@@ -580,16 +627,15 @@ Logger.debug("EZL Changes:" + changes)
       (__ \ 'ezoomlayer_contribs).json.update(
          __.read[JsArray](jsArrayReads(
               __.json.update(__.read[JsObject].map{o => o ++ Json.obj("contrib_index" -> ci)}) andThen
-              (__ \'part_contribs).json.update(
-                __.read[JsArray](jsArrayReads(
-                  (__ \ 'contrib_index).json.put(JsString(pci)) and
-                  (__ \ 'contrib).json.copyFrom[JsObject]( __.json.pick[JsObject] ) reduce
-                ))
+               (__ \'part_contribs).json.update(
+                  __.read[JsArray](jsArrayReads(
+                    (__ \ 'contrib_index).json.put(JsString(pci)) and
+                    (__ \ 'contrib).json.copyFrom[JsObject]( __.json.pick[JsObject] ) reduce
+                  ))
               )
          ))
       )
     )
-
     jsonIn.transform(addIndexes(contribIndex, partContribIndex))
   }
 

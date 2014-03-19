@@ -11,6 +11,7 @@ import play.api.Play.current
 
 import java.util.UUID
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,9 +47,9 @@ trait ContextProvider {
         )
       ))
 
-    val ezb = request.session.get(WORKING_EZB).map(UUID.fromString(_))
+    val ezb = request.session.get(WORKING_EZB).flatMap(_.toUUID.fold(err=>None, id => Some(id)))
 
-    val layer = request.session.get(WORKING_LAYER).map(UUID.fromString(_))
+    val layer = request.session.get(WORKING_LAYER).flatMap(_.toUUID.fold(err=>None, id => Some(id)))
 
     Context(user, prefs, request.acceptLanguages, ezb, layer)
   }
@@ -68,6 +69,18 @@ trait ContextProvider {
         block(user)
     }.getOrElse {
       Future.successful(Unauthorized("Oops! you need to be connected to acccess this page."))
+    }
+  }
+
+  //TODO put this in utils
+  implicit def str2uuidable(str: String): UUIDableString = new UUIDableString(str)
+
+  class UUIDableString(str: String) {
+    def toUUID: Either[String, UUID] = {
+      Try(UUID.fromString(str)) match {
+        case Success(uid) => Right(uid)
+        case Failure(err) => Left("Invalid UUID " + str)
+      }
     }
   }
 
