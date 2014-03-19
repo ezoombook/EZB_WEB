@@ -45,7 +45,7 @@ ezbList:List[Ezoombook] = List[Ezoombook]())(implicit context:Context)
             }
         }.getOrElse{
             @if(canAdmin(user)){
-                <a href="@routes.EzoomBooks.projectEzlayerEdit(project.projectId.toString)">@ezb.ezoombook_title</a>
+                <a href='@routes.EzoomBooks.projectEzbEdit(project.projectId.toString, ezb.ezoombook_layers.get("1").getOrElse("0"))'>@ezb.ezoombook_title</a>
             }
         }
     }

@@ -160,13 +160,14 @@ canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
     </dd>
     <dt>Status:</dt>
     <dd>@ezb.ezoombook_status</dd>
+    @if(context.user.exists(EzoomBooks.canEditEzb(ezb)(_))){
     <dt>Layers</dt>
     <ul>
         @ezb.ezoombook_layers.map{layer =>
             @levelMap{lmap =>
                 <li>
                 @projOpt.map{proj =>
-                    <a href="@routes.EzoomBooks.projectEzlayerEdit(proj.projectId.toString)">
+                    <a href="@routes.EzoomBooks.projectEzbEdit(proj.projectId.toString,layer._2)">
                         @lmap.getOrElse(layer._1, "undef")</a>
                 }.getOrElse{
                     <a href="@routes.EzoomBooks.ezoomLayerEdit(ezb.ezoombook_id.toString,layer._2)">
@@ -176,9 +177,12 @@ canEditContrib:(User,String,String) => Boolean)(implicit context:Context)
             }
         }
     </ul>
-    @if(context.user.exists(canEditLayer(_))){
         <dt>
-            <a href="@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)">Add a layer...</a>
+            @projOpt.map{proj =>
+                <a href='@routes.EzoomBooks.projectEzbEdit(proj.projectId.toString,"0")'>Add a layer...</a>
+            }.getOrElse{
+                <a href='@routes.EzoomBooks.ezoomBookEdit(ezb.ezoombook_id.toString)'>Add a layer...</a>
+            }
         </dt>
         <dd></dd>
     }
@@ -226,7 +230,7 @@ formAction = activeLayer.map(ezl => routes.EzoomBooks.ezoomLayerDelete(ezl.ezoom
             <h3 id="ezoombook_title">eZoomBook Info</h3>
             @displayEzbInfo
 
-            @if(context.user.exists(canEditLayer(_))){
+            @if(context.user.exists(EzoomBooks.canEditEzb(ezb)(_))){
                 <p>Load a layer from a file: </p>
                 @helper.form(routes.EzoomBooks.loadEzoomLayer(ezb.ezoombook_id.toString, projOpt.map(_.projectId.toString).getOrElse("0")),
                     'enctype -> "multipart/form-data"){

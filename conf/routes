@@ -45,6 +45,7 @@ POST    /projectmember/update/:pid           controllers.Collaboration.editProje
 POST	/project/delete/:id                  controllers.Collaboration.deleteProject(id)
 POST    /collab/comment                      controllers.Collaboration.saveComment
 GET     /collab/contrib/:lid/:cid            controllers.EzoomBooks.getContribution(lid,cid)
+GET     /collab/ezb/:pid/:lid                controllers.EzoomBooks.projectEzbEdit(pid,lid)
 GET     /collab/ezbedit/:pid                 controllers.EzoomBooks.projectEzlayerEdit(pid)
 GET     /collab/readlayer/:projid/:bid/:pid      controllers.EzoomBooks.readProjLayer(projid,bid,pid)
 POST    /collab/savelayer/:projid/:ezbid         controllers.EzoomBooks.saveProjEzoomLayer(projid,ezbid)
