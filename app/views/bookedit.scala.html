@@ -99,62 +99,8 @@ a.addlink{
 ){
     <p> @Messages("bookedit.upload.message")</p>
     <div>
-        <label for="fileInput"> Please choose a file (.epub): 
-								</label>
+        <label for="fileInput"> Please choose a file: </label>
         <input type="file" name="book" id="fileInput">
-		<script type="text/javascript">
-// Méthode pour changer la visiblité d'une balise dont l'ID est passée en paramètre
-function toggleVisibility(tagId) {
-if (!document.getElementById) {
-msg = 'Votre navigateur est trop ancien pour profiter de votre visite\n';
-msg += 'Veuillez le mettre à jour ou vous en procurer un autre';
-return false;
-}
-var tagToToggle;
-try { // On tente de récupérer la balise cible dont on doit changer la visibilité
-tagToToggle = document.getElementById(tagId);
-} catch (e) { // Si échec de la récupération de la balise cible
-alert('Je n\'ai pas pu trouver la balise cible');
-}
-try { // Seulement pour les non IE
-if (tagToToggle.style.display == 'none') {
-tagToToggle.style.display = 'inline';
-} else {
-tagToToggle.style.display = 'none';
-}
-} catch (e) {
-}
-// Pour IE
-if (tagToToggle.style.visibility == 'hidden') {
-tagToToggle.style.visibility = 'visible';
-} else {
-tagToToggle.style.visibility = 'hidden';
-}
-}
-</script>
-</head>
-<body>
-<div>
-<a href="javascript:toggleVisibility('texte1')">
-<h3><b> If your file is not an epub, click here</a>  </b></h3>
-</a>
-</div>
-<div id="texte1" style="visibility: hidden; display: none;">
-<h2><center>Use a non epub file</center></h2>
-<hr color="blue"></hr>
-Follow the instructions to upload your file on eZoomBook.<br>
-<b><u>Format allowed :</b></u> doc, docx, odt, pdf, epub, fb2, html, lit, lrf, mobi, pdb, prc, rtf, txt.<br><br>
- <a href="http://www.2epub.com" target="_blank">First step : go to www.2epub.com.</a>.<br>
- <p>
-        <img border="0" src='http://localhost:9000/assets/images/tuto01.jpg' width="100%" alt="eZoomBook">
-		<img border="0" src='http://localhost:9000/assets/images/tuto02.jpg' width="100%" alt="eZoomBook">
-        <img border="0" src='http://localhost:9000/assets/images/tuto03.jpg' width="100%" alt="eZoomBook">
-
-    </p>
-	<label for="fileInput"> Select the file you just downloaded (.epub): 
-								</label>
-        <input type="file" name="book" id="fileInput">
-</div>
     </div>
 }
 
