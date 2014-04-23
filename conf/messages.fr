@@ -1,5 +1,176 @@
 ezoombook.presentation=Il s'agit d'une plate-forme innovante où vous serez en mesure de participer dans une expérience de lecture révolutionnaire.Plus qu'un simple outil de lecture, eZoomBook va améliorer la façon d'obtenir, analyser, utiliser et partager l'information.
 
-topmenu.tooltip.workspace=Votre space de travaille
+topmenu.tooltip.workspace=Votre espace de travaille
 topmenu.tooltip.conf=Configurez votre compte
 topmenu.tooltip.logout=Se deconnecter
+topmenu.books=Livres
+topmenu.help=Aide
+topmenu.help.tutorial=Tutoriel
+topmenu.help.faq=FAQ
+topmenu.help.contact=Nous contacter
+
+application.close.button=Fermer
+application.cancel.button=Annuler
+application.delete.button=Supprimer
+application.savechanges.button=Enregistrer les changements
+application.ezlayer.level.1=très détaillé
+application.ezlayer.level.2=Moyennement détaillé
+application.ezlayer.level.3=peu détaillé
+application.ezlayer.level.4=résumé
+application.contrib.Quote=Citation
+application.login.failed=Nous n'avons pas pu valider votre requête. Merci de vérifier votre nom d'utilisateur et votre mot de passe, puis réessayez.
+application.errorpage.title=Erreur
+application.errorpage.unauthorized=Oups! Vous n'êtes pas autorisé à accéder à cette page.
+application.yes=Oui
+application.no=Non
+
+index.learnmore.btn=En savoir plus
+index.createaccount.btn=Créer un compte
+index.forum.btn=Forum
+index.topbooks.h2=Meilleurs livres:
+index.topbooks.title.th=Titre
+index.findbook.h2=chercher un livre
+index.findbook.placeholder=Entrer votre mot clé
+index.findbook.search.button=Rechercher
+index.findbook.advancedsearch.button=Recherche avancée
+
+login.contract.header=Contract Licence
+login.error.hd=Oups!
+
+listbooks.addbook.link=Ajouter un livre
+listbooks.edit.button=Éditer
+
+book.author.dt=Auteur
+book.publisher.dt=Publieur
+book.publisheddate.dt=Date de publication
+book.summary.h2=Résumé:
+book.ezoombooks.h2=eZoomBooks disponibles
+book.createezb.button=Créer un eZoomBook
+book.ezoombooks.title.th=Titre
+book.ezoombooks.author.th=Auteur de l'eZoomBook
+book.ezoombooks.levels.th=Niveaux disponibles
+book.ezoombooks.popularity.th= Popularité
+book.ezoombooks.edit.button=Editer
+book.ezoombooks.favorite.button=Ajouter aux favoris
+book.ezoombooks.readlist.button=Ajouter aux livres à lire
+
+workspace.title=Bienvenu dans votre espace personnel
+workspace.tab.contribution.title=Contribution
+workspace.tab.community.title=Communauté
+workspace.tab.books.title=Livres
+
+workspace.projects.h2=Votre projet
+workspace.projects.project.th=Projet
+workspace.projects.creationdate.th=Date de création
+workspace.ezoombooks.h2=Vos eZoomBooks
+workspace.ezoombooks.name.th=Nom
+workspace.ezoombooks.edit.button=Editer
+workspace.ezoombooks.delete.button=Supprimer
+
+workspace.friends.h2=Vos amis
+workspace.friends.add.link=Ajouter un ami
+workspace.friends.name.th=Nom
+workspace.friends.group.th=Groupes
+workspace.friends.favbook.th=Livres favoris
+workspace.groups.h2=Vos groupes
+workspace.groups.add.link=Ajouter un groupe
+workspace.groups.title.th=Titre
+workspace.groups.youwon.th=You own**
+
+workspace.books.h2=Vos livres
+workspace.books.name.th=Nom
+workspace.books.edit.button=Editer
+workspace.books.readinglist.h2=Vos livres à lire
+workspace.books.readinglist.title.th=Titre
+workspace.books.favorites.h2=Vos livres favoris
+workspace.books.favorites.title.th=Titre
+workspace.deleteproject.h3=Confirmer la suppression du projet 
+workspace.deleteproject.alert=Êtes-vous sûr de vouloir supprimer ce projet ?
+workspace.deleteEZB.h3=Supprimer l'eZoomBook
+workspace.deleteEZB.alert=Êtes-vous sûr de vouloir supprimer cet eZoomBook ?
+workspace.creategroup.modal.h3=Formulaire de création d'un groupe
+workspace.creategroup.modal.button=Créer un groupe
+workspace.creategroup.modal.groupname=Nom du groupe
+
+parameters.deleteaccount.header=Suppression du compte
+parameters.deleteaccount.confirm=Êtes-vous sûr de vouloir supprimer votre compte ?
+
+read.readoptions.showall.button=Montrer tout
+read.readoptions.showquotes.button=Montrer seulemenet les citations
+read.readoptions.showsummaries.button=Montrer seulement le résumé
+read.leveltabs.original=Original
+read.leveltabs.highlydetailed=Très détaillé
+read.leveltabs.fairlydetailed=Moyennement détaillé
+read.leveltabs.fairlyabridge=Peu détaillé
+read.leveltabs.highlyabridge=Résumé
+read.toc.dropdown=Contenus
+read.toc.subsection=Sous-section
+read.contribution.comment.button.title=Poster un commentaire
+read.comment.modal.h3=Commenter cette contribution
+read.comment.modal.save.btn=Poster le commentaire
+
+group.administrate.button=Administration
+group.addmember.button=Ajouter un participant
+group.addmember.h3=Ajouter un participant
+group.addmember.membermail=e-mail du participant
+group.addmember.role=rôle du participant
+group.memberform.error=Une erreur est survenue:
+group.memberfrom.error.usernotfound=Aucun compte n'est enregistré avec cet email.
+group.newproject.button=Créer un projet
+group.newproject.h3=Nouveau projet
+group.newproject.projectname=Nom de votre projet
+group.newproject.ezoombook=Choisir un eZoomBook existant
+group.newproject.newezbcheck=Créer un nouvel eZoomBook
+group.newproject.ismultilevel=S'agit-il d'un projet à plusieurs niveaux de lecture ?
+group.newproject.chooselevel=Choisir le niveau de lecture du eZoomBook
+group.projects.h2=Projets
+group.projects.title.th=Titre
+
+ezbbooklist.header=Créer un nouvel eZoomBook
+ezbbooklist.choosebook.h2=Veuillez choisir un livre
+ezbbooklist.newezb.h3=Nouvel eZoomBook
+
+ezbproject.missing.ezb.message=Veuillez choisir un eZoomBook pour ce projet.
+ezbproject.addezb.link=Ajouter un eZoomBook existant
+ezbproject.newezb.link=Créer un nouvel eZoomBook
+ezbproject.addmember.button=Ajouter un participant
+ezbproject.addmember.modal.h3=Ajouter un participant
+ezbproject.addmember.modal.submit=Ajouter un membre à l'équipe
+ezbproject.addmember.form.selectmember=Choisissez un nouveau membre
+ezbproject.addmember.form.assignedlayer=Assigner un niveau
+ezbproject.addmember.form.assignedpart=Assigner un extrait traité
+ezbproject.created.dt=Élément créé
+ezbproject.workingon.dt=Travaux en cours...
+ezbproject.member.workingon.chapter.th=Chapitre du livre
+ezbproject.member.workingon.level.th=Niveau
+ezbproject.member.change.btn=Changer l'assignation
+ezbproject.group.dt=Groupe
+ezbproject.team.h3=L'équipe
+ezbproject.member.name.th=Nom
+ezbproject.member.workingon.th=Travaux en cours...
+ezbproject.member.workinglevel=Niveau d'écriture
+ezbproject.messages.board.h3=Activité récente
+ezbproject.ezbmodal.chooseezb=Choisir un eZoomBook existant
+ezbproject.ezbmodal.setezb.button=Choisir cet eZoomBook
+ezbproject.assigment.modal.h3=Changer l'assignation
+ezbproject.assigment.modal.submit=Valider les changements
+ezbproject.comment.on=commenté sur
+ezbproject.contribdetail.h3=Détails de la contribution
+ezbproject.contrbidetail.contribtype.h4=Type de contribution
+ezbproject.missing.layer.message=Ce niveau n'a pas encore été créé
+ezbproject.alert.deleteproject.title=Confirmer la suppresion
+ezbproject.alert.deleteproject.message=Êtes-vous sur de vouloir supprimer ce projet ?
+ezbproject.deleteproject.button=Supprimer le projet
+ezbproject.alert.removemember.title=Confirmer la suppression de ce participant:
+ezbproject.alert.removemember.message=Êtes-vous sûr de vouloir supprimer ce participant ?
+ezbproject.member.remove.btn=Supprimer le participant
+
+ezoomlayeredit.ezb.ezbtitle=Titre
+ezoomlayeredit.ezlayerdelete.header=Suppression d'un niveau de lecture
+ezoomlayeredit.ezlayerdelete.alertmessage=Êtes-vous sûr de vouloir supprimer ce niveau de lecture et toutes vos contributions ?
+ezoomlayeredit.ezlayerdelete.nolayerfound=Vous devez d'abord sélectionner un niveau de lecture.
+ezoomlayeredit.loadfile.err.invalidformat=Une erreur est survenue lors du chargement. Le fichier semble ne pas être encodé en UTF8.
+ezoomlayeredit.loadfile.err.nofile=Ce fichier n'a pas le bon format.
+
+bookedit.upload.header=Charger ePub
+bookedit.upload.message=Pour créer un nouveau livre, vous devez charger le fichier ePub.
