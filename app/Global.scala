@@ -59,8 +59,14 @@ object Global extends DalSettings with DBeable with SSDBeable{
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {
+    ex.printStackTrace()
     Future.successful(InternalServerError(
-      views.html.error("We are experiencing technical problems. Please try again later.")
+      views.html.error(
+        if (Play.isProd(Play.current))
+          "We are experiencing technical problems. Please try again later."
+        else
+          ex.getMessage
+        )
     ))
   }
 }
