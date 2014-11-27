@@ -91,13 +91,18 @@
             <span class="glyphicon glyphicon-chevron-left"></span></a>
         }
     </div>
-    @defining(book.bookParts(partIndex).partId.split('#')){array =>
-        @defining(if(array.length > 1){ array(1) } else { "" } ){ partId =>
-            <div class="col-md-10" id="reader" data-partid="@partId" style="overflow:auto;">
-                @partContent
-            </div>
+    @if(partIndex >= 0) {
+        @defining(book.bookParts(partIndex).partId.split('#')){array =>
+            @defining(if(array.length > 1){ array(1) } else { "" } ){ partId =>
+                <div class="col-md-10" id="reader" data-partid="@partId" style="overflow:auto;">
+                    @partContent
+                </div>
+            }
         }
+    } else {
+        <div class="well col-md-10">Error. PartIndex=@partIndex</div>
     }
+
     <div class="col-md-1">
         @if(partIndex < book.bookParts.size-1){
         <a href='@routes.EzoomBooks.readLayer(book.bookId.toString,book.bookParts(partIndex+1).partId)'>
