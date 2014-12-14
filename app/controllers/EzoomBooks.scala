@@ -676,7 +676,7 @@ Logger.debug("EZL Changes:" + changes)
       if (cover.size > 0) {
         Ok(cover).as(play.api.libs.MimeTypes.forExtension("png").getOrElse(play.api.http.MimeTypes.BINARY))
       } else {
-        Redirect(routes.Assets.at("/images/bookcover.png"))
+        Redirect(routes.Assets.at("images/bookcover.png"))
       }
   }
 
