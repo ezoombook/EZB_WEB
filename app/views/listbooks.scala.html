@@ -8,31 +8,42 @@
 
 @main("read a book",styles=styles){
 <div class="row">
-    <h1>Books</h1>
-    <a href="@routes.EzoomBooks.newBook" class="bulle">@Messages("listbooks.addbook.link")</a>
+    <h1 class="col-md-8">Books</h1>
+    <a href="@routes.EzoomBooks.newBook"
+        id="addbook-top"
+        class="col-md-4 btn btn-primary btn-lg">@Messages("listbooks.addbook.link")</a>
 </div>
 
-<div class="row book-thumbs-container">
-    <div class="columns">
-        @bookList.map{book=>
-        <div class="book-thumbnail">
-            <a href="@routes.EzoomBooks.readBook(book.bookId.toString)">
-                <img class='img-polaroid'
-                     src='@routes.EzoomBooks.bookCover(book.bookId.toString)'
-                     alt="@book.bookTitle">
-            </a>
-            <a href="@routes.EzoomBooks.readBook(book.bookId.toString)"><h3>@book.bookTitle</h3></a>
+<main class="row book-thumbs-container">
+    @bookList.map{book=>
+    <div class="book-thumbnail col-md-4">
+        <h3><a href="@routes.EzoomBooks.readBook(book.bookId.toString)">@book.bookTitle</a></h3>
+        <div class="row">
+            <div class="hidden-xs col-sm-2 col-md-4 book-image">
+                <a href="@routes.EzoomBooks.readBook(book.bookId.toString)">
+                    <img width="90"
+                         class='img-polaroid'
+                         src='@routes.EzoomBooks.bookCover(book.bookId.toString)'
+                         alt="@book.bookTitle">
+                </a>
+            </div>
+            <div class="col-sm-10 col-md-8 book-infos">
+                <h4>@book.bookAuthors.mkString(", ")</h4>
 
-            <p><h4>@book.bookAuthors.mkString(",")</h4></p>
-            <p>@book.bookPublishedDates.mkString(",")</p>
+                <p>@book.bookPublishedDates.mkString(",")</p>
 
-            <p>@book.bookTags.mkString(",")</p>
-
-            <p><a href="@routes.EzoomBooks.reedit(book.bookId.toString)"
-                  class="btn">@Messages("listbooks.edit.button")</a></p>
+                <p>@book.bookTags.mkString(",")</p>
+            </div>
         </div>
-        <!-- /book-thumbnail -->
-        }
+        <p class="btn-group row bookbuttons">
+            <a href="@routes.EzoomBooks.readBook(book.bookId.toString)"
+              class="btn btn-default">@Messages("listbooks.listezoombooks.button")</a>
+            <a href="@routes.EzoomBooks.reedit(book.bookId.toString)"
+              class="btn btn-default">@Messages("listbooks.metadata.button")</a>
+        </p>
     </div>
-</div>
+    <!-- /book-thumbnail -->
+    }
+
+</main>
 }
