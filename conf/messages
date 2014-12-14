@@ -38,7 +38,8 @@ login.contract.header=Contract Licence
 login.error.hd=Oh snap!
 
 listbooks.addbook.link=Add a book
-listbooks.edit.button=Edit
+listbooks.listezoombooks.button=View eZoomBooks
+listbooks.metadata.button=Metadata
 
 book.author.dt=Author
 book.publisher.dt=Publisher
