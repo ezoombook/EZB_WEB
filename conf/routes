@@ -1,0 +1,119 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                   controllers.Application.index
+
+GET     /workspace		    controllers.Workspace.home
+
+POST	/users			    controllers.Application.newUser
+
+POST	/login			    controllers.Application.validate
+GET     /login			    controllers.Application.login
+
+#logout
+GET	/logout				    controllers.Application.logout
+
+#Password Reset
+GET     /changepassword     controllers.Support.changePassword
+POST    /changepassword     controllers.Support.sendPasswordResetLink
+GET     /passwdreset/:t     controllers.Support.passwordReset(t:String)
+POST    /changepass         controllers.Support.changepass
+POST    /changepasswo       controllers.Support.changepasswo
+
+#Parameter
+GET		/parameter			controllers.Workspace.parameter
+
+# Change language
+POST    /changelang         controllers.Workspace.changeLang
+GET     /lang/:lcode        controllers.Application.setLang(lcode:String)
+
+# Community
+POST	/groups		            controllers.Community.newGroup
+GET     /group/:id              controllers.Community.group(id:String)
+GET     /groupadmin/:id		    controllers.Community.groupadmin(id:String)
+POST	/groupmember/:id        controllers.Community.newGroupMember(id:String)
+
+# Projects
+POST    /project/save/:gid                   controllers.Collaboration.saveProject(gid)
+POST    /project/saveezb/:pid                controllers.Collaboration.saveProjectEzb(pid)
+POST    /project/setezb/:pid                 controllers.Collaboration.setProjectEzb(pid)
+GET     /project/:id                         controllers.Collaboration.projectAdmin(id:String)
+POST    /projectmember/:id                   controllers.Collaboration.newProjectMember(id:String)
+POST    /projectmember/update/:pid           controllers.Collaboration.editProjectMember(pid)
+POST	/project/delete/:id                  controllers.Collaboration.deleteProject(id)
+POST    /collab/comment                      controllers.Collaboration.saveComment
+GET     /collab/contrib/:lid/:cid            controllers.EzoomBooks.getContribution(lid,cid)
+GET     /collab/ezb/:pid/:lid                controllers.EzoomBooks.projectEzbEdit(pid,lid)
+GET     /collab/ezbedit/:pid                 controllers.EzoomBooks.projectEzlayerEdit(pid)
+GET     /collab/readlayer/:projid/:bid/:pid      controllers.EzoomBooks.readProjLayer(projid,bid,pid)
+POST    /collab/savelayer/:projid/:ezbid         controllers.EzoomBooks.saveProjEzoomLayer(projid,ezbid)
+POST    /collab/remove/:projid/:mid             controllers.Collaboration.removeProjMember(projid,mid)
+
+# Books
+GET	    /listbooks			controllers.EzoomBooks.listbooks
+GET     /ezbbooklist/:ow/:pid      controllers.Collaboration.ezbProjectBookList(ow,pid)
+POST	/books			    controllers.EzoomBooks.saveBook
+POST	/books/load		    controllers.EzoomBooks.loadBook
+GET     /books/new          controllers.EzoomBooks.newBook
+
+GET     /bookreedit/:id	    controllers.EzoomBooks.reedit(id:String)
+POST    /bookreedit/save    controllers.EzoomBooks.saveEditedBook
+
+GET     /cover/:id	        controllers.EzoomBooks.bookCover(id:String)
+GET     /cachedcover    	controllers.EzoomBooks.cachedBookCover
+
+# Book reading with levels
+GET     /book/read/:ezbid         controllers.EzoomBooks.readBook(ezbid:String)
+
+GET     /bookread/:bid/:index     controllers.EzoomBooks.readLayer(bid:String,index:String)
+
+# Book resources
+#GET     /bookread/:bid/*file    controllers.EzoomBooks.bookResource(bid:String,file)
+
+# Tutorial
+GET	    /tutorial         controllers.Support.tutorial
+
+# FAQ
+GET	    /faq              controllers.Support.faq
+
+# Contact
+GET     /contact          controllers.Support.contact
+POST    /contactadmin     controllers.Support.contactadmin
+
+#EZOOMBOOK
+GET     /ezb/edit/:id                     controllers.EzoomBooks.ezoomBookEdit(id:String)
+POST    /ezb/save/:bookid                 controllers.EzoomBooks.saveEzoomBook(bookid:String)
+POST    /ezb/delete/:ezbid                controllers.EzoomBooks.ezoomBookDelete(ezbid)
+
+POST    /ezlayer/load/:bid/:pid           controllers.EzoomBooks.loadEzoomLayer(bid:String, pid:String)
+POST    /ezlayer/save/:bid                controllers.EzoomBooks.saveEzoomlayer(bid:String)
+GET     /ezlayer/edit/:bid/:lid           controllers.EzoomBooks.ezoomLayerEdit(bid,lid)
+POST    /ezlayer/delete/:bid/:level       controllers.EzoomBooks.ezoomLayerDelete(bid,level:Int)
+POST    /ezlayer/create/:bid/:lev/:g/:pid      controllers.EzoomBooks.createEzoomLayer(bid,lev,g,pid)
+#GET     /workingezlayer                  controllers.EzoomBooks.workingEzoomLayer
+
+GET     /read/:bid/:ezbid/:pid/:layer     controllers.EzoomBooks.setReadingEzbPart(bid,ezbid,pid,layer)
+GET     /read/:bid/:ezbid/:layer          controllers.EzoomBooks.setReadingEzb(bid,ezbid,layer)
+GET     /ezbread/:bid/:pid                controllers.EzoomBooks.readEzb(bid,pid)
+GET     /ezbreadpart/:bid/:pid            controllers.EzoomBooks.goToPart(bid,pid)
+GET     /ezbreadzoom/:bid/:lid/:pid/:qid       controllers.EzoomBooks.zoomIn(bid,lid,pid,qid)
+# Book resources
+GET     /bookres/:bid/*file               controllers.EzoomBooks.bookResource(bid:String,file)
+
+POST    /quote                            controllers.EzoomBooks.addQuote
+
+# Assets
+GET     /assets/*file       controllers.Assets.at(path="/public", file)
+
+#Advanced search
+GET	    /asearch            controllers.Support.asearch
+
+# To create some data
+POST	/adminusers		    controllers.AdminApp.createUsers
+POST	/admingroups		controllers.AdminApp.createGroups
+POST	/adminbooks		    controllers.AdminApp.createBooks
+
+#forum http://ezoombook.forumactif.org  login:admin pwd:azerty1&
+GET     /forum                         controllers.Support.forum
